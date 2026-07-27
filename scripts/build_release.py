@@ -11,16 +11,16 @@ import zipfile
 
 PACKS = {
     "zh_TW.uqm": (
-        20_986_438,
-        "faa76bdd7f386c02e3c2ef989d8ca5ff5f434054d944173ac02fdc42b7319d31",
+        20_992_002,
+        "86235cf2631490761e9b8dd7e7c55ac4bd9177c1952a585e2863d898d403e98d",
     ),
     "hires2x-zh_TW.uqm": (
-        39_634_130,
-        "ca3a5954aed77ed476a7529dfd7dd28c88d57671f23a615773db4ea061ac93a7",
+        39_587_398,
+        "81a0467b6b65ed2e17e673dbf7b4e0cc55bfdb7c241aca638c0add4daa8f25f9",
     ),
     "hires4x-zh_TW.uqm": (
-        59_255_847,
-        "bf5103dc3341ee8e7fd5c8a515a95309ebb78463ed0979b064107bd89bdc896c",
+        57_691_453,
+        "efe77272bc45451330973051d33df06d758b57e577b972fbcc03e05e15a6ddac",
     ),
 }
 
@@ -214,7 +214,7 @@ def main() -> int:
     )
     parser.add_argument("--packs-dir", type=Path, required=True)
     parser.add_argument("--output", type=Path, required=True)
-    parser.add_argument("--version", default="0.1.0")
+    parser.add_argument("--version", default="0.1.1")
     parser.add_argument("--force", action="store_true")
     args = parser.parse_args()
     repo_root = Path(__file__).resolve().parents[1]

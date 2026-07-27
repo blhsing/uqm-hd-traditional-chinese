@@ -34,14 +34,16 @@ VARIANTS = (
 )
 # The HD mod's stock shared UI fonts do not scale consistently: the 2x
 # starcon/tiny canvases remain roughly 1x-sized and the 4x canvases are only
-# about 2x-sized. These bounds fit the engine's scaled UI line heights while
-# giving dense Han glyphs materially more pixels.
+# about 2x-sized. UQM derives each glyph's hotspot and leading from the PNG
+# canvas, while several SIS HUD fields retain fixed 14/20-pixel ink bands.
+# Keep the bold Han ink large enough to read without letting the canvas move
+# its top rows above those fields or beyond their 20-pixel gradient effects.
 UI_FONT_METRICS: dict[tuple[str, str], tuple[int, int]] = {
     ("hires2x-zh_TW", "starcon.fon"): (14, 14),
-    ("hires2x-zh_TW", "tiny.fon"): (14, 16),
+    ("hires2x-zh_TW", "tiny.fon"): (14, 14),
     ("hires2x-zh_TW", "micro.fon"): (12, 15),
-    ("hires4x-zh_TW", "starcon.fon"): (28, 28),
-    ("hires4x-zh_TW", "tiny.fon"): (28, 32),
+    ("hires4x-zh_TW", "starcon.fon"): (20, 19),
+    ("hires4x-zh_TW", "tiny.fon"): (20, 20),
     ("hires4x-zh_TW", "micro.fon"): (24, 30),
 }
 FALLBACK_RESOURCE_TARGETS = {

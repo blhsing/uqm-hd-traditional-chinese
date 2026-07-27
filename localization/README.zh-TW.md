@@ -24,9 +24,9 @@ editor may still wish to polish tone or word choice.
 
 | Pack | Bytes | SHA-256 |
 | --- | ---: | --- |
-| `zh_TW.uqm` | 20,986,438 | `faa76bdd7f386c02e3c2ef989d8ca5ff5f434054d944173ac02fdc42b7319d31` |
-| `hires2x-zh_TW.uqm` | 39,634,130 | `ca3a5954aed77ed476a7529dfd7dd28c88d57671f23a615773db4ea061ac93a7` |
-| `hires4x-zh_TW.uqm` | 59,255,847 | `bf5103dc3341ee8e7fd5c8a515a95309ebb78463ed0979b064107bd89bdc896c` |
+| `zh_TW.uqm` | 20,992,002 | `86235cf2631490761e9b8dd7e7c55ac4bd9177c1952a585e2863d898d403e98d` |
+| `hires2x-zh_TW.uqm` | 39,587,398 | `81a0467b6b65ed2e17e673dbf7b4e0cc55bfdb7c241aca638c0add4daa8f25f9` |
+| `hires4x-zh_TW.uqm` | 57,691,453 | `efe77272bc45451330973051d33df06d758b57e577b972fbcc03e05e15a6ddac` |
 
 All three archives passed ZIP integrity and exact resource-mapping audits. The
 merged workspace passed UTF-8, engine-line-length, wrapping, CJK glyph, record
@@ -47,8 +47,11 @@ installation.
   the cause of the earlier faint strokes. Direct cutscene fonts retain every
   original Latin/punctuation glyph because a shadow-mounted `.fon` directory
   replaces, rather than merges with, the stock resource.
-- Generic 2x UI cells are now 14x14 (`starcon`), 14x16 (`tiny`), and 12x15
-  (`micro`). Their 4x equivalents are 28x28, 28x32, and 24x30.
+- Generic 2x UI cells are now 14x14 (`starcon`), 14x14 (`tiny`), and 12x15
+  (`micro`). Their 4x equivalents are 20x19, 20x20, and 24x30. The Tiny and
+  StarCon bounds deliberately match the SIS HUD's fixed text bands and font
+  gradient effects, preventing Chinese rows from being clipped while retaining
+  Bold/700 strokes.
 - The five baked main-menu choices are localized as `新遊戲`, `載入遊戲`,
   `超級對戰`, `設定`, and `離開`. Unselected choices are steady light gray;
   the selected choice now remains yellow through a positive-only additive

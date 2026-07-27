@@ -21,7 +21,7 @@ from uqmloc.core import (  # noqa: E402
     render_document,
     write_json,
 )
-from uqmloc.builder import _zip_tree  # noqa: E402
+from uqmloc.builder import UI_FONT_METRICS, _zip_tree  # noqa: E402
 from patch_stored_member import (  # noqa: E402
     PADDING_NAME,
     fit_zip_to_size,
@@ -132,6 +132,19 @@ class FontTests(unittest.TestCase):
         self.assertEqual((metrics.width, metrics.height), (10, 12))
         self.assertEqual(glyph_filename("一"), "04e00.png")
 
+    def test_hd_ui_metric_overrides_respect_fixed_hud_bands(self):
+        self.assertEqual(
+            UI_FONT_METRICS,
+            {
+                ("hires2x-zh_TW", "starcon.fon"): (14, 14),
+                ("hires2x-zh_TW", "tiny.fon"): (14, 14),
+                ("hires2x-zh_TW", "micro.fon"): (12, 15),
+                ("hires4x-zh_TW", "starcon.fon"): (20, 19),
+                ("hires4x-zh_TW", "tiny.fon"): (20, 20),
+                ("hires4x-zh_TW", "micro.fon"): (24, 30),
+            },
+        )
+
     @unittest.skipUnless(
         Path(r"C:\Windows\Fonts\NotoSansTC-VF.ttf").is_file(),
         "Noto Sans TC variable font is not installed",
@@ -147,6 +160,39 @@ class FontTests(unittest.TestCase):
             for alpha in image.getchannel("A").get_flattened_data()
         )
         self.assertGreaterEqual(opaque, 30)
+
+    @unittest.skipUnless(
+        Path(r"C:\Windows\Fonts\NotoSansTC-VF.ttf").is_file(),
+        "Noto Sans TC variable font is not installed",
+    )
+    def test_generated_hud_ink_fits_sis_fields(self):
+        from PIL import Image
+
+        renderer = NotoRenderer(Path(r"C:\Windows\Fonts\NotoSansTC-VF.ttf"))
+        cases = (
+            # label, metrics, text, baseline, inclusive top, exclusive bottom
+            ("4x sun", (20, 20), "太陽", 21, 0, 28),
+            ("4x date", (20, 20), "一二三四五六七八九十月", 18, 0, 24),
+            ("4x captain label", (20, 20), "船長", 27, 9, 30),
+            ("4x captain name", (20, 20), "澤爾尼克", 48, 32, 51),
+            ("4x fuel", (20, 20), "燃料", 118, 102, 120),
+            ("4x crew", (20, 20), "船員", 373, 357, 374),
+            ("4x ship name", (20, 19), "維迦凱特", 78, 63, 81),
+            ("2x date", (14, 14), "一二三四五六七八九十月", 10, 0, 14),
+        )
+        for label, size, text, baseline, field_top, field_bottom in cases:
+            metrics = FontMetrics(*size, 1)
+            # gfxload.c uses height - 3 as the hotspot for canvases over 9px.
+            canvas_top = baseline - (metrics.height - 3)
+            for character in text:
+                with self.subTest(field=label, character=character):
+                    raw = renderer.render(character, metrics)
+                    image = Image.open(io.BytesIO(raw)).convert("RGBA")
+                    bbox = image.getchannel("A").getbbox()
+                    self.assertIsNotNone(bbox)
+                    assert bbox is not None
+                    self.assertGreaterEqual(canvas_top + bbox[1], field_top)
+                    self.assertLessEqual(canvas_top + bbox[3], field_bottom)
 
 
 class PackageTests(unittest.TestCase):
