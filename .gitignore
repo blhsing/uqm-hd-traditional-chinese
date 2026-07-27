@@ -1,0 +1,39 @@
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.venv/
+
+# Local inputs and generated outputs
+downloads/
+staging/
+references/
+translation-workspace/
+translation-workspace-zh-TW/
+translated-text-preview/
+localized-build*/
+dist/*
+
+# Local translation experiments and runtime artifacts
+localization/machine-translation.backup/
+localization/workspace.en/
+localization/workspace.zh-TW/
+localization/menu-assets/preview*/
+localization/shortcut-quarantine/
+localization/*.lnk
+localization/**/*.log
+
+# Obsolete upstream build artifacts intentionally omitted
+game/src/tools/uqmanimationtool.jar
+game/src/tools/uqmanimationtool.conf
+game/src/tools/lib/xstream-1.3.1.jar
+game/src/tools/starmap-4x.psd
+
+# Editors, Windows build products, and logs
+*.suo
+*.user
+*.ncb
+*.bsc
+*.log
+Thumbs.db
+.DS_Store

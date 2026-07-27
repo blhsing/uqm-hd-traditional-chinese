@@ -1,0 +1,13 @@
+* text=auto
+*.c text eol=lf
+*.h text eol=lf
+*.md text eol=lf
+*.py text eol=lf
+*.ps1 text eol=crlf
+*.png binary
+*.psd binary
+*.uqm binary
+
+# Preserve historical upstream formatting without treating its legacy trailing
+# whitespace as a localization-project error.
+game/** -whitespace
