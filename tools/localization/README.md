@@ -166,6 +166,25 @@ loose files). A clean 4:3 menu background supplies the artwork; the exact labels
 with Noto Sans TC Medium/500 and no synthetic outline. In-game bitmap fonts stay
 at Bold/700 for legibility at small cell sizes.
 
+The Super Melee setup screen is another 39-frame baked animation. Text-free 4x
+templates under `localization/menu-assets/source/super-melee/` preserve the
+upstream nebula, metal controls, portraits, and selection lighting. The builder
+generates localized 1x/2x/4x title, control-mode, network, save/load, battle,
+and quit frames, while retaining the stock animation manifest and hotspots.
+Those clean templates can be reproduced from the upstream Translation Pack
+PSDs when `psd-tools` is installed:
+
+```powershell
+python .\tools\localization\extract_super_melee_sources.py `
+  --translation-pack 'C:\path\to\Translation Pack' `
+  --output .\localization\menu-assets\source\super-melee
+```
+
+The combat `CREW`/`BATT` sprites are also generated as `船員`/`能量`. Each
+resolution uses a fixed optical size and weight (1x 500/6 px, 2x 450/8 px,
+4x 400/16 px) so dense Han strokes remain separated without changing the
+engine-facing canvas dimensions or color gradients.
+
 Packages use only ZIP Deflate, disable ZIP64, reject 65,535 or more files, and
 are written deterministically. All three packages must be installed because
 their fallback mappings intentionally cross-reference the 1x/2x/4x fonts.
@@ -191,8 +210,9 @@ uqm.exe -o -r 1920x1080 -f -k -c none --resfactor=2 --addon hires4x-zh_TW
 
 ## Scope and visual QA
 
-This pipeline localizes engine text, bitmap glyph coverage, and the five baked
-main-menu choices. The Beta 1 executable still contains a few hardcoded strings
+This pipeline localizes engine text, bitmap glyph coverage, the five baked
+main-menu choices, the visible Super Melee setup controls, and its combat status
+labels. The Beta 1 executable still contains a few hardcoded strings
 such as `SCRAP` and `QuasiSpace`; translating those would require a rebuilt
 executable. A polished release still benefits from a full playthrough. In
 particular, visually check the intro/final subtitles, credits, setup menu, every

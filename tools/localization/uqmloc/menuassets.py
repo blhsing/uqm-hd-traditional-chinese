@@ -79,6 +79,8 @@ class StatusLabelVariant:
     energy_size: tuple[int, int]
     crew_output_size: tuple[int, int]
     energy_output_size: tuple[int, int]
+    font_weight: int
+    font_size: int
 
 
 STATUS_LABEL_VARIANTS = (
@@ -90,6 +92,8 @@ STATUS_LABEL_VARIANTS = (
         (21, 5),
         (22, 8),
         (21, 8),
+        500,
+        6,
     ),
     StatusLabelVariant(
         "hires2x-zh_TW",
@@ -99,6 +103,8 @@ STATUS_LABEL_VARIANTS = (
         (22, 5),
         (22, 10),
         (22, 10),
+        450,
+        8,
     ),
     StatusLabelVariant(
         "hires4x-zh_TW",
@@ -108,8 +114,46 @@ STATUS_LABEL_VARIANTS = (
         (44, 9),
         (44, 18),
         (44, 18),
+        400,
+        16,
     ),
 )
+
+
+@dataclass(frozen=True)
+class SuperMeleeVariant:
+    addon: str
+    source_prefix: str
+    output_prefix: str
+    scale: int
+
+
+SUPER_MELEE_VARIANTS = (
+    SuperMeleeVariant("zh_TW", "base/ui", "base/ui", 1),
+    SuperMeleeVariant(
+        "hires2x-zh_TW", "addons/hires2x/ui", "addons/hires2x/ui", 2
+    ),
+    SuperMeleeVariant(
+        "hires4x-zh_TW", "addons/hires4x/ui", "addons/hires4x/ui", 4
+    ),
+)
+
+SUPER_MELEE_FONT_WEIGHT = 500
+SUPER_MELEE_TITLE = "超級對戰"
+SUPER_MELEE_CONTROL_LABELS = (
+    ("玩家", "操控"),
+    ("簡易", "電腦"),
+    ("普通", "電腦"),
+    ("最強", "電腦"),
+)
+SUPER_MELEE_NETWORK_LABEL = ("網路", "操控")
+SUPER_MELEE_BUTTON_LABELS = {
+    "LOAD": "載入",
+    "SAVE": "儲存",
+    "NET": "連線",
+    "BATTLE": "開戰！",
+    "QUIT": "離開",
+}
 
 
 def _load_pillow():
@@ -381,7 +425,17 @@ def build_localized_key_help(
     return report
 
 
-def _status_text_mask(Image, ImageDraw, ImageFont, font_path: Path, text: str, size):
+def _status_text_mask(
+    Image,
+    ImageDraw,
+    ImageFont,
+    font_path: Path,
+    text: str,
+    size,
+    *,
+    font_weight: int = 500,
+    font_size: int | None = None,
+):
     width, height = size
     mask = Image.new("L", size, 0)
     compact_glyphs = {
@@ -396,11 +450,10 @@ def _status_text_mask(Image, ImageDraw, ImageFont, font_path: Path, text: str, s
                     mask.putpixel((x0 + x, y), 255)
         return mask
     draw = ImageDraw.Draw(mask)
-    font_size = max(7, round(height * 1.6))
+    if font_size is None:
+        font_size = max(7, round(height * 1.6))
     while True:
-        # Medium keeps the counters in tiny Han glyphs open; Bold/700 turns
-        # the 8- and 10-pixel tiers into nearly solid blocks.
-        font = _menu_font(ImageFont, font_path, font_size, weight=500)
+        font = _menu_font(ImageFont, font_path, font_size, weight=font_weight)
         box = draw.textbbox((0, 0), text, font=font)
         text_width = box[2] - box[0]
         text_height = box[3] - box[1]
@@ -458,10 +511,21 @@ def _render_status_label(
     *,
     energy: bool,
     output_size: tuple[int, int] | None = None,
+    font_weight: int = 500,
+    font_size: int | None = None,
 ):
     if output_size is None:
         output_size = source.size
-    mask = _status_text_mask(Image, ImageDraw, ImageFont, font_path, text, output_size)
+    mask = _status_text_mask(
+        Image,
+        ImageDraw,
+        ImageFont,
+        font_path,
+        text,
+        output_size,
+        font_weight=font_weight,
+        font_size=font_size,
+    )
     colors = _row_colors(source, energy=energy)
     # The stock labels use a five- or nine-pixel vertical gradient.  Stretching
     # that gradient made the larger Han glyphs look soft, so use its brightest
@@ -529,6 +593,8 @@ def build_localized_status_labels(
                 label,
                 energy=energy,
                 output_size=output_size,
+                font_weight=variant.font_weight,
+                font_size=variant.font_size,
             )
             output_path = f"{variant.output_prefix}/status-{frame:03d}.png"
             destination = shadow_trees_root / variant.addon
@@ -544,6 +610,8 @@ def build_localized_status_labels(
         report[variant.addon] = {
             "labels": {"CREW": "船員", "BATT": "能量"},
             "compact_labels": None,
+            "font_weight": variant.font_weight,
+            "font_size": variant.font_size,
             "source_canvases": {
                 "CREW": list(variant.crew_size),
                 "BATT": list(variant.energy_size),
@@ -554,6 +622,410 @@ def build_localized_status_labels(
             },
             "files": files,
         }
+    return report
+
+
+def _parse_super_melee_frames(
+    resolver: ContentResolver, variant: SuperMeleeVariant, Image
+) -> tuple[bytes, list[MenuFrame]]:
+    ani_path = f"{variant.source_prefix}/meleemenu.ani"
+    raw = resolver.read_bytes(ani_path)
+    try:
+        rows = [line for line in raw.decode("ascii").splitlines() if line.strip()]
+    except UnicodeDecodeError as exc:
+        raise LocError(f"{ani_path}: expected an ASCII animation manifest") from exc
+    if len(rows) != 39:
+        raise LocError(f"{ani_path}: expected 39 Super Melee frames, found {len(rows)}")
+    frames: list[MenuFrame] = []
+    for row in rows:
+        fields = row.split()
+        if len(fields) != 5:
+            raise LocError(f"{ani_path}: malformed animation row: {row!r}")
+        filename = fields[0]
+        try:
+            hotspot_x, hotspot_y = int(fields[-2]), int(fields[-1])
+        except ValueError as exc:
+            raise LocError(f"{ani_path}: invalid animation hotspot: {row!r}") from exc
+        image = Image.open(
+            io.BytesIO(resolver.read_bytes(f"{variant.source_prefix}/{filename}"))
+        )
+        try:
+            width, height = image.size
+        finally:
+            image.close()
+        frames.append(MenuFrame(filename, width, height, -hotspot_x, -hotspot_y))
+    return raw, frames
+
+
+def _fit_melee_font(
+    draw,
+    ImageFont,
+    font_path: Path,
+    lines: tuple[str, ...],
+    box: tuple[int, int, int, int],
+    *,
+    weight: int,
+    stroke_width: int,
+):
+    width = max(1, box[2] - box[0])
+    height = max(1, box[3] - box[1])
+    max_size = max(3, round(height / max(1, len(lines)) * 1.25))
+    for size in range(max_size, 1, -1):
+        font = _menu_font(ImageFont, font_path, size, weight=weight)
+        bounds = [
+            draw.textbbox((0, 0), line, font=font, stroke_width=stroke_width)
+            for line in lines
+        ]
+        line_heights = [bound[3] - bound[1] for bound in bounds]
+        spacing = max(0, round(size * 0.10)) if len(lines) > 1 else 0
+        if (
+            max(bound[2] - bound[0] for bound in bounds) <= width
+            and sum(line_heights) + spacing * (len(lines) - 1) <= height
+        ):
+            return font, bounds, spacing
+    font = _menu_font(ImageFont, font_path, 2, weight=weight)
+    bounds = [
+        draw.textbbox((0, 0), line, font=font, stroke_width=stroke_width)
+        for line in lines
+    ]
+    return font, bounds, 0
+
+
+def _draw_melee_lines(
+    image,
+    ImageDraw,
+    ImageFont,
+    font_path: Path,
+    lines: tuple[str, ...],
+    box: tuple[int, int, int, int],
+    *,
+    fill: tuple[int, int, int, int],
+    weight: int = SUPER_MELEE_FONT_WEIGHT,
+    stroke_width: int = 0,
+    stroke_fill: tuple[int, int, int, int] = (0, 0, 0, 255),
+) -> None:
+    draw = ImageDraw.Draw(image)
+    font, bounds, spacing = _fit_melee_font(
+        draw,
+        ImageFont,
+        font_path,
+        lines,
+        box,
+        weight=weight,
+        stroke_width=stroke_width,
+    )
+    heights = [bound[3] - bound[1] for bound in bounds]
+    total_height = sum(heights) + spacing * (len(lines) - 1)
+    y = box[1] + (box[3] - box[1] - total_height) / 2
+    for line, bound, line_height in zip(lines, bounds, heights):
+        line_width = bound[2] - bound[0]
+        x = box[0] + (box[2] - box[0] - line_width) / 2 - bound[0]
+        draw.text(
+            (round(x), round(y - bound[1])),
+            line,
+            font=font,
+            fill=fill,
+            stroke_width=stroke_width,
+            stroke_fill=stroke_fill,
+        )
+        y += line_height + spacing
+
+
+def _load_melee_template(Image, root: Path, name: str, expected_size: tuple[int, int]):
+    path = root / name
+    if not path.is_file():
+        raise LocError(f"Clean Super Melee template not found: {path}")
+    image = Image.open(path).convert("RGBA")
+    if image.size != expected_size:
+        found = image.size
+        image.close()
+        raise LocError(
+            f"Unexpected clean Super Melee template size for {path}: "
+            f"expected {expected_size}, found {found}"
+        )
+    return image
+
+
+def _resized_melee_template(Image, source, target_size: tuple[int, int], *, base_crop=False):
+    if base_crop and target_size == (318, 240):
+        source = source.crop((0, 0, 1272, 960))
+    if source.size == target_size:
+        return source.copy()
+    return source.resize(target_size, resample=Image.Resampling.LANCZOS)
+
+
+def _compact_melee_label(label: str, scale: int) -> str:
+    if scale != 1:
+        return label
+    return {
+        "載入": "載",
+        "儲存": "存",
+        "連線": "網",
+        "離開": "離",
+        "開戰！": "開戰",
+    }.get(label, label)
+
+
+def _battle_label_box(scale: int, size: tuple[int, int]) -> tuple[int, int, int, int]:
+    width, height = size
+    if scale == 1:
+        return (3, 40, width - 3, min(height, 61))
+    if scale == 2:
+        return (8, 2, width - 8, min(height, 35))
+    return (12, 14, width - 12, min(height, 62))
+
+
+def build_localized_super_melee_assets(
+    resolver: ContentResolver,
+    shadow_trees_root: Path,
+    font_path: Path,
+    clean_assets_root: Path,
+) -> dict[str, dict[str, object]]:
+    """Localize all labels visible on the Super Melee fleet-setup screen."""
+
+    Image, ImageDraw, ImageFont = _load_pillow()
+    clean_assets_root = clean_assets_root.resolve()
+    clean_background = _load_melee_template(
+        Image, clean_assets_root, "background-4x.png", (1280, 960)
+    )
+    clean_battle = _load_melee_template(
+        Image, clean_assets_root, "battle-4x.png", (193, 258)
+    )
+    control_templates = {
+        (control, selected): _load_melee_template(
+            Image,
+            clean_assets_root,
+            f"{control}-{'selected' if selected else 'normal'}-4x.png",
+            (232, 116),
+        )
+        for control in ("human", "weak", "good", "awesome")
+        for selected in (False, True)
+    }
+    network_templates = {
+        selected: _load_melee_template(
+            Image,
+            clean_assets_root,
+            f"network-{'selected' if selected else 'normal'}-4x.png",
+            (232, 116),
+        )
+        for selected in (False, True)
+    }
+    report: dict[str, dict[str, object]] = {}
+    try:
+        for variant in SUPER_MELEE_VARIANTS:
+            ani_raw, frames = _parse_super_melee_frames(resolver, variant, Image)
+            output_dir = shadow_trees_root / variant.addon
+            output_dir = output_dir.joinpath(*PurePosixPath(variant.output_prefix).parts)
+            output_dir.mkdir(parents=True, exist_ok=True)
+            files: set[str] = set()
+
+            background = _resized_melee_template(
+                Image,
+                clean_background,
+                (frames[0].width, frames[0].height),
+                base_crop=True,
+            )
+            title_width = min(background.width, 256 * variant.scale)
+            _draw_melee_lines(
+                background,
+                ImageDraw,
+                ImageFont,
+                font_path,
+                (SUPER_MELEE_TITLE,),
+                (4 * variant.scale, 2 * variant.scale, title_width - 4 * variant.scale, 27 * variant.scale),
+                fill=(246, 190, 255, 255),
+                weight=600,
+                stroke_width=max(1, variant.scale // 2),
+                stroke_fill=(105, 0, 125, 255),
+            )
+            background_labels = {
+                17: "載入",
+                18: "儲存",
+                21: "儲存",
+                22: "載入",
+                29: "離開",
+                35: "連線",
+                37: "連線",
+            }
+            for index, label in background_labels.items():
+                frame = frames[index]
+                _draw_melee_lines(
+                    background,
+                    ImageDraw,
+                    ImageFont,
+                    font_path,
+                    (_compact_melee_label(label, variant.scale),),
+                    (frame.x, frame.y, frame.x + frame.width, frame.y + frame.height),
+                    fill=(145, 145, 140, 255),
+                )
+            background.save(output_dir / frames[0].filename, format="PNG", optimize=True)
+            files.add(frames[0].filename)
+            background.close()
+
+            controls = ("human", "weak", "good", "awesome")
+            for index in range(1, 17):
+                local_index = (index - 1) % 8
+                control_index = local_index % 4
+                selected = local_index >= 4
+                frame = frames[index]
+                image = _resized_melee_template(
+                    Image,
+                    control_templates[(controls[control_index], selected)],
+                    (frame.width, frame.height),
+                )
+                _draw_melee_lines(
+                    image,
+                    ImageDraw,
+                    ImageFont,
+                    font_path,
+                    SUPER_MELEE_CONTROL_LABELS[control_index],
+                    (
+                        max(1, variant.scale),
+                        max(1, variant.scale),
+                        round(frame.width * 0.68),
+                        frame.height - max(1, variant.scale),
+                    ),
+                    fill=(170, 255, 255, 255) if selected else (18, 169, 226, 255),
+                    stroke_width=variant.scale // 2 if selected else 0,
+                    stroke_fill=(0, 70, 180, 230),
+                )
+                image.save(output_dir / frame.filename, format="PNG", optimize=True)
+                image.close()
+                files.add(frame.filename)
+
+            button_labels = {
+                17: ("載入", False),
+                18: ("儲存", False),
+                19: ("載入", True),
+                20: ("儲存", True),
+                21: ("儲存", False),
+                22: ("載入", False),
+                23: ("儲存", True),
+                24: ("載入", True),
+                29: ("離開", False),
+                30: ("離開", True),
+            }
+            for index, (label, selected) in button_labels.items():
+                frame = frames[index]
+                image = Image.new("RGBA", (frame.width, frame.height), (0, 0, 0, 0))
+                _draw_melee_lines(
+                    image,
+                    ImageDraw,
+                    ImageFont,
+                    font_path,
+                    (_compact_melee_label(label, variant.scale),),
+                    (0, 0, frame.width, frame.height),
+                    fill=(255, 235, 0, 255) if selected else (145, 145, 140, 255),
+                    stroke_width=variant.scale // 3 if selected else 0,
+                    stroke_fill=(55, 25, 0, 255),
+                )
+                image.save(output_dir / frame.filename, format="PNG", optimize=True)
+                image.close()
+                files.add(frame.filename)
+
+            for index in (25, 26):
+                frame = frames[index]
+                selected = index == 26
+                if variant.scale == 4:
+                    image = clean_battle.copy()
+                else:
+                    image = Image.open(
+                        io.BytesIO(
+                            resolver.read_bytes(
+                                f"{variant.source_prefix}/{frame.filename}"
+                            )
+                        )
+                    ).convert("RGBA")
+                    draw = ImageDraw.Draw(image, "RGBA")
+                    draw.rectangle(
+                        _battle_label_box(variant.scale, image.size), fill=(0, 0, 0, 235)
+                    )
+                box = _battle_label_box(variant.scale, image.size)
+                label = _compact_melee_label("開戰！", variant.scale)
+                _draw_melee_lines(
+                    image,
+                    ImageDraw,
+                    ImageFont,
+                    font_path,
+                    (label,),
+                    box,
+                    fill=(255, 240, 0, 255) if selected else (255, 255, 255, 255),
+                    weight=600,
+                    stroke_width=max(1, variant.scale // 2),
+                    stroke_fill=(35, 0, 35, 255),
+                )
+                image.save(output_dir / frame.filename, format="PNG", optimize=True)
+                image.close()
+                files.add(frame.filename)
+
+            for index in range(31, 35):
+                frame = frames[index]
+                selected = index in (32, 34)
+                image = _resized_melee_template(
+                    Image,
+                    network_templates[selected],
+                    (frame.width, frame.height),
+                )
+                _draw_melee_lines(
+                    image,
+                    ImageDraw,
+                    ImageFont,
+                    font_path,
+                    SUPER_MELEE_NETWORK_LABEL,
+                    (
+                        max(1, variant.scale),
+                        max(1, variant.scale),
+                        round(frame.width * 0.67),
+                        frame.height - max(1, variant.scale),
+                    ),
+                    fill=(170, 255, 255, 255) if selected else (18, 169, 226, 255),
+                    stroke_width=variant.scale // 2 if selected else 0,
+                    stroke_fill=(0, 70, 180, 230),
+                )
+                image.save(output_dir / frame.filename, format="PNG", optimize=True)
+                image.close()
+                files.add(frame.filename)
+
+            for filename, selected in (("netplay-004.png", False), ("netplay-005.png", True)):
+                matching = next(frame for frame in frames if frame.filename == filename)
+                image = Image.new(
+                    "RGBA", (matching.width, matching.height), (0, 0, 0, 0)
+                )
+                label = _compact_melee_label("連線", variant.scale)
+                _draw_melee_lines(
+                    image,
+                    ImageDraw,
+                    ImageFont,
+                    font_path,
+                    (label,),
+                    (0, 0, matching.width, matching.height),
+                    fill=(255, 235, 0, 255) if selected else (145, 145, 140, 255),
+                    stroke_width=variant.scale // 3 if selected else 0,
+                    stroke_fill=(55, 25, 0, 255),
+                )
+                image.save(output_dir / filename, format="PNG", optimize=True)
+                image.close()
+                files.add(filename)
+
+            (output_dir / "meleemenu.ani").write_bytes(ani_raw)
+            files.add("meleemenu.ani")
+            report[variant.addon] = {
+                "resource": f"{variant.output_prefix}/meleemenu.ani",
+                "title": SUPER_MELEE_TITLE,
+                "controls": ["".join(lines) for lines in SUPER_MELEE_CONTROL_LABELS],
+                "network_control": "".join(SUPER_MELEE_NETWORK_LABEL),
+                "buttons": dict(SUPER_MELEE_BUTTON_LABELS),
+                "font_weight": SUPER_MELEE_FONT_WEIGHT,
+                "frame_count": len(frames),
+                "files": sorted(files),
+            }
+    finally:
+        clean_background.close()
+        clean_battle.close()
+        for image in control_templates.values():
+            image.close()
+        for image in network_templates.values():
+            image.close()
     return report
 
 

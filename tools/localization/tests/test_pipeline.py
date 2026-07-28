@@ -38,6 +38,10 @@ from uqmloc.menuassets import (  # noqa: E402
     MENU_NORMAL_COLOR,
     MENU_SELECTED_COLOR,
     STATUS_LABEL_VARIANTS,
+    SUPER_MELEE_BUTTON_LABELS,
+    SUPER_MELEE_CONTROL_LABELS,
+    SUPER_MELEE_TITLE,
+    SUPER_MELEE_VARIANTS,
     _effect_map_from_mask,
     _status_text_mask,
 )
@@ -289,7 +293,7 @@ class MenuAssetTests(unittest.TestCase):
         self.assertGreater(high[0] - high[2], 40)
         self.assertGreater(high[1] - high[2], 25)
 
-    def test_native_help_and_status_paths_match_resolution_rmps(self):
+    def test_native_help_status_and_melee_paths_match_resolution_rmps(self):
         self.assertEqual(
             [variant.output_path for variant in KEY_HELP_VARIANTS],
             [
@@ -306,13 +310,42 @@ class MenuAssetTests(unittest.TestCase):
                     variant.energy_size,
                     variant.crew_output_size,
                     variant.energy_output_size,
+                    variant.font_weight,
+                    variant.font_size,
                 )
                 for variant in STATUS_LABEL_VARIANTS
             ],
             [
-                ("base/ui", (22, 5), (21, 5), (22, 8), (21, 8)),
-                ("addons/hires2x/ui", (22, 5), (22, 5), (22, 10), (22, 10)),
-                ("addons/hires4x/ui", (44, 9), (44, 9), (44, 18), (44, 18)),
+                ("base/ui", (22, 5), (21, 5), (22, 8), (21, 8), 500, 6),
+                (
+                    "addons/hires2x/ui",
+                    (22, 5),
+                    (22, 5),
+                    (22, 10),
+                    (22, 10),
+                    450,
+                    8,
+                ),
+                (
+                    "addons/hires4x/ui",
+                    (44, 9),
+                    (44, 9),
+                    (44, 18),
+                    (44, 18),
+                    400,
+                    16,
+                ),
+            ],
+        )
+        self.assertEqual(
+            [
+                (variant.addon, variant.output_prefix, variant.scale)
+                for variant in SUPER_MELEE_VARIANTS
+            ],
+            [
+                ("zh_TW", "base/ui", 1),
+                ("hires2x-zh_TW", "addons/hires2x/ui", 2),
+                ("hires4x-zh_TW", "addons/hires4x/ui", 4),
             ],
         )
 
@@ -337,6 +370,80 @@ class MenuAssetTests(unittest.TestCase):
             self.assertTrue(
                 all(value in (0, 255) for value in mask.get_flattened_data())
             )
+
+    @unittest.skipUnless(
+        Path(r"C:\Windows\Fonts\NotoSansTC-VF.ttf").is_file(),
+        "Noto Sans TC variable font is not installed",
+    )
+    def test_status_label_optical_sizes_keep_4x_strokes_open(self):
+        from PIL import Image, ImageDraw, ImageFont
+
+        font_path = Path(r"C:\Windows\Fonts\NotoSansTC-VF.ttf")
+        expected = {
+            ("zh_TW", "船員"): ((5, 0, 18, 8), (22, 8)),
+            ("zh_TW", "能量"): ((4, 1, 17, 8), (21, 8)),
+            ("hires2x-zh_TW", "船員"): ((3, 1, 19, 10), (22, 10)),
+            ("hires2x-zh_TW", "能量"): ((2, 1, 19, 10), (22, 10)),
+            ("hires4x-zh_TW", "船員"): ((6, 1, 38, 17), (44, 18)),
+            ("hires4x-zh_TW", "能量"): ((6, 2, 38, 17), (44, 18)),
+        }
+        for variant in STATUS_LABEL_VARIANTS:
+            for label, size in (
+                ("船員", variant.crew_output_size),
+                ("能量", variant.energy_output_size),
+            ):
+                with self.subTest(addon=variant.addon, label=label):
+                    mask = _status_text_mask(
+                        Image,
+                        ImageDraw,
+                        ImageFont,
+                        font_path,
+                        label,
+                        size,
+                        font_weight=variant.font_weight,
+                        font_size=variant.font_size,
+                    )
+                    self.assertEqual(
+                        (mask.getbbox(), mask.size), expected[(variant.addon, label)]
+                    )
+                    if variant.addon == "hires4x-zh_TW":
+                        coverage = sum(mask.get_flattened_data()) / 255
+                        self.assertGreater(coverage, 150)
+                        self.assertLess(coverage, 200)
+
+    def test_clean_super_melee_templates_and_labels_are_complete(self):
+        from PIL import Image
+
+        root = ROOT.parents[1] / "localization" / "menu-assets" / "source" / "super-melee"
+        expected = {
+            "background-4x.png": (1280, 960),
+            "battle-4x.png": (193, 258),
+            **{
+                f"{control}-{state}-4x.png": (232, 116)
+                for control in ("human", "weak", "good", "awesome", "network")
+                for state in ("normal", "selected")
+            },
+        }
+        for filename, size in expected.items():
+            with self.subTest(filename=filename):
+                with Image.open(root / filename) as image:
+                    self.assertEqual(image.size, size)
+                    self.assertNotIn("icc_profile", image.info)
+        self.assertEqual(SUPER_MELEE_TITLE, "超級對戰")
+        self.assertEqual(
+            ["".join(lines) for lines in SUPER_MELEE_CONTROL_LABELS],
+            ["玩家操控", "簡易電腦", "普通電腦", "最強電腦"],
+        )
+        self.assertEqual(
+            SUPER_MELEE_BUTTON_LABELS,
+            {
+                "LOAD": "載入",
+                "SAVE": "儲存",
+                "NET": "連線",
+                "BATTLE": "開戰！",
+                "QUIT": "離開",
+            },
+        )
 
 
 class RecordIoTests(unittest.TestCase):

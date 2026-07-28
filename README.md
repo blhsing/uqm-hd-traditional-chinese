@@ -8,11 +8,14 @@
 
 - 涵蓋 107 份資源文件中的全部 5,177 筆可翻譯記錄，包括劇情對話、字幕、選單、船艦名稱及結局。
 - 主選單已本地化為「新遊戲、載入遊戲、超級對戰、設定、離開」。
+- Super Melee 隊伍設定畫面的標題、玩家／電腦難度、連線、儲存、載入、
+  開戰及離開按鈕均已本地化；控制框保留原版角色與選取光效。
 - 選取項目使用持續可辨識的黃色脈衝，不再與未選取項目或原版暗紅色混淆。
 - 使用 Noto Sans TC 產生可重現的點陣字型；主選單採 Medium/500，小字採 Bold/700。
 - 太陽、日期／月份、船長、船名、燃料及船員等 SIS 欄位使用符合固定 HUD
   高度的字格，不再裁掉中文字形的頂部或與相鄰欄位重疊。
-- `船員`、`能量`（原 CREW、BATT）及星圖快捷鍵說明均已本地化並放大。
+- `船員`、`能量`（原 CREW、BATT）及星圖快捷鍵說明均已本地化；戰鬥
+  狀態字依解析度使用獨立光學尺寸與較輕字重，不再糊成厚重色塊。
 - 修正 HD Beta 1 開始新遊戲後可能停在黑畫面的資源封裝問題。
 - 本機 Super Melee 中按 `Esc` 可結束目前一局並返回隊伍設定；玩家的特殊能力鍵不會誤觸此功能。
 - 建議以 4x 高解析度全螢幕模式遊玩繁體中文。
@@ -22,6 +25,18 @@
 </p>
 
 <p align="center"><em>4x 主選單實機畫面；黃色項目是目前選取項目。</em></p>
+
+<p align="center">
+  <img src="localization/qa/installed-super-melee-menu-4x.png" width="760" alt="已完整本地化的繁體中文 Super Melee 隊伍設定畫面">
+</p>
+
+<p align="center"><em>4x Super Melee 實機畫面；標題與右側控制、儲存、載入、開戰及離開項目均為繁中。</em></p>
+
+<p align="center">
+  <img src="localization/qa/installed-super-melee-combat-4x.png" width="760" alt="Super Melee 戰鬥 HUD 的繁中船員與能量標籤">
+</p>
+
+<p align="center"><em>4x 戰鬥實機畫面；「船員／能量」使用較輕、筆畫保持分離的字形。</em></p>
 
 ## 下載、建置與安裝
 
@@ -33,9 +48,9 @@
 
 | 檔案 | 位元組 | SHA-256 |
 |---|---:|---|
-| `zh_TW.uqm` | 20,992,002 | `86235cf2631490761e9b8dd7e7c55ac4bd9177c1952a585e2863d898d403e98d` |
-| `hires2x-zh_TW.uqm` | 39,587,398 | `81a0467b6b65ed2e17e673dbf7b4e0cc55bfdb7c241aca638c0add4daa8f25f9` |
-| `hires4x-zh_TW.uqm` | 57,691,453 | `efe77272bc45451330973051d33df06d758b57e577b972fbcc03e05e15a6ddac` |
+| `zh_TW.uqm` | 21,228,292 | `7c9a7c6e5eaf8e3e9310d00ac7b4a21ce05b069d97810dd4d5d2300149edad6a` |
+| `hires2x-zh_TW.uqm` | 40,452,546 | `13df254be681a6cae051d661336fdc594673ccf62b327715ec2d794091a6f4d7` |
+| `hires4x-zh_TW.uqm` | 60,667,227 | `9ce7a837d039c4937c6d697797d2629bc0c78cf90437701b4393c9a57ed9ca4a` |
 
 Windows Beta 1 執行檔在套用主選單與 Super Melee 修補後的 SHA-256 為：
 
@@ -133,6 +148,28 @@ uqm.exe -o -r 1920x1080 -f -k -c none --resfactor=2 `
 | 本機 Super Melee | 結束目前一局 | **只有 `Esc`** |
 
 其他戰鬥配置包括 WASD（`W/S/A/D` 加 `V/B`）、Arrows (2)（方向鍵、`]`、`[`）及 ESDF（`E/D/S/F` 加 `Q/A`）。遊戲沒有通用倒車鍵；放開推進後仍保留慣性，必須轉向反推。Supox 的平移是其專用特殊能力，不代表其他船艦可按向下鍵倒車。
+
+#### 玩家二的 Super Melee 操作
+
+本版本預設由玩家二控制 Super Melee 畫面**上方隊伍**，並使用 `ESDF` 控制配置。開始前先把上方控制框設為「玩家操控」；開戰後，兩位玩家各自使用自己的按鍵選船及控制船艦。
+
+| 階段／動作 | 玩家二按鍵 |
+|---|---|
+| 選船：上／下／左／右 | `E`／`D`／`S`／`F` |
+| 選船：確認 | `Q` |
+| 戰鬥：推進 | `E` |
+| 戰鬥：左轉／右轉 | `S`／`F` |
+| 戰鬥：主要武器 | `Q` |
+| 戰鬥：特殊能力 | `A` |
+
+`D` 只在選船畫面用來向下移動；戰鬥中沒有通用倒車功能。繁中版本中，`Esc` 可結束目前一局並返回隊伍設定畫面。
+
+若要更改按鍵，請從主選單進入「設定」→「設定控制鍵」：
+
+1. 在「玩家二」選擇要使用的「控制配置」。
+2. 若要修改配置本身，選擇「編輯控制鍵」。
+3. 選定控制配置後，在「上／下／左／右／武器／特殊能力／離開」項目按 `Enter`，再按下新按鍵。
+4. 按 `Delete` 可移除目前綁定；返回並離開設定選單後會儲存變更。
 
 星圖常用鍵：
 
@@ -508,7 +545,7 @@ powershell.exe -NoProfile -ExecutionPolicy Bypass `
   -SmokeTimeoutSeconds 12
 ```
 
-本機驗收涵蓋 21 項本地化單元測試、11,530 個管理檔案的長度及 SHA-256、三個 UQM 套件、五個捷徑，以及 4x 1920×1080 全螢幕煙霧測試。
+本機驗收涵蓋 23 項本地化單元測試、11,530 個管理檔案的長度及 SHA-256、三個 UQM 套件、五個捷徑，以及 4x 1920×1080 全螢幕煙霧測試。另以實際 Super Melee 流程確認繁中隊伍設定、戰鬥狀態字與 `Esc` 返回功能。
 
 ## 專案結構
 
@@ -518,6 +555,7 @@ powershell.exe -NoProfile -ExecutionPolicy Bypass `
 | `localization/workspace.zh-TW.final/` | 受格式契約保護的完整 LLM 繁中翻譯。 |
 | `localization/records.*.json` | 英文來源與 LLM 翻譯的平面記錄。 |
 | `tools/localization/` | 匯出、合併、換行、驗證、點陣字型及套件建置工具。 |
+| `tools/localization/extract_super_melee_sources.py` | 從上游翻譯包 PSD 可重現地擷取無文字的 Super Melee 介面底圖。 |
 | `tools/install/` | Windows 安裝、PE 修補、捷徑及完整驗證工具。 |
 | `docs/images/vessels/` | 25 艘 Super Melee 船艦及戰役旗艦的 HD 圖像。 |
 | `scripts/extract_vessel_images.py` | 從官方 `hires4x.zip` 可重現地擷取圖鑑圖片。 |
