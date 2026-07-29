@@ -24,6 +24,7 @@
 #include "../battlecontrols.h"
 #include "../battle.h"
 #include "../build.h"
+#include "../colors.h"
 #include "../controls.h"
 #include "../flash.h"
 #include "../igfxres.h"
@@ -40,6 +41,7 @@
 #include "../setup.h"
 #include "../sounds.h"
 #include "libs/log.h"
+#include "libs/inplib.h"
 #include "libs/mathlib.h"
 
 
@@ -54,13 +56,12 @@
 #define NAME_AREA_HEIGHT (7 << RESOLUTION_FACTOR) // JMS_GFX
 #define MELEE_WIDTH (149 << RESOLUTION_FACTOR) // JMS_GFX
 #define MELEE_HEIGHT ((48 << RESOLUTION_FACTOR) + NAME_AREA_HEIGHT)
+#define PICK_INFO_HEIGHT (44 << RESOLUTION_FACTOR)
 
 #define PICKSHIP_TEAM_NAME_TEXT_COLOR \
 		BUILD_COLOR (MAKE_RGB15 (0x0A, 0x0A, 0x1F), 0x09)
 #define PICKSHIP_TEAM_START_VALUE_COLOR \
 		BUILD_COLOR (MAKE_RGB15 (0x04, 0x05, 0x1F), 0x4B)
-
-
 #ifdef NETPLAY
 static void reportShipSelected (GETMELEE_STATE *gms, COUNT index);
 #endif
@@ -132,6 +133,49 @@ MeleeShipByUsedIndex (const QUEUE *queue, COUNT index)
 	}
 
 	return hShip;
+}
+
+// Draw compact, resolution-independent base statistics for the highlighted
+// vessel. Pre: caller holds the graphics lock.
+static void
+DrawPickMeleeShipInfo (GETMELEE_STATE *gms, COUNT playerI)
+{
+	RECT r;
+	HSTARSHIP hShip;
+	SPECIES_ID speciesID;
+	int shipIndex;
+
+	r.corner.x = PICK_X_OFFS - (3 << RESOLUTION_FACTOR);
+	r.corner.y = PICK_Y_OFFS - (9 << RESOLUTION_FACTOR) + MELEE_HEIGHT
+			+ ((1 - playerI) * PICK_SIDE_OFFS);
+	r.extent.width = MELEE_WIDTH;
+	r.extent.height = PICK_INFO_HEIGHT;
+
+	if (gms->player[playerI].col >= NUM_PICKMELEE_COLUMNS)
+	{
+		DrawMeleeShipStatsCard (MELEE_NONE, &r,
+				gms->player[playerI].row == 0 ?
+				"隨機選船" : "返回隊伍設定");
+		return;
+	}
+
+	hShip = MeleeShipByQueueIndex (&race_q[playerI],
+			PickMelee_GetShipIndex (gms->player[playerI].row,
+			gms->player[playerI].col));
+	if (hShip == 0)
+	{
+		DrawMeleeShipStatsCard (MELEE_NONE, &r, "空欄位");
+		return;
+	}
+	{
+		STARSHIP *StarShipPtr = LockStarShip (&race_q[playerI], hShip);
+		speciesID = StarShipPtr->SpeciesID;
+		UnlockStarShip (&race_q[playerI], hShip);
+	}
+
+	shipIndex = FindMasterShipIndex (speciesID);
+	DrawMeleeShipStatsCard (shipIndex < 0 ? MELEE_NONE :
+			(MeleeShip)shipIndex, &r, "無法取得船艦資料");
 }
 
 #if 0
@@ -261,8 +305,102 @@ SelectShip_processInput (GETMELEE_STATE *gms, COUNT playerI,
 			
 			PlayMenuSound (MENU_SOUND_MOVE);
 			PickMelee_ChangedSelection (gms, playerI);
+			LockMutex (GraphicsLock);
+			DrawPickMeleeShipInfo (gms, playerI);
+			UnlockMutex (GraphicsLock);
 		}
 	}
+
+	return TRUE;
+}
+
+static BOOLEAN
+SelectShip_findMouseCell (GETMELEE_STATE *gms, SWORD mouseX, SWORD mouseY,
+		COUNT *resultPlayer, COUNT *resultRow, COUNT *resultCol)
+{
+	COUNT playerI;
+
+	for (playerI = 0; playerI < NUM_PLAYERS; ++playerI)
+	{
+		COUNT row, col;
+
+		if (!gms->player[playerI].selecting || gms->player[playerI].done ||
+				!(PlayerControl[playerI] & HUMAN_CONTROL))
+			continue;
+
+		for (row = 0; row < NUM_PICKMELEE_ROWS; ++row)
+		{
+			for (col = 0; col <= NUM_PICKMELEE_COLUMNS; ++col)
+			{
+				COORD x = PICK_X_OFFS
+						+ (ICON_WIDTH + (2 << RESOLUTION_FACTOR)) * col;
+				COORD y = PICK_Y_OFFS
+						+ (ICON_HEIGHT + (2 << RESOLUTION_FACTOR)) * row
+						+ ((1 - playerI) * PICK_SIDE_OFFS);
+				if (mouseX >= x &&
+						mouseX < x + ICON_WIDTH + (2 << RESOLUTION_FACTOR) &&
+						mouseY >= y &&
+						mouseY < y + ICON_HEIGHT + (2 << RESOLUTION_FACTOR))
+				{
+					*resultPlayer = playerI;
+					*resultRow = row;
+					*resultCol = col;
+					return TRUE;
+				}
+			}
+		}
+	}
+
+	return FALSE;
+}
+
+// Apply hover and left-click input to either local human player's picker.
+// Returns FALSE when the exit cell was confirmed.
+static BOOLEAN
+SelectShip_processMouse (GETMELEE_STATE *gms)
+{
+	TFB_MOUSE_STATE mouse;
+	BOOLEAN newMotion, newPress;
+	BOOLEAN activate = FALSE;
+	COUNT playerI, row, col;
+
+	if (!TFB_GetMouseState (&mouse))
+		return TRUE;
+	newMotion = mouse.motion_generation != gms->mouseMotionGeneration;
+	newPress = mouse.press_generation != gms->mousePressGeneration;
+	if (!newMotion && !newPress)
+		return TRUE;
+	gms->mouseMotionGeneration = mouse.motion_generation;
+	gms->mousePressGeneration = mouse.press_generation;
+
+	if (newPress && mouse.last_button == TFB_MOUSE_BUTTON_LEFT &&
+			mouse.press_inside_viewport &&
+			SelectShip_findMouseCell (gms, mouse.press_x, mouse.press_y,
+			&playerI, &row, &col))
+	{
+		activate = TRUE;
+	}
+	else if (!mouse.inside_viewport ||
+			!SelectShip_findMouseCell (gms, mouse.x, mouse.y,
+			&playerI, &row, &col))
+	{
+		return TRUE;
+	}
+
+	if (row != gms->player[playerI].row ||
+			col != gms->player[playerI].col)
+	{
+		gms->player[playerI].row = row;
+		gms->player[playerI].col = col;
+		PlayMenuSound (MENU_SOUND_MOVE);
+		PickMelee_ChangedSelection (gms, playerI);
+		LockMutex (GraphicsLock);
+		DrawPickMeleeShipInfo (gms, playerI);
+		UnlockMutex (GraphicsLock);
+	}
+
+	if (activate)
+		return SelectShip_processInput (gms, playerI, BATTLE_WEAPON);
 
 	return TRUE;
 }
@@ -343,6 +481,15 @@ DoGetMelee (GETMELEE_STATE *gms)
 #endif
 	
 	if (GLOBAL (CurrentActivity) & CHECK_ABORT)
+		goto aborted;
+
+	/* Traditional Chinese distribution change (2026-07-28): make the
+	 * physical Escape key follow the pre-battle picker's red X path.  Use
+	 * KEY_MENU_EDIT_CANCEL rather than BATTLE_ESCAPE so Player 1's Right
+	 * Shift and keypad-0 special-ability bindings never open this prompt. */
+	if (PulsedInputState.menu[KEY_MENU_EDIT_CANCEL] && ConfirmExit ())
+		goto aborted;
+	if (!SelectShip_processMouse (gms))
 		goto aborted;
 
 	done = TRUE;
@@ -734,6 +881,19 @@ GetMeleeStarShips (COUNT playerMask, HSTARSHIP *ships)
 	now = GetTimeCounter ();
 	gmstate.InputFunc = DoGetMelee;
 	gmstate.Initialized = FALSE;
+	{
+		TFB_MOUSE_STATE mouse;
+		if (TFB_GetMouseState (&mouse))
+		{
+			gmstate.mouseMotionGeneration = mouse.motion_generation;
+			gmstate.mousePressGeneration = mouse.press_generation;
+		}
+		else
+		{
+			gmstate.mouseMotionGeneration = 0;
+			gmstate.mousePressGeneration = 0;
+		}
+	}
 	for (i = 0; i < NUM_PLAYERS; ++i)
 	{
 		// We have to use TFB_Random() results in specific order
@@ -776,6 +936,7 @@ GetMeleeStarShips (COUNT playerMask, HSTARSHIP *ships)
 					0, ONE_SECOND / 16, 0, ONE_SECOND / 16);
 		}
 		PickMelee_ChangedSelection (&gmstate, playerI);
+		DrawPickMeleeShipInfo (&gmstate, playerI);
 		Flash_start (gmstate.player[playerI].flashContext);
 	}
 
@@ -950,4 +1111,3 @@ reportShipSelected (GETMELEE_STATE *gms, COUNT index)
 	(void) gms;
 }
 #endif
-

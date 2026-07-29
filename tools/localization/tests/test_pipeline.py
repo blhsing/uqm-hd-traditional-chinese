@@ -316,14 +316,14 @@ class MenuAssetTests(unittest.TestCase):
                 for variant in STATUS_LABEL_VARIANTS
             ],
             [
-                ("base/ui", (22, 5), (21, 5), (22, 8), (21, 8), 500, 6),
+                ("base/ui", (22, 5), (21, 5), (22, 8), (21, 8), 450, 6),
                 (
                     "addons/hires2x/ui",
                     (22, 5),
                     (22, 5),
                     (22, 10),
                     (22, 10),
-                    450,
+                    400,
                     8,
                 ),
                 (
@@ -332,7 +332,7 @@ class MenuAssetTests(unittest.TestCase):
                     (44, 9),
                     (44, 18),
                     (44, 18),
-                    400,
+                    350,
                     16,
                 ),
             ],
@@ -380,12 +380,12 @@ class MenuAssetTests(unittest.TestCase):
 
         font_path = Path(r"C:\Windows\Fonts\NotoSansTC-VF.ttf")
         expected = {
-            ("zh_TW", "船員"): ((5, 0, 18, 8), (22, 8)),
-            ("zh_TW", "能量"): ((4, 1, 17, 8), (21, 8)),
-            ("hires2x-zh_TW", "船員"): ((3, 1, 19, 10), (22, 10)),
-            ("hires2x-zh_TW", "能量"): ((2, 1, 19, 10), (22, 10)),
-            ("hires4x-zh_TW", "船員"): ((6, 1, 38, 17), (44, 18)),
-            ("hires4x-zh_TW", "能量"): ((6, 2, 38, 17), (44, 18)),
+            ("zh_TW", "船員"): ((5, 0, 18, 7), (22, 8), 9223),
+            ("zh_TW", "能量"): ((4, 1, 16, 7), (21, 8), 8651),
+            ("hires2x-zh_TW", "船員"): ((3, 1, 19, 10), (22, 10), 14412),
+            ("hires2x-zh_TW", "能量"): ((3, 1, 20, 10), (22, 10), 16375),
+            ("hires4x-zh_TW", "船員"): ((6, 1, 38, 17), (44, 18), 40767),
+            ("hires4x-zh_TW", "能量"): ((6, 2, 38, 17), (44, 18), 45510),
         }
         for variant in STATUS_LABEL_VARIANTS:
             for label, size in (
@@ -403,11 +403,17 @@ class MenuAssetTests(unittest.TestCase):
                         font_weight=variant.font_weight,
                         font_size=variant.font_size,
                     )
+                    expected_bbox, expected_size, expected_coverage = expected[
+                        (variant.addon, label)
+                    ]
                     self.assertEqual(
-                        (mask.getbbox(), mask.size), expected[(variant.addon, label)]
+                        (mask.getbbox(), mask.size),
+                        (expected_bbox, expected_size),
                     )
+                    coverage_sum = sum(mask.get_flattened_data())
+                    self.assertEqual(coverage_sum, expected_coverage)
                     if variant.addon == "hires4x-zh_TW":
-                        coverage = sum(mask.get_flattened_data()) / 255
+                        coverage = coverage_sum / 255
                         self.assertGreater(coverage, 150)
                         self.assertLess(coverage, 200)
 

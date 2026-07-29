@@ -25,8 +25,13 @@
 #include "../setup.h"
 #include "../sounds.h"
 #include "libs/gfxlib.h"
+#include "libs/inplib.h"
 
 static FRAME BuildPickFrame;
+
+#define BUILD_PICK_STATS_WIDTH (149 << RESOLUTION_FACTOR)
+#define BUILD_PICK_STATS_HEIGHT (44 << RESOLUTION_FACTOR)
+#define BUILD_PICK_STATS_GAP (2 << RESOLUTION_FACTOR)
 
 void
 BuildBuildPickFrame (void)
@@ -88,6 +93,37 @@ DrawPickIcon (MeleeShip ship, bool DrawErase)
 	}
 }
 
+static void
+GetBuildPickPopupRect (RECT *r)
+{
+	GetFrameRect (BuildPickFrame, r);
+}
+
+static void
+GetBuildPickStatsRect (RECT *r)
+{
+	RECT popupRect;
+	COORD rightLimit;
+
+	GetBuildPickPopupRect (&popupRect);
+	r->extent.width = BUILD_PICK_STATS_WIDTH;
+	r->extent.height = BUILD_PICK_STATS_HEIGHT;
+	r->corner.x = popupRect.corner.x
+			+ ((popupRect.extent.width - r->extent.width) >> 1);
+	rightLimit = SCREEN_WIDTH - (2 << RESOLUTION_FACTOR);
+	if (r->corner.x < (2 << RESOLUTION_FACTOR))
+		r->corner.x = 2 << RESOLUTION_FACTOR;
+	else if (r->corner.x + r->extent.width > rightLimit)
+		r->corner.x = rightLimit - r->extent.width;
+
+	/* The card is adjacent to, never on top of, the 5x5 ship grid. */
+	r->corner.y = popupRect.corner.y + popupRect.extent.height
+			+ BUILD_PICK_STATS_GAP;
+	if (r->corner.y + r->extent.height > SCREEN_HEIGHT)
+		r->corner.y = popupRect.corner.y - BUILD_PICK_STATS_GAP
+				- r->extent.height;
+}
+
 // Pre: the called holds the GraphicsLock
 void
 DrawPickFrame (MELEE_STATE *pMS)
@@ -113,12 +149,117 @@ DrawPickFrame (MELEE_STATE *pMS)
 	s.origin.y = 0;
 	DrawStamp (&s);
 	DrawMeleeShipStrings (pMS, pMS->currentShip);
+	GetBuildPickStatsRect (&r);
+	DrawMeleeShipStatsCard (pMS->currentShip, &r, NULL);
 }
 
 void
 GetBuildPickFrameRect (RECT *r)
 {
-	GetFrameRect (BuildPickFrame, r);
+	RECT popupRect;
+	RECT statsRect;
+
+	GetBuildPickPopupRect (&popupRect);
+	GetBuildPickStatsRect (&statsRect);
+	BoxUnion (&popupRect, &statsRect, r);
+}
+
+static void
+BuildPick_changeSelection (MELEE_STATE *pMS, MeleeShip newSelectedShip)
+{
+	if (newSelectedShip == pMS->currentShip)
+		return;
+
+	LockMutex (GraphicsLock);
+	DrawPickIcon (pMS->currentShip, true);
+	pMS->currentShip = newSelectedShip;
+	DrawMeleeShipStrings (pMS, newSelectedShip);
+	{
+		RECT r;
+		GetBuildPickStatsRect (&r);
+		DrawMeleeShipStatsCard (newSelectedShip, &r, NULL);
+	}
+	UnlockMutex (GraphicsLock);
+}
+
+static BOOLEAN
+BuildPick_findShipAt (SWORD mouseX, SWORD mouseY, MeleeShip *result)
+{
+	RECT popupRect;
+	POINT point;
+	MeleeShip ship;
+
+	GetBuildPickPopupRect (&popupRect);
+	point.x = mouseX;
+	point.y = mouseY;
+	for (ship = 0; ship < NUM_PICK_COLS * NUM_PICK_ROWS; ++ship)
+	{
+		POINT origin;
+		RECT iconRect;
+		FRAME icon = GetShipIconsFromIndex (ship);
+
+		origin.x = popupRect.corner.x + (20 << RESOLUTION_FACTOR)
+				+ (ship % NUM_PICK_COLS) * (18 << RESOLUTION_FACTOR)
+				- RES_CASE(0,0,2);
+		origin.y = popupRect.corner.y + (5 << RESOLUTION_FACTOR)
+				+ (ship / NUM_PICK_COLS) * (18 << RESOLUTION_FACTOR);
+		if (GetFrameRect (icon, &iconRect))
+		{
+			iconRect.corner.x += origin.x;
+			iconRect.corner.y += origin.y;
+			if (pointWithinRect (iconRect, point))
+			{
+				*result = ship;
+				return TRUE;
+			}
+		}
+	}
+
+	return FALSE;
+}
+
+static BOOLEAN
+BuildPick_processMouse (MELEE_STATE *pMS)
+{
+	TFB_MOUSE_STATE mouse;
+	BOOLEAN newMotion;
+	BOOLEAN newPress;
+	MeleeShip hoveredShip;
+	MeleeShip pressedShip;
+	BOOLEAN leftPress;
+
+	if (!TFB_GetMouseState (&mouse))
+		return FALSE;
+	newMotion = mouse.motion_generation != pMS->mouseMotionGeneration;
+	newPress = mouse.press_generation != pMS->mousePressGeneration;
+	pMS->mouseMotionGeneration = mouse.motion_generation;
+	pMS->mousePressGeneration = mouse.press_generation;
+	if (!newMotion && !newPress)
+		return FALSE;
+
+	leftPress = newPress && mouse.last_button == TFB_MOUSE_BUTTON_LEFT;
+	if (leftPress && mouse.press_inside_viewport &&
+			BuildPick_findShipAt (mouse.press_x, mouse.press_y, &pressedShip))
+	{
+		if (pressedShip != pMS->currentShip)
+		{
+			BuildPick_changeSelection (pMS, pressedShip);
+			PlayMenuSound (MENU_SOUND_MOVE);
+		}
+		pMS->buildPickConfirmed = true;
+		PlayMenuSound (MENU_SOUND_SUCCESS);
+		return TRUE;
+	}
+
+	if (mouse.inside_viewport &&
+			BuildPick_findShipAt (mouse.x, mouse.y, &hoveredShip) &&
+			hoveredShip != pMS->currentShip)
+	{
+		BuildPick_changeSelection (pMS, hoveredShip);
+		PlayMenuSound (MENU_SOUND_MOVE);
+	}
+
+	return FALSE;
 }
 
 static BOOLEAN
@@ -136,6 +277,8 @@ DoPickShip (MELEE_STATE *pMS)
 	}
 
 	SetMenuSounds (MENU_SOUND_ARROWS, MENU_SOUND_SELECT);
+	if (BuildPick_processMouse (pMS))
+		return FALSE;
 
 	if (PulsedInputState.menu[KEY_MENU_SELECT] ||
 			PulsedInputState.menu[KEY_MENU_CANCEL])
@@ -187,14 +330,7 @@ DoPickShip (MELEE_STATE *pMS)
 		}
 
 		if (newSelectedShip != pMS->currentShip)
-		{
-			// A new ship has been selected.
-			LockMutex (GraphicsLock);
-			DrawPickIcon (pMS->currentShip, true);
-			pMS->currentShip = newSelectedShip;
-			DrawMeleeShipStrings (pMS, newSelectedShip);
-			UnlockMutex (GraphicsLock);
-		}
+			BuildPick_changeSelection (pMS, newSelectedShip);
 	}
 
 	Melee_flashSelection (pMS);
@@ -211,7 +347,16 @@ DoPickShip (MELEE_STATE *pMS)
 bool
 BuildPickShip (MELEE_STATE *pMS)
 {
+	TFB_MOUSE_STATE mouse;
+
 	FlushInput ();
+	pMS->mouseMotionGeneration = 0;
+	pMS->mousePressGeneration = 0;
+	if (TFB_GetMouseState (&mouse))
+	{
+		pMS->mouseMotionGeneration = mouse.motion_generation;
+		pMS->mousePressGeneration = mouse.press_generation;
+	}
 
 	if (pMS->currentShip == MELEE_NONE)
 		pMS->currentShip = 0;
@@ -225,4 +370,3 @@ BuildPickShip (MELEE_STATE *pMS)
 	
 	return pMS->buildPickConfirmed;
 }
-

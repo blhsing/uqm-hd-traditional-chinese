@@ -92,7 +92,7 @@ STATUS_LABEL_VARIANTS = (
         (21, 5),
         (22, 8),
         (21, 8),
-        500,
+        450,
         6,
     ),
     StatusLabelVariant(
@@ -103,7 +103,7 @@ STATUS_LABEL_VARIANTS = (
         (22, 5),
         (22, 10),
         (22, 10),
-        450,
+        400,
         8,
     ),
     StatusLabelVariant(
@@ -114,7 +114,7 @@ STATUS_LABEL_VARIANTS = (
         (44, 9),
         (44, 18),
         (44, 18),
-        400,
+        350,
         16,
     ),
 )

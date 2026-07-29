@@ -21,4 +21,7 @@
 
 extern void ProcessInputEvent (const SDL_Event *Event);
 
+/* Reapply the visibility requested by the most recent input method. */
+extern void TFB_ApplyMouseCursorVisibility (void);
+
 #endif

@@ -40,6 +40,42 @@ extern volatile int MouseButtonDown;
 extern volatile int QuitPosted;
 extern volatile int GameActive;
 
+/*
+ * Thread-safe mouse state in the game's logical 4:3 coordinate space.
+ * Button numbers intentionally match SDL 1.2 (and the values stored in
+ * last_button); button_mask uses one bit per button, starting at bit zero.
+ */
+enum
+{
+	TFB_MOUSE_BUTTON_NONE = 0,
+	TFB_MOUSE_BUTTON_LEFT = 1,
+	TFB_MOUSE_BUTTON_MIDDLE = 2,
+	TFB_MOUSE_BUTTON_RIGHT = 3,
+	TFB_MOUSE_BUTTON_WHEEL_UP = 4,
+	TFB_MOUSE_BUTTON_WHEEL_DOWN = 5,
+	TFB_MOUSE_BUTTON_X1 = 6,
+	TFB_MOUSE_BUTTON_X2 = 7
+};
+
+#define TFB_MOUSE_BUTTON_MASK(button) (1U << ((button) - 1))
+
+typedef struct tfb_mouse_state
+{
+	SWORD x;
+	SWORD y;
+	BOOLEAN inside_viewport;
+	SWORD press_x;
+	SWORD press_y;
+	BOOLEAN press_inside_viewport;
+	unsigned int button_mask;
+	unsigned int last_button;
+	unsigned int motion_generation;
+	unsigned int press_generation;
+} TFB_MOUSE_STATE;
+
+/* Returns FALSE before input initialization or when state cannot be locked. */
+extern BOOLEAN TFB_GetMouseState (TFB_MOUSE_STATE *state);
+
 /* Functions for dealing with Character Mode */
 
 void EnterCharacterMode (void);
@@ -60,4 +96,3 @@ void SaveKeyConfiguration (uio_DirHandle *path, const char *fname);
 void BeginInputFrame (void);
 
 #endif /* _INPLIB_H */
-

@@ -18,6 +18,8 @@
 
 // JMS_GFX 2012: Merged the resolution Factor stuff from P6014.
 
+#include "config.h"
+
 #ifdef HAVE_UNISTD_H
 #	include <unistd.h>
 #endif

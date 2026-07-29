@@ -4,13 +4,66 @@ These scripts install the extracted UQM-HD Beta 1 tree as a managed portable cop
 
 ## Inputs
 
-The installer requires:
+The installer always requires:
 
-- `SourceRoot`: extracted upstream Windows tree containing `uqm.exe` and `content/addons` (normally `staging/UQM-HD`)
+- `SourceRoot`: extracted upstream Windows tree containing `content/addons` (normally `staging/UQM-HD`)
 - `PacksDir`: build-output directory containing exactly `zh_TW.uqm`, `hires2x-zh_TW.uqm`, and `hires4x-zh_TW.uqm`
 - `InstallRoot`: portable destination (default `C:\Games\UQM-HD-TW`)
 - `ProfileDir`: isolated user configuration/save directory (default `%APPDATA%\UQM-HD-zh_TW`)
-- Python 3.10 or newer on `PATH`, used only by the two audited PE patchers
+
+The preferred release path also supplies `RuntimeDir`, whose
+`runtime-manifest.json` locks the custom Windows x86 executable and every DLL by
+exact length and SHA-256. The manifest maps its source executable (normally
+`uqm-hd.exe`) to the installed name `uqm.exe`; DLLs retain their leaf names. It
+must also contain a non-empty `LICENSES` directory. This path does not require
+Python and never applies legacy binary patches.
+
+The manifest schema is intentionally small and deterministic:
+
+```json
+{
+  "schemaVersion": 1,
+  "platform": "windows-x86",
+  "executable": "uqm-hd.exe",
+  "files": [
+    {
+      "path": "uqm-hd.exe",
+      "installPath": "uqm.exe",
+      "length": 3013112,
+      "sha256": "64 lowercase or uppercase hexadecimal digits",
+      "kind": "executable",
+      "package": "uqm-hd",
+      "version": "source revision or release",
+      "license": "GPL-2.0-or-later",
+      "licenseFiles": ["LICENSES/uqm-hd/COPYING"],
+      "provenance": {"source": "repository/build identification"}
+    },
+    {
+      "path": "SDL.dll",
+      "installPath": "SDL.dll",
+      "length": 451295,
+      "sha256": "64 lowercase or uppercase hexadecimal digits",
+      "kind": "runtime-library",
+      "package": "mingw-w64-i686-SDL",
+      "version": "1.2.16-1",
+      "license": "LGPL-2.1-or-later",
+      "licenseFiles": ["LICENSES/SDL/COPYING"],
+      "provenance": {"source": "MSYS2 package identification"}
+    }
+  ]
+}
+```
+
+All payload names must be ASCII leaf filenames. There must be exactly one
+`executable` entry and at least one `runtime-library`; every top-level EXE/DLL
+must be listed, and no unlisted binary is accepted. Every entry must name its
+package, version, license expression, one or more existing files below
+`LICENSES/`, and a non-empty provenance object.
+
+If `RuntimeDir` is omitted, `SourceRoot` must also contain the exact supported
+upstream `uqm.exe`, and Python 3.10 or newer must be available on `PATH`. That
+fallback copies the upstream executable and applies the audited, hash-gated PE
+patch pipeline only to the destination copy.
 
 Run a validation-only rehearsal first. `-PlanOnly` reads and validates the source and all three pack archives, but does not create the destination, profile, marker, or shortcuts:
 
@@ -18,6 +71,7 @@ Run a validation-only rehearsal first. `-PlanOnly` reads and validates the sourc
 powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\tools\install\Install-UqmHdZhTw.ps1 `
   -SourceRoot .\staging\UQM-HD `
   -PacksDir .\localized-build\packages `
+  -RuntimeDir .\runtime\windows-x86 `
   -InstallRoot C:\Games\UQM-HD-TW `
   -ProfileDir "$env:APPDATA\UQM-HD-zh_TW" `
   -PlanOnly
@@ -29,6 +83,7 @@ Remove `-PlanOnly` to install:
 powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\tools\install\Install-UqmHdZhTw.ps1 `
   -SourceRoot .\staging\UQM-HD `
   -PacksDir .\localized-build\packages `
+  -RuntimeDir .\runtime\windows-x86 `
   -InstallRoot C:\Games\UQM-HD-TW `
   -ProfileDir "$env:APPDATA\UQM-HD-zh_TW"
 ```
@@ -54,12 +109,17 @@ During an active Super Melee bout, `Escape` ends that bout by clearing only the
 deliberately scoped to Super Melee; the campaign's existing escape/run-away
 rules are unchanged, and the global `CHECK_ABORT` state is not propagated.
 
-The managed executable receives two deterministic, hash-gated patches during
-installation: `patch_uqm_hd_menu_highlight.py`, followed by
-`patch_uqm_hd_super_melee_escape.py`. The upstream `SourceRoot` is never
-modified. `-PlanOnly` verifies the full chain against a temporary copy; a real
-install patches only the destination copy before its final manifest hash is
-recorded. Both patchers reject unknown executable hashes and support `--check`.
+With `RuntimeDir`, every runtime payload file is re-hashed both during preflight
+and immediately before its atomic copy, and the managed-install marker records
+the custom runtime manifest hash and the final hash of every installed file.
+
+Without `RuntimeDir`, the managed executable receives the deterministic,
+hash-gated compatibility patch pipeline (menu highlight, in-bout Escape,
+Player 1 RightAlt, and pre-battle picker Escape). The upstream `SourceRoot` is
+never modified. `-PlanOnly` verifies the full chain against a temporary copy;
+a real install patches only the destination copy before its final manifest hash
+is recorded. Every patcher rejects unknown executable hashes and supports
+`--check`.
 
 Shortcut file and folder names intentionally use ASCII for compatibility with
 Windows hosts whose legacy shortcut API cannot save Unicode paths. The game UI,

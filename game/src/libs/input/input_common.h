@@ -31,7 +31,10 @@ enum
 extern int TFB_InitInput (int driver, int flags);
 extern void TFB_UninitInput (void);
 
-#define MAX_FLIGHT_ALTERNATES  2
+/* The setup screen exposes the first two slots.  A third, hidden slot lets
+ * the Traditional Chinese installer retain RightShift and Keypad-0 while
+ * also binding RightAlt to Player 1's special ability. */
+#define MAX_FLIGHT_ALTERNATES  3
 
 extern void TFB_SetInputVectors (volatile int menu[], int num_menu,
 		volatile int flight[], int num_templ, int num_flight);

@@ -120,10 +120,9 @@ TFB_ReInitGraphics (int driver, int flags, int width, int height, unsigned int r
 			UQM_PATCH_VERSION, UQM_EXTRA_VERSION);
 	SDL_WM_SetCaption (caption, NULL);
 
-	if (flags & TFB_GFXFLAGS_FULLSCREEN)
-		SDL_ShowCursor (SDL_DISABLE);
-	else
-		SDL_ShowCursor (SDL_ENABLE);
+	/* SDL_SetVideoMode may reset cursor visibility.  Preserve the input
+	 * method selected by the most recent mouse movement or key/button. */
+	TFB_ApplyMouseCursorVisibility ();
 
 	return result;
 }
@@ -634,4 +633,3 @@ TFB_SetGamma (float gamma)
 		log_add (log_Info, "Gamma correction set to %1.4f.", gamma);
 	}
 }
-

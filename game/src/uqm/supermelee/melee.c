@@ -62,6 +62,7 @@
 #include "../planets/planets.h"
 		// for NUMBER_OF_PLANET_TYPES
 #include "libs/gfxlib.h"
+#include "libs/inplib.h"
 #include "libs/mathlib.h"
 		// for TFB_Random()
 #include "libs/reslib.h"
@@ -74,6 +75,7 @@
 
 
 static void StartMelee (MELEE_STATE *pMS);
+static void MeleeOptionSelect (MELEE_STATE *pMS);
 #ifdef NETPLAY
 static ssize_t numPlayersReady (void);
 #endif  /* NETPLAY */
@@ -245,6 +247,153 @@ static BYTE
 GetShipColumn (int index)
 {
 	return index % NUM_MELEE_COLUMNS;
+}
+
+typedef struct melee_mouse_target
+{
+	BOOLEAN isShip;
+	MELEE_OPTIONS option;
+	COUNT side;
+	COUNT row;
+	COUNT col;
+} MELEE_MOUSE_TARGET;
+
+static void
+Melee_resetMouseState (MELEE_STATE *pMS)
+{
+	TFB_MOUSE_STATE mouse;
+
+	pMS->mouseMotionGeneration = 0;
+	pMS->mousePressGeneration = 0;
+	if (TFB_GetMouseState (&mouse))
+	{
+		pMS->mouseMotionGeneration = mouse.motion_generation;
+		pMS->mousePressGeneration = mouse.press_generation;
+	}
+}
+
+static BOOLEAN
+Melee_getMouseEvent (MELEE_STATE *pMS, TFB_MOUSE_STATE *mouse,
+		BOOLEAN *newMotion, BOOLEAN *newPress)
+{
+	if (!TFB_GetMouseState (mouse))
+		return FALSE;
+
+	*newMotion = mouse->motion_generation != pMS->mouseMotionGeneration;
+	*newPress = mouse->press_generation != pMS->mousePressGeneration;
+	pMS->mouseMotionGeneration = mouse->motion_generation;
+	pMS->mousePressGeneration = mouse->press_generation;
+
+	return (*newMotion || *newPress) && (mouse->inside_viewport ||
+			(*newPress && mouse->press_inside_viewport));
+}
+
+static BOOLEAN
+Melee_findShipAt (SWORD x, SWORD y, MELEE_MOUSE_TARGET *target)
+{
+	COUNT side;
+	COUNT row;
+	COUNT col;
+	POINT point;
+
+	point.x = x;
+	point.y = y;
+	for (side = 0; side < NUM_SIDES; ++side)
+	{
+		for (row = 0; row < NUM_MELEE_ROWS; ++row)
+		{
+			for (col = 0; col < NUM_MELEE_COLUMNS; ++col)
+			{
+				RECT r;
+
+				GetShipBox (&r, side, row, col);
+				if (pointWithinRect (r, point))
+				{
+					target->isShip = TRUE;
+					target->side = side;
+					target->row = row;
+					target->col = col;
+					return TRUE;
+				}
+			}
+		}
+	}
+
+	return FALSE;
+}
+
+static BOOLEAN
+Melee_findOptionAt (SWORD x, SWORD y, MELEE_MOUSE_TARGET *target)
+{
+	typedef struct melee_button_frame
+	{
+		MELEE_OPTIONS option;
+		COUNT frameIndex;
+	} MELEE_BUTTON_FRAME;
+	static const MELEE_BUTTON_FRAME buttons[] =
+	{
+#ifdef NETPLAY
+		{ NET_TOP, 35 },
+#endif
+		{ CONTROLS_TOP, 1 },
+		{ SAVE_TOP, 18 },
+		{ LOAD_TOP, 17 },
+		{ START_MELEE, 25 },
+		{ LOAD_BOT, 22 },
+		{ SAVE_BOT, 21 },
+		{ CONTROLS_BOT, 9 },
+#ifdef NETPLAY
+		{ NET_BOT, 37 },
+#endif
+		{ QUIT_BOT, 29 }
+	};
+	POINT point;
+	COUNT i;
+
+	point.x = x;
+	point.y = y;
+	for (i = 0; i < sizeof (buttons) / sizeof (buttons[0]); ++i)
+	{
+		RECT r;
+		FRAME frame = SetAbsFrameIndex (MeleeFrame, buttons[i].frameIndex);
+
+		if (GetFrameRect (frame, &r) && pointWithinRect (r, point))
+		{
+			target->isShip = FALSE;
+			target->option = buttons[i].option;
+			return TRUE;
+		}
+	}
+
+	return FALSE;
+}
+
+static BOOLEAN
+Melee_findMouseTarget (SWORD x, SWORD y, MELEE_MOUSE_TARGET *target)
+{
+	memset (target, 0, sizeof (*target));
+	if (Melee_findShipAt (x, y, target))
+		return TRUE;
+	return Melee_findOptionAt (x, y, target);
+}
+
+static BOOLEAN
+Melee_findEventTarget (const TFB_MOUSE_STATE *mouse, BOOLEAN newMotion,
+		BOOLEAN newPress, MELEE_MOUSE_TARGET *target, BOOLEAN *activate)
+{
+	*activate = FALSE;
+	if (newPress && mouse->last_button == TFB_MOUSE_BUTTON_LEFT &&
+			mouse->press_inside_viewport &&
+			Melee_findMouseTarget (mouse->press_x, mouse->press_y, target))
+	{
+		*activate = TRUE;
+		return TRUE;
+	}
+
+	if ((newMotion || newPress) && mouse->inside_viewport)
+		return Melee_findMouseTarget (mouse->x, mouse->y, target);
+
+	return FALSE;
 }
 
 // Get the rectangle containing the ship slot for the specified side, row,
@@ -880,6 +1029,110 @@ InitMelee (MELEE_STATE *pMS)
 	(void) pMS;
 }
 
+#define MELEE_STATS_LINE_HEIGHT (10 << RESOLUTION_FACTOR)
+#define MELEE_STATS_TITLE_COLOR \
+		BUILD_COLOR (MAKE_RGB15 (0x0A, 0x1F, 0x1F), 0x0B)
+
+// Draw base performance and energy statistics for a Super Melee vessel.
+// Pre: the caller holds GraphicsLock.
+void
+DrawMeleeShipStatsCard (MeleeShip ship, const RECT *cardRect,
+		const UNICODE *emptyLabel)
+{
+	CONTEXT oldContext;
+	FRAME oldFrame;
+	FONT oldFont;
+	Color oldColor;
+	TEXT t;
+	HMASTERSHIP hMasterShip = 0;
+	MASTER_SHIP_INFO *master = NULL;
+	COUNT thrustSteps, accelHundredths, turnHundredths;
+	UNICODE buf[160];
+	const UNICODE *raceName, *shipName;
+
+	oldContext = SetContext (SpaceContext);
+	oldFrame = SetContextFGFrame (Screen);
+	oldFont = SetContextFont (TinyFont);
+	oldColor = SetContextForeGroundColor (PICK_BG_COLOR);
+	DrawFilledRectangle (cardRect);
+	SetContextForeGroundColor (MELEE_STATS_TITLE_COLOR);
+	DrawRectangle (cardRect);
+
+	t.align = ALIGN_LEFT;
+	t.CharCount = (COUNT)~0;
+	t.baseline.x = cardRect->corner.x + (4 << RESOLUTION_FACTOR);
+	t.baseline.y = cardRect->corner.y + (8 << RESOLUTION_FACTOR);
+
+	if ((unsigned int)ship >= NUM_MELEE_SHIPS)
+	{
+		if (emptyLabel != NULL)
+		{
+			t.align = ALIGN_CENTER;
+			t.baseline.x = cardRect->corner.x
+					+ (cardRect->extent.width >> 1);
+			t.baseline.y = cardRect->corner.y
+					+ (cardRect->extent.height >> 1)
+					+ (3 << RESOLUTION_FACTOR);
+			t.pStr = emptyLabel;
+			font_DrawText (&t);
+		}
+		goto done;
+	}
+	hMasterShip = GetStarShipFromIndex (&master_q, ship);
+	if (hMasterShip == 0)
+		goto done;
+	master = LockMasterShip (&master_q, hMasterShip);
+
+	raceName = GetStringAddress (SetAbsStringTableIndex (
+			master->ShipInfo.race_strings, 2));
+	shipName = GetStringAddress (SetAbsStringTableIndex (
+			master->ShipInfo.race_strings, 3));
+	snprintf (buf, sizeof (buf), "%s %s", raceName, shipName);
+	t.pStr = buf;
+	font_DrawText (&t);
+
+	t.baseline.y += MELEE_STATS_LINE_HEIGHT;
+	snprintf (buf, sizeof (buf), "船員%u  能量%u  費用%u",
+			master->ShipInfo.max_crew, master->ShipInfo.max_energy,
+			master->ShipInfo.ship_cost);
+	t.pStr = buf;
+	SetContextForeGroundColor (WHITE_COLOR);
+	font_DrawText (&t);
+
+	thrustSteps = master->Characteristics.thrust_increment == 0 ? 0 :
+			(master->Characteristics.max_thrust
+			+ master->Characteristics.thrust_increment - 1)
+			/ master->Characteristics.thrust_increment;
+	accelHundredths = (thrustSteps
+			* (master->Characteristics.thrust_wait + 1) * 100 + 12) / 24;
+	turnHundredths = ((master->Characteristics.turn_wait + 1)
+			* 16 * 100 + 12) / 24;
+	t.baseline.y += MELEE_STATS_LINE_HEIGHT;
+	snprintf (buf, sizeof (buf), "極速%u  加速%u.%02u秒  轉向%u.%02u秒",
+			master->Characteristics.max_thrust >> RESOLUTION_FACTOR,
+			accelHundredths / 100, accelHundredths % 100,
+			turnHundredths / 100, turnHundredths % 100);
+	t.pStr = buf;
+	font_DrawText (&t);
+
+	t.baseline.y += MELEE_STATS_LINE_HEIGHT;
+	snprintf (buf, sizeof (buf), "回能+%u/%u幀  武器%u  特技%u",
+			master->Characteristics.energy_regeneration,
+			master->Characteristics.energy_wait + 1,
+			master->Characteristics.weapon_energy_cost,
+			master->Characteristics.special_energy_cost);
+	t.pStr = buf;
+	font_DrawText (&t);
+
+done:
+	if (master != NULL)
+		UnlockMasterShip (&master_q, hMasterShip);
+	SetContextForeGroundColor (oldColor);
+	SetContextFont (oldFont);
+	SetContextFGFrame (oldFrame);
+	SetContext (oldContext);
+}
+
 // Pre: The caller holds the GraphicsLock.
 void
 DrawMeleeShipStrings (MELEE_STATE *pMS, MeleeShip NewStarShip)
@@ -975,6 +1228,55 @@ UpdateCurrentShip (MELEE_STATE *pMS)
 	LockMutex (GraphicsLock);
 	DrawMeleeShipStrings (pMS, pMS->currentShip);
 	UnlockMutex (GraphicsLock);
+}
+
+static BOOLEAN
+Melee_changeOption (MELEE_STATE *pMS, MELEE_OPTIONS newOption)
+{
+	if (newOption == pMS->MeleeOption)
+		return FALSE;
+
+#ifdef NETPLAY
+	if (pMS->MeleeOption == CONTROLS_TOP ||
+			pMS->MeleeOption == CONTROLS_BOT)
+		UpdateMeleeStatusMessage (-1);
+#endif
+
+	LockMutex (GraphicsLock);
+	Deselect (pMS->MeleeOption);
+	pMS->MeleeOption = newOption;
+	Select (pMS->MeleeOption);
+	UnlockMutex (GraphicsLock);
+
+#ifdef NETPLAY
+	if (newOption == CONTROLS_TOP || newOption == CONTROLS_BOT)
+	{
+		COUNT side = (newOption == CONTROLS_TOP) ? 1 : 0;
+		if (PlayerControl[side] & NETWORK_CONTROL)
+			UpdateMeleeStatusMessage (side);
+		else
+			UpdateMeleeStatusMessage (-1);
+	}
+#endif
+
+	return TRUE;
+}
+
+static void
+Melee_changeEditSelection (MELEE_STATE *pMS, COUNT side, COUNT row,
+		COUNT col)
+{
+	if (side == pMS->side && row == pMS->row && col == pMS->col)
+		return;
+
+	LockMutex (GraphicsLock);
+	Deselect (EDIT_MELEE);
+	pMS->side = side;
+	pMS->row = row;
+	pMS->col = col;
+	UnlockMutex (GraphicsLock);
+
+	UpdateCurrentShip (pMS);
 }
 
 // returns (COUNT) ~0 for an invalid ship.
@@ -1099,6 +1401,50 @@ BuildPickShipPopup (MELEE_STATE *pMS)
 }
 
 static BOOLEAN
+Melee_processEditMouse (MELEE_STATE *pMS)
+{
+	TFB_MOUSE_STATE mouse;
+	MELEE_MOUSE_TARGET target;
+	BOOLEAN newMotion;
+	BOOLEAN newPress;
+	BOOLEAN activate;
+
+	if (!Melee_getMouseEvent (pMS, &mouse, &newMotion, &newPress) ||
+			!Melee_findEventTarget (&mouse, newMotion, newPress, &target,
+			&activate))
+		return FALSE;
+
+	pMS->LastInputTime = GetTimeCounter ();
+	if (target.isShip)
+	{
+		if (target.side != pMS->side || target.row != pMS->row ||
+				target.col != pMS->col)
+		{
+			Melee_changeEditSelection (pMS, target.side, target.row,
+					target.col);
+			PlayMenuSound (MENU_SOUND_MOVE);
+		}
+		if (activate)
+		{
+			LockMutex (GraphicsLock);
+			Deselect (EDIT_MELEE);
+			UnlockMutex (GraphicsLock);
+			BuildPickShipPopup (pMS);
+		}
+		return TRUE;
+	}
+
+	if (Melee_changeOption (pMS, target.option))
+		PlayMenuSound (MENU_SOUND_MOVE);
+	pMS->currentShip = MELEE_NONE;
+	pMS->InputFunc = DoMelee;
+	pMS->Initialized = TRUE;
+	if (activate)
+		MeleeOptionSelect (pMS);
+	return TRUE;
+}
+
+static BOOLEAN
 DoEdit (MELEE_STATE *pMS)
 {
 	DWORD TimeIn = GetTimeCounter ();
@@ -1121,6 +1467,13 @@ DoEdit (MELEE_STATE *pMS)
 #ifdef NETPLAY
 	netInput ();
 #endif
+	if (Melee_processEditMouse (pMS))
+	{
+		if (GLOBAL (CurrentActivity) & CHECK_ABORT)
+			return FALSE;
+		goto finish_edit;
+	}
+
 	if ((pMS->row < NUM_MELEE_ROWS || pMS->currentShip == MELEE_NONE)
 			&& (PulsedInputState.menu[KEY_MENU_CANCEL]
 			|| (PulsedInputState.menu[KEY_MENU_RIGHT]
@@ -1266,6 +1619,7 @@ DoEdit (MELEE_STATE *pMS)
 		}
 	}
 
+finish_edit:
 #ifdef NETPLAY
 	flushPacketQueues ();
 #endif
@@ -1872,6 +2226,50 @@ MeleeOptionSelect (MELEE_STATE *pMS)
 	}
 }
 
+static BOOLEAN
+Melee_processMenuMouse (MELEE_STATE *pMS)
+{
+	TFB_MOUSE_STATE mouse;
+	MELEE_MOUSE_TARGET target;
+	BOOLEAN newMotion;
+	BOOLEAN newPress;
+	BOOLEAN activate;
+
+	if (!Melee_getMouseEvent (pMS, &mouse, &newMotion, &newPress) ||
+			!Melee_findEventTarget (&mouse, newMotion, newPress, &target,
+			&activate))
+		return FALSE;
+
+	pMS->LastInputTime = GetTimeCounter ();
+	if (target.isShip)
+	{
+		LockMutex (GraphicsLock);
+		Deselect (pMS->MeleeOption);
+		UnlockMutex (GraphicsLock);
+		pMS->MeleeOption = EDIT_MELEE;
+		pMS->Initialized = FALSE;
+		pMS->side = target.side;
+		pMS->row = target.row;
+		pMS->col = target.col;
+		DoEdit (pMS);
+		PlayMenuSound (MENU_SOUND_MOVE);
+		if (activate)
+		{
+			LockMutex (GraphicsLock);
+			Deselect (EDIT_MELEE);
+			UnlockMutex (GraphicsLock);
+			BuildPickShipPopup (pMS);
+		}
+		return TRUE;
+	}
+
+	if (Melee_changeOption (pMS, target.option))
+		PlayMenuSound (MENU_SOUND_MOVE);
+	if (activate)
+		MeleeOptionSelect (pMS);
+	return TRUE;
+}
+
 BOOLEAN
 DoMelee (MELEE_STATE *pMS)
 {
@@ -1904,12 +2302,19 @@ DoMelee (MELEE_STATE *pMS)
 
 		FadeScreen (FadeAllToColor, ONE_SECOND / 2);
 		pMS->LastInputTime = GetTimeCounter ();
+		Melee_resetMouseState (pMS);
 		return TRUE;
 	}
 
 #ifdef NETPLAY
 	netInput ();
 #endif
+	if (Melee_processMenuMouse (pMS))
+	{
+		if (GLOBAL (CurrentActivity) & CHECK_ABORT)
+			return FALSE;
+		goto finish_melee;
+	}
 	
 	if (PulsedInputState.menu[KEY_MENU_CANCEL] ||
 			PulsedInputState.menu[KEY_MENU_LEFT])
@@ -1958,30 +2363,7 @@ DoMelee (MELEE_STATE *pMS)
 			NewMeleeOption = START_MELEE;
 		}
 
-		if (NewMeleeOption != pMS->MeleeOption)
-		{
-#ifdef NETPLAY
-			if (pMS->MeleeOption == CONTROLS_TOP ||
-					pMS->MeleeOption == CONTROLS_BOT)
-				UpdateMeleeStatusMessage (-1);
-#endif
-			LockMutex (GraphicsLock);
-			Deselect (pMS->MeleeOption);
-			pMS->MeleeOption = NewMeleeOption;
-			Select (pMS->MeleeOption);
-			UnlockMutex (GraphicsLock);
-#ifdef NETPLAY
-			if (NewMeleeOption == CONTROLS_TOP ||
-					NewMeleeOption == CONTROLS_BOT)
-			{
-				COUNT side = (NewMeleeOption == CONTROLS_TOP) ? 1 : 0;
-				if (PlayerControl[side] & NETWORK_CONTROL)
-					UpdateMeleeStatusMessage (side);
-				else
-					UpdateMeleeStatusMessage (-1);
-			}
-#endif
-		}
+		(void) Melee_changeOption (pMS, NewMeleeOption);
 
 		if (PulsedInputState.menu[KEY_MENU_SELECT] || force_select)
 		{
@@ -1991,6 +2373,7 @@ DoMelee (MELEE_STATE *pMS)
 		}
 	}
 
+finish_melee:
 #ifdef NETPLAY
 	flushPacketQueues ();
 
@@ -2131,6 +2514,7 @@ Melee (void)
 
 		MenuState.side = 0;
 		SetMenuSounds (MENU_SOUND_ARROWS, MENU_SOUND_SELECT);
+		Melee_resetMouseState (&MenuState);
 		DoInput (&MenuState, TRUE);
 
 		StopMusic ();
@@ -2699,4 +3083,3 @@ Melee_RemoteChange_teamName (MELEE_STATE *pMS, NetConnection *conn,
 ///////////////////////////////////////////////////////////////////////////
 
 #endif  /* NETPLAY */
-

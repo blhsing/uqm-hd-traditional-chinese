@@ -31,6 +31,7 @@ typedef struct
 	SPECIES_ID SpeciesID;
 
 	SHIP_INFO ShipInfo;
+	CHARACTERISTIC_STUFF Characteristics;
 	FLEET_STUFF Fleet;
 			// FLEET_STUFF is only necessary here because avail_race_q
 			// is initialized in part from master_q (kinda hacky)
@@ -59,4 +60,3 @@ FRAME GetShipIconsFromIndex (unsigned Index);
 FRAME GetShipMeleeIconsFromIndex (unsigned Index);
 
 #endif  /* _MASTER_H */
-

@@ -65,6 +65,124 @@ enum
 	QUIT_GAME
 };
 
+typedef struct restart_menu_mouse_state
+{
+	unsigned int motionGeneration;
+	unsigned int pressGeneration;
+} RESTART_MENU_MOUSE_STATE;
+
+static void DrawRestartMenu (MENU_STATE *pMS, BYTE NewState, FRAME f,
+		BOOLEAN cleanup);
+
+static void
+RestartMenu_resetMouseState (MENU_STATE *pMS)
+{
+	RESTART_MENU_MOUSE_STATE *mouseState =
+			(RESTART_MENU_MOUSE_STATE *)pMS->privData;
+	TFB_MOUSE_STATE mouse;
+
+	if (mouseState == NULL)
+		return;
+
+	mouseState->motionGeneration = 0;
+	mouseState->pressGeneration = 0;
+	if (TFB_GetMouseState (&mouse))
+	{
+		mouseState->motionGeneration = mouse.motion_generation;
+		mouseState->pressGeneration = mouse.press_generation;
+	}
+}
+
+static BOOLEAN
+RestartMenu_findStateAt (MENU_STATE *pMS, SWORD x, SWORD y, BYTE *result)
+{
+	BYTE state;
+
+	for (state = START_NEW_GAME; state <= QUIT_GAME; ++state)
+	{
+		RECT r;
+		FRAME overlay = SetAbsFrameIndex (pMS->CurFrame, state + 1);
+
+		if (GetFrameRect (overlay, &r) &&
+				x >= r.corner.x && x < r.corner.x + r.extent.width &&
+				y >= r.corner.y && y < r.corner.y + r.extent.height)
+		{
+			*result = state;
+			return TRUE;
+		}
+	}
+
+	return FALSE;
+}
+
+/*
+ * Apply main-menu mouse input using the exact bounds of the highlight
+ * overlays.  Those frames carry their on-screen positions in their hot
+ * spots, so this remains correct for every shipped resolution and for
+ * replacement menu art.
+ */
+static BOOLEAN
+RestartMenu_processMouse (MENU_STATE *pMS, BOOLEAN *select)
+{
+	RESTART_MENU_MOUSE_STATE *mouseState =
+			(RESTART_MENU_MOUSE_STATE *)pMS->privData;
+	TFB_MOUSE_STATE mouse;
+	BOOLEAN newMotion;
+	BOOLEAN newPress;
+	BOOLEAN activate = FALSE;
+	BOOLEAN insideEvent = FALSE;
+	BYTE targetState = (BYTE)~0;
+
+	*select = FALSE;
+	if (mouseState == NULL || !TFB_GetMouseState (&mouse))
+		return FALSE;
+
+	newMotion = mouse.motion_generation != mouseState->motionGeneration;
+	newPress = mouse.press_generation != mouseState->pressGeneration;
+	if (!newMotion && !newPress)
+		return FALSE;
+
+	mouseState->motionGeneration = mouse.motion_generation;
+	mouseState->pressGeneration = mouse.press_generation;
+	if ((newMotion || newPress) && mouse.inside_viewport)
+	{
+		insideEvent = TRUE;
+		(void) RestartMenu_findStateAt (pMS, mouse.x, mouse.y,
+				&targetState);
+	}
+
+	/* Activation is tied to the button-down position.  SDL may deliver a
+	 * motion or button-up before this 30 Hz menu consumes the press. */
+	if (newPress && mouse.last_button == TFB_MOUSE_BUTTON_LEFT &&
+			mouse.press_inside_viewport)
+	{
+		insideEvent = TRUE;
+		if (RestartMenu_findStateAt (pMS, mouse.press_x, mouse.press_y,
+				&targetState))
+			activate = TRUE;
+	}
+
+	if (targetState <= QUIT_GAME)
+	{
+		if (targetState != pMS->CurState)
+		{
+			BatchGraphics ();
+			DrawRestartMenu (pMS, targetState, pMS->CurFrame, FALSE);
+			UnbatchGraphics ();
+			pMS->CurState = targetState;
+			PlayMenuSound (MENU_SOUND_MOVE);
+		}
+
+		if (activate)
+		{
+			*select = TRUE;
+			PlayMenuSound (MENU_SOUND_SUCCESS);
+		}
+	}
+
+	return insideEvent;
+}
+
 // Draw the full restart menu. Nothing is done with selections.
 static void
 DrawRestartMenuGraphic (MENU_STATE *pMS)
@@ -175,12 +293,17 @@ DoRestart (MENU_STATE *pMS)
 	static TimeCount LastInputTime;
 	static TimeCount InactTimeOut;
 	TimeCount TimeIn = GetTimeCounter ();
+	BOOLEAN mouseInput = FALSE;
+	BOOLEAN mouseSelect = FALSE;
 
 	/* Cancel any presses of the Pause key. */
 	GamePaused = FALSE;
 
 	if (pMS->Initialized)
+	{
 		Flash_process(pMS->flashContext);
+		mouseInput = RestartMenu_processMouse (pMS, &mouseSelect);
+	}
 
 	if (!pMS->Initialized)
 	{
@@ -209,6 +332,7 @@ DoRestart (MENU_STATE *pMS)
 		Flash_start (pMS->flashContext);
 		LastInputTime = GetTimeCounter ();
 		pMS->Initialized = TRUE;
+		RestartMenu_resetMouseState (pMS);
 
 		SleepThreadUntil (FadeScreen (FadeAllToColor, ONE_SECOND / 2));
 		FadeMusic(0,0);
@@ -221,7 +345,7 @@ DoRestart (MENU_STATE *pMS)
 	{
 		return FALSE;
 	}
-	else if (PulsedInputState.menu[KEY_MENU_SELECT])
+	else if (PulsedInputState.menu[KEY_MENU_SELECT] || mouseSelect)
 	{
 		//BYTE fade_buf[1];
 		COUNT oldresfactor;
@@ -431,20 +555,8 @@ DoRestart (MENU_STATE *pMS)
 	{	// Does nothing, but counts as input for timeout purposes
 		LastInputTime = GetTimeCounter ();
 	}
-	else if (MouseButtonDown)
+	else if (mouseInput)
 	{
-		Flash_pause(pMS->flashContext);
-		DoPopupWindow (GAME_STRING (MAINMENU_STRING_BASE + 54));
-				// Mouse not supported message
-		SetMenuSounds (MENU_SOUND_UP | MENU_SOUND_DOWN, MENU_SOUND_SELECT);	
-		SetTransitionSource (NULL);
-		BatchGraphics ();
-		DrawRestartMenuGraphic (pMS);
-		DrawRestartMenu (pMS, pMS->CurState, pMS->CurFrame, FALSE);
-		ScreenTransition (3, NULL);
-		UnbatchGraphics ();
-		Flash_continue(pMS->flashContext);
-
 		LastInputTime = GetTimeCounter ();
 	}
 	else
@@ -563,12 +675,15 @@ static BOOLEAN
 TryStartGame (void)
 {
 	MENU_STATE MenuState;
+	RESTART_MENU_MOUSE_STATE MouseState;
 
 	LastActivity = GLOBAL (CurrentActivity);
 	GLOBAL (CurrentActivity) = 0;
 
 	memset (&MenuState, 0, sizeof (MenuState));
+	memset (&MouseState, 0, sizeof (MouseState));
 	MenuState.InputFunc = DoRestart;
+	MenuState.privData = &MouseState;
 
 	while (!RestartMenu (&MenuState))
 	{	// spin until a game is started or loaded

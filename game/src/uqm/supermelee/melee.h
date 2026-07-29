@@ -85,6 +85,9 @@ struct melee_state
 			/* RNG state for all local random decisions, i.e. those
 			 * decisions that are not shared among network parties. */
 	TimeCount LastInputTime;
+	unsigned int mouseMotionGeneration;
+	unsigned int mousePressGeneration;
+			/* Last mouse events consumed by the fleet setup UI. */
 
 	MUSIC_REF hMusic;
 };
@@ -97,6 +100,8 @@ void DrawMeleeIcon (COUNT which_icon);
 void GetShipBox (RECT *pRect, COUNT side, COUNT row, COUNT col);
 void RepairMeleeFrame (const RECT *pRect);
 void DrawMeleeShipStrings (MELEE_STATE *pMS, MeleeShip NewStarShip);
+void DrawMeleeShipStatsCard (MeleeShip ship, const RECT *cardRect,
+		const UNICODE *emptyLabel);
 extern FRAME MeleeFrame;
 void Melee_flashSelection (MELEE_STATE *pMS);
 
@@ -128,4 +133,3 @@ void Melee_RemoteChange_teamName (MELEE_STATE *pMS, NetConnection *conn,
 		COUNT side, const char *name);
 
 #endif /* _MELEE_H */
-

@@ -27,6 +27,7 @@
 #include "libs/log.h"
 #include "libs/reslib.h"
 #include "options.h"
+#include SDL_INCLUDE(SDL_thread.h)
 
 
 #define KBDBUFSIZE (1 << 8)
@@ -48,6 +49,121 @@ static int num_flight;
 static BOOLEAN InputInitialized = FALSE;
 
 static BOOLEAN in_character_mode = FALSE;
+
+static SDL_mutex *MouseMutex = NULL;
+static TFB_MOUSE_STATE MouseState;
+static BOOLEAN MouseCursorVisible = TRUE;
+
+static void
+mapMouseCoordinates (int raw_x, int raw_y, SWORD *logical_x,
+		SWORD *logical_y, BOOLEAN *inside_viewport)
+{
+	int viewport_x = 0;
+	int viewport_y = 0;
+	int viewport_width = ScreenWidthActual;
+	int viewport_height = ScreenHeightActual;
+	int fitted_width;
+	int fitted_height;
+
+	*logical_x = -1;
+	*logical_y = -1;
+	*inside_viewport = FALSE;
+
+	if (ScreenWidth <= 0 || ScreenHeight <= 0 ||
+			ScreenWidthActual <= 0 || ScreenHeightActual <= 0)
+		return;
+
+	if (optKeepAspectRatio)
+	{
+		if ((long)ScreenWidthActual * ScreenHeight >
+				(long)ScreenHeightActual * ScreenWidth)
+		{
+			fitted_width = ScreenHeightActual * ScreenWidth / ScreenHeight;
+			viewport_x = (ScreenWidthActual - fitted_width) / 2;
+			/* Match the graphics backend's symmetrically centered viewport. */
+			viewport_width = ScreenWidthActual - 2 * viewport_x;
+		}
+		else if ((long)ScreenWidthActual * ScreenHeight <
+				(long)ScreenHeightActual * ScreenWidth)
+		{
+			fitted_height = ScreenWidthActual * ScreenHeight / ScreenWidth;
+			viewport_y = (ScreenHeightActual - fitted_height) / 2;
+			viewport_height = ScreenHeightActual - 2 * viewport_y;
+		}
+	}
+
+	if (raw_x < viewport_x || raw_y < viewport_y ||
+			raw_x >= viewport_x + viewport_width ||
+			raw_y >= viewport_y + viewport_height)
+		return;
+
+	*logical_x = (SWORD)(((long)(raw_x - viewport_x) * ScreenWidth) /
+			viewport_width);
+	*logical_y = (SWORD)(((long)(raw_y - viewport_y) * ScreenHeight) /
+			viewport_height);
+	*inside_viewport = TRUE;
+}
+
+static unsigned int
+mouseButtonMask (unsigned int button)
+{
+	if (button == 0 || button > sizeof (unsigned int) * 8)
+		return 0;
+	return 1U << (button - 1);
+}
+
+void
+TFB_ApplyMouseCursorVisibility (void)
+{
+	if (MouseMutex == NULL)
+		return;
+	if (SDL_LockMutex (MouseMutex) != 0)
+		return;
+	/* Keep the SDL call inside the lock so a concurrent input event cannot
+	 * apply an older visibility state after a newer one. */
+	SDL_ShowCursor (MouseCursorVisible ? SDL_ENABLE : SDL_DISABLE);
+	SDL_UnlockMutex (MouseMutex);
+}
+
+static void
+setMouseCursorVisible (BOOLEAN visible)
+{
+	BOOLEAN changed = FALSE;
+
+	if (MouseMutex == NULL)
+		return;
+	if (SDL_LockMutex (MouseMutex) != 0)
+		return;
+	if (MouseCursorVisible != visible)
+	{
+		MouseCursorVisible = visible;
+		changed = TRUE;
+	}
+	SDL_UnlockMutex (MouseMutex);
+
+	if (changed)
+		TFB_ApplyMouseCursorVisibility ();
+}
+
+BOOLEAN
+TFB_GetMouseState (TFB_MOUSE_STATE *state)
+{
+	if (state == NULL)
+		return FALSE;
+	memset (state, 0, sizeof (*state));
+	state->x = -1;
+	state->y = -1;
+	state->press_x = -1;
+	state->press_y = -1;
+
+	if (MouseMutex == NULL || !InputInitialized)
+		return FALSE;
+	if (SDL_LockMutex (MouseMutex) != 0)
+		return FALSE;
+	*state = MouseState;
+	SDL_UnlockMutex (MouseMutex);
+	return TRUE;
+}
 
 static const char *menu_res_names[] = {
 	"pause",
@@ -223,8 +339,28 @@ TFB_InitInput (int driver, int flags)
 	int i;
 	int nJoysticks;
 	int signed_num_keys; // JMS: New variable to silence warnings
+	int mouse_x;
+	int mouse_y;
+	Uint8 mouse_buttons;
 	(void)driver;
 	(void)flags;
+
+	MouseMutex = SDL_CreateMutex ();
+	if (MouseMutex == NULL)
+	{
+		log_add (log_Fatal, "Couldn't create mouse state mutex: %s",
+				SDL_GetError ());
+		exit (EXIT_FAILURE);
+	}
+	memset (&MouseState, 0, sizeof (MouseState));
+	MouseState.press_x = -1;
+	MouseState.press_y = -1;
+	mouse_buttons = SDL_GetMouseState (&mouse_x, &mouse_y);
+	mapMouseCoordinates (mouse_x, mouse_y, &MouseState.x, &MouseState.y,
+			&MouseState.inside_viewport);
+	MouseState.button_mask = mouse_buttons;
+	MouseButtonDown = mouse_buttons != 0;
+	MouseCursorVisible = SDL_ShowCursor (SDL_QUERY) == SDL_ENABLE;
 
 	SDL_EnableUNICODE(1);
 	(void)SDL_GetKeyState (&signed_num_keys);
@@ -272,9 +408,19 @@ TFB_InitInput (int driver, int flags)
 void
 TFB_UninitInput (void)
 {
+	if (!InputInitialized)
+		return;
+	InputInitialized = FALSE;
 	VControl_Uninit ();
 	HFree (controls);
 	HFree (kbdstate);
+	controls = NULL;
+	kbdstate = NULL;
+	if (MouseMutex != NULL)
+	{
+		SDL_DestroyMutex (MouseMutex);
+		MouseMutex = NULL;
+	}
 }
 
 void
@@ -317,13 +463,53 @@ volatile int MouseButtonDown = 0;
 void
 ProcessMouseEvent (const SDL_Event *e)
 {
+	unsigned int mask;
+	BOOLEAN moved = FALSE;
+
+	if (MouseMutex == NULL)
+		return;
+
 	switch (e->type)
 	{
+	case SDL_MOUSEMOTION:
+		if (SDL_LockMutex (MouseMutex) != 0)
+			break;
+		mapMouseCoordinates (e->motion.x, e->motion.y, &MouseState.x,
+				&MouseState.y, &MouseState.inside_viewport);
+		if (e->motion.xrel != 0 || e->motion.yrel != 0)
+		{
+			++MouseState.motion_generation;
+			moved = TRUE;
+		}
+		SDL_UnlockMutex (MouseMutex);
+		if (moved)
+			setMouseCursorVisible (TRUE);
+		break;
 	case SDL_MOUSEBUTTONDOWN:
-		MouseButtonDown = 1;
+		if (SDL_LockMutex (MouseMutex) != 0)
+			break;
+		mapMouseCoordinates (e->button.x, e->button.y, &MouseState.x,
+				&MouseState.y, &MouseState.inside_viewport);
+		MouseState.press_x = MouseState.x;
+		MouseState.press_y = MouseState.y;
+		MouseState.press_inside_viewport = MouseState.inside_viewport;
+		mask = mouseButtonMask (e->button.button);
+		MouseState.button_mask |= mask;
+		MouseState.last_button = e->button.button;
+		++MouseState.press_generation;
+		MouseButtonDown = MouseState.button_mask != 0;
+		SDL_UnlockMutex (MouseMutex);
+		setMouseCursorVisible (FALSE);
 		break;
 	case SDL_MOUSEBUTTONUP:
-		MouseButtonDown = 0;
+		if (SDL_LockMutex (MouseMutex) != 0)
+			break;
+		mapMouseCoordinates (e->button.x, e->button.y, &MouseState.x,
+				&MouseState.y, &MouseState.inside_viewport);
+		mask = mouseButtonMask (e->button.button);
+		MouseState.button_mask &= ~mask;
+		MouseButtonDown = MouseState.button_mask != 0;
+		SDL_UnlockMutex (MouseMutex);
 		break;
 	default:
 		break;
@@ -346,6 +532,9 @@ ProcessInputEvent (const SDL_Event *Event)
 {
 	if (!InputInitialized)
 		return;
+
+	if (Event->type == SDL_KEYDOWN)
+		setMouseCursorVisible (FALSE);
 	
 	ProcessMouseEvent (Event);
 
@@ -514,4 +703,3 @@ BeginInputFrame (void)
 {
 	VControl_BeginFrame ();
 }
-

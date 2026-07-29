@@ -62,6 +62,7 @@ LoadMasterShipList (void (* YieldProcessing)(void))
 		// Grab a copy of loaded icons, strings and info
 		// XXX: SHIP_INFO implicitly referenced here
 		BuiltPtr->ShipInfo = RDPtr->ship_info;
+		BuiltPtr->Characteristics = RDPtr->characteristics;
 		BuiltPtr->Fleet = RDPtr->fleet;
 		free_ship (RDPtr, FALSE, FALSE);
 
@@ -213,5 +214,4 @@ GetShipMeleeIconsFromIndex (unsigned Index)
 
 	return val;
 }
-
 

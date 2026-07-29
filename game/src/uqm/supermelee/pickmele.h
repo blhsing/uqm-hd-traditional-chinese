@@ -51,6 +51,8 @@ struct getmelee_struct {
 	BOOLEAN (*InputFunc) (struct getmelee_struct *pInputState);
 
 	BOOLEAN Initialized;
+	unsigned int mouseMotionGeneration;
+	unsigned int mousePressGeneration;
 	
 	struct {
 		TimeCount timeIn;
@@ -83,4 +85,3 @@ bool setShipSelected(GETMELEE_STATE *gms, COUNT playerI, COUNT choice,
 #endif  /* PICKMELE_INTERNAL */
 
 #endif  /* _PICKMELE_H */
-

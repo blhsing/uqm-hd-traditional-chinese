@@ -55,12 +55,91 @@ if ((Test-UqmPathInside -Path $install -Root $profile -AllowRoot) -or
     Add-VerificationFailure -Message 'ProfileDir and InstallRoot are nested; the profile is not isolated.'
 }
 
+$flightConfiguration = Join-UqmContainedPath -Root $profile -RelativePath 'flight.cfg'
+try {
+    if (-not (Test-Path -LiteralPath $flightConfiguration -PathType Leaf)) {
+        throw "Player 1 flight configuration is missing: $flightConfiguration"
+    }
+    $flightConfigurationItem = Get-Item -LiteralPath $flightConfiguration -Force
+    if (($flightConfigurationItem.Attributes -band [IO.FileAttributes]::ReparsePoint) -ne 0) {
+        throw "Player 1 flight configuration is a reparse point: $flightConfiguration"
+    }
+    $flightConfigurationText = [IO.File]::ReadAllText($flightConfiguration)
+    $rightAltMatches = [Text.RegularExpressions.Regex]::Matches(
+        $flightConfigurationText,
+        '(?m)^[ \t]*1\.special\.3[ \t]*=[ \t]*STRING:key[ \t]+RightAlt[ \t]*\r?$')
+    if ($rightAltMatches.Count -ne 1) {
+        throw 'Player 1 RightAlt special-ability binding is missing or duplicated.'
+    }
+    Add-VerificationPass -Message 'Player 1 RightAlt is configured as the hidden third special-ability binding.'
+}
+catch {
+    Add-VerificationFailure -Message $_.Exception.Message
+}
+
 $executable = Join-UqmContainedPath -Root $install -RelativePath 'uqm.exe'
+$runtimeKind = 'legacy-patched'
+if ($null -ne $marker.PSObject.Properties['Runtime']) {
+    if ($null -eq $marker.Runtime.PSObject.Properties['Kind']) {
+        Add-VerificationFailure -Message 'Installation marker Runtime record has no Kind.'
+    }
+    else {
+        $runtimeKind = [string]$marker.Runtime.Kind
+    }
+}
+if ($runtimeKind -notin @('legacy-patched', 'custom')) {
+    Add-VerificationFailure -Message "Installation marker has an unsupported runtime kind: $runtimeKind"
+}
+elseif ($runtimeKind -eq 'custom') {
+    try {
+        if ($null -eq $marker.Runtime.PSObject.Properties['Platform'] -or
+            -not [string]::Equals(
+                [string]$marker.Runtime.Platform,
+                'windows-x86',
+                [StringComparison]::Ordinal)) {
+            throw 'Custom runtime marker platform is not windows-x86.'
+        }
+        if ($null -eq $marker.Runtime.PSObject.Properties['ManifestSha256'] -or
+            -not [Text.RegularExpressions.Regex]::IsMatch(
+                [string]$marker.Runtime.ManifestSha256,
+                '\A[0-9a-fA-F]{64}\z')) {
+            throw 'Custom runtime marker has no valid manifest SHA-256.'
+        }
+        Add-VerificationPass -Message 'Custom Windows x86 runtime metadata is present.'
+    }
+    catch {
+        Add-VerificationFailure -Message $_.Exception.Message
+    }
+}
 if (-not (Test-Path -LiteralPath $executable -PathType Leaf)) {
     Add-VerificationFailure -Message "Installed executable is missing: $executable"
 }
-else {
+elseif ($runtimeKind -eq 'legacy-patched') {
     Add-VerificationPass -Message 'Installed executable exists.'
+    try {
+        $executableBytes = [IO.File]::ReadAllBytes($executable)
+        $rightAltHook = ConvertTo-UqmHexString -Bytes $executableBytes[0x2D612..0x2D616]
+        $rightAltCave = ConvertTo-UqmHexString -Bytes $executableBytes[0x75351..0x7536E]
+        if ($rightAltHook -cne 'E83A7D0400' -or
+            $rightAltCave -cne '8B442404817808330100007507C740082F01000050E8A596FBFF83C404C3') {
+            throw 'Installed executable does not contain the verified Player 1 RightAlt binding patch.'
+        }
+        Add-VerificationPass -Message 'Installed executable contains the verified Player 1 RightAlt binding patch.'
+
+        $pickerEscapeHook = ConvertTo-UqmHexString -Bytes $executableBytes[0xEA975..0xEA97B]
+        $pickerEscapeCave = ConvertTo-UqmHexString -Bytes $executableBytes[0x68061..0x6807D]
+        if ($pickerEscapeHook -cne 'E9E7D6F7FF9090' -or
+            $pickerEscapeCave -cne '6A00E8A86F000059A8207405E8CE6F0000C7450801000000E9FE280800') {
+            throw 'Installed executable does not contain the verified Super Melee picker-Escape patch.'
+        }
+        Add-VerificationPass -Message 'Installed executable maps physical Escape to the Super Melee picker red-X confirmation path.'
+    }
+    catch {
+        Add-VerificationFailure -Message $_.Exception.Message
+    }
+}
+else {
+    Add-VerificationPass -Message 'Installed custom executable exists.'
 }
 
 if ($null -eq $marker.PSObject.Properties['Files']) {
@@ -71,6 +150,24 @@ else {
     $managedFiles = @($marker.Files)
     if ($managedFiles.Count -eq 0) {
         Add-VerificationFailure -Message 'Installation marker has an empty managed-file manifest.'
+    }
+    if ($runtimeKind -eq 'custom') {
+        $customExecutableEntries = @($managedFiles | Where-Object {
+            [string]::Equals([string]$_.Path, 'uqm.exe', [StringComparison]::OrdinalIgnoreCase) -and
+            [string]::Equals([string]$_.Kind, 'custom-runtime-executable', [StringComparison]::Ordinal)
+        })
+        $customLibraryEntries = @($managedFiles | Where-Object {
+            [string]::Equals([string]$_.Kind, 'custom-runtime-library', [StringComparison]::Ordinal)
+        })
+        if ($customExecutableEntries.Count -ne 1) {
+            Add-VerificationFailure -Message 'Custom runtime manifest does not contain exactly one managed uqm.exe.'
+        }
+        elseif ($customLibraryEntries.Count -eq 0) {
+            Add-VerificationFailure -Message 'Custom runtime manifest contains no managed runtime libraries.'
+        }
+        else {
+            Add-VerificationPass -Message "Custom runtime records one executable and $($customLibraryEntries.Count) libraries."
+        }
     }
     for ($index = 0; $index -lt $managedFiles.Count; $index++) {
         $entry = $managedFiles[$index]
@@ -104,6 +201,48 @@ else {
         }
     }
     Write-Progress -Activity 'Verifying installed SHA-256 hashes' -Completed
+
+    $binaryInventoryFailures = 0
+    foreach ($binary in Get-ChildItem -LiteralPath $install -Force -Recurse) {
+        try {
+            if (($binary.Attributes -band [IO.FileAttributes]::ReparsePoint) -ne 0) {
+                throw "The installed tree contains a reparse point: $($binary.FullName)"
+            }
+            if ($binary.PSIsContainer -or
+                @('.exe', '.dll') -notcontains $binary.Extension.ToLowerInvariant()) {
+                continue
+            }
+            $relativeBinary = (Get-UqmRelativePath -Path $binary.FullName -Root $install).Replace('\', '/')
+            if (-not $seenManifestPaths.ContainsKey($relativeBinary)) {
+                throw "Installed executable/runtime library is absent from the managed manifest: $relativeBinary"
+            }
+            if ($runtimeKind -eq 'custom' -and $relativeBinary.IndexOf('/') -lt 0) {
+                $binaryEntry = @($managedFiles | Where-Object {
+                    [string]::Equals([string]$_.Path, $relativeBinary, [StringComparison]::OrdinalIgnoreCase)
+                }) | Select-Object -First 1
+                $expectedKind = if ($binary.Extension -ieq '.exe') {
+                    'custom-runtime-executable'
+                }
+                else {
+                    'custom-runtime-library'
+                }
+                if (-not [string]::Equals(
+                    [string]$binaryEntry.Kind,
+                    $expectedKind,
+                    [StringComparison]::Ordinal)) {
+                    throw "A top-level custom-runtime binary has the wrong managed kind: $relativeBinary"
+                }
+            }
+        }
+        catch {
+            $binaryInventoryFailures++
+            Add-VerificationFailure -Message $_.Exception.Message
+        }
+    }
+    if ($binaryInventoryFailures -eq 0) {
+        Add-VerificationPass -Message 'Every installed EXE/DLL is present in the managed manifest.'
+    }
+
     if ($failures.Count -eq 0) {
         if ($SkipHashes) {
             Add-VerificationPass -Message "Verified existence and length of $($managedFiles.Count) managed files; hashes were skipped by request."
