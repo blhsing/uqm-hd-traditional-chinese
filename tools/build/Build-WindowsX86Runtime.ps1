@@ -346,9 +346,9 @@ if ($buildPerformed) {
     $command = @(
         'set -eu',
         'export MSYSTEM=MINGW32',
-        'export BUILD_SYSTEM="$(uname -s)"',
-        'export HOST_SYSTEM="$BUILD_SYSTEM"',
-        'case "$HOST_SYSTEM" in MINGW32*) ;; *) echo "Expected MINGW32 host, got $HOST_SYSTEM" >&2; exit 1 ;; esac',
+        'export BUILD_SYSTEM=$(uname -s)',
+        'export HOST_SYSTEM=$BUILD_SYSTEM',
+        'case $HOST_SYSTEM in MINGW32*) ;; *) echo Expected_MINGW32_host_got_$HOST_SYSTEM >&2; exit 1 ;; esac',
         "chmod +x $(Quote-Sh $generatedBinPosix)/svnversion",
         "export PATH=$(Quote-Sh $generatedBinPosix):/mingw32/bin:/usr/bin",
         "export BUILD_WORK=$(Quote-Sh $workMixed)",
