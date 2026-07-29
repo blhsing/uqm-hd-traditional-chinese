@@ -1,8 +1,8 @@
 {
   "records": 5177,
   "source_characters": 606426,
-  "translated_characters": 208042,
-  "cjk_characters": 162878,
+  "translated_characters": 208060,
+  "cjk_characters": 162905,
   "unchanged_long_records": [
     "base/cutscene/credits/credits.txt::36",
     "base/cutscene/credits/credits.txt::38",

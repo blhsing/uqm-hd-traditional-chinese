@@ -59,14 +59,14 @@ checksum；未知版本一律拒絕。此相容路徑不含來源版的完整滑
 | 官方未修改 `uqm.exe` | `c43c258aa41c4effe5d092c8541560a517cdd7be91e3c576a10a4ad306f776d3` |
 | v0.3 來源建置 `uqm-hd.exe`（3,020,273 bytes） | `2ef0f8ca00baad2f9c5611f8885a34acb54f16bc5c7fecb29ee7d6632d3be018` |
 | v0.3 `runtime-manifest.json`（51,276 bytes） | `3facebf59aafb4a373cf55bfc59953b9d4d4fcfe4c6feac96674e316123c9220` |
-| `zh_TW.uqm`（21,220,000 bytes） | `700a93776b724eddd145537eb3eb954eb5fd61b6d6926b22ed2b241e4a17ed06` |
-| `hires2x-zh_TW.uqm`（40,444,272 bytes） | `6d004566201ea8aaee3a9a82c2eeab61e02f30bd95e5cede7d19722050e199b0` |
-| `hires4x-zh_TW.uqm`（60,658,122 bytes） | `7e63136a803dfbc57fe3e56360b242911d4d891fd6b4ad4b40e8d540cc1a3116` |
+| `zh_TW.uqm`（22,456,227 bytes） | `bb08fb46fc330f40d02bd0df6dcda25155d5e650a22bacce54ecb86f754d9471` |
+| `hires2x-zh_TW.uqm`（42,598,012 bytes） | `290ce26eb938faac913782a98857454ea049802da8c2dcb6bc7bb0d67de89b79` |
+| `hires4x-zh_TW.uqm`（64,582,708 bytes） | `d8e6e48b368f38e2646acd0bcb98a2b208308ed088ee67f53b7b1e5de766da42` |
 
 runtime 取自來源 commit
 `1aee01896e88f759271779efcc03f58508c52f7f` 的乾淨 1,043 檔 `game/`
 樹。其 manifest 驗證 20 個 PE32 payload、27 份授權文件與零個未解析的非系統
-匯入。最終 48 項自動化測試及 17 項安裝驗證均通過；完整建置流程見
+匯入。最終 56 項自動化測試及 17 項安裝驗證均通過；完整建置流程見
 `docs/BUILD-WINDOWS.md`。
 
 完整授權文本與上游歸屬見 `LICENSE`、`LICENSES/UPSTREAM-COPYING.txt`、

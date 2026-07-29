@@ -18057,7 +18057,7 @@
   },
   {
     "id": "base/ships/androsynth/guardian.txt::2",
-    "text": "安德。"
+    "text": "安德羅辛斯"
   },
   {
     "id": "base/ships/androsynth/guardian.txt::3",
@@ -18065,7 +18065,7 @@
   },
   {
     "id": "base/ships/androsynth/guardian.txt::4",
-    "text": "守護。"
+    "text": "守護艦"
   },
   {
     "id": "base/ships/androsynth/guardian.txt::5",
@@ -18141,7 +18141,7 @@
   },
   {
     "id": "base/ships/arilou/skiff.txt::2",
-    "text": "阿里盧"
+    "text": "阿里盧拉萊萊"
   },
   {
     "id": "base/ships/arilou/skiff.txt::3",
@@ -18225,7 +18225,7 @@
   },
   {
     "id": "base/ships/chenjesu/broodhome.txt::2",
-    "text": "陳傑。"
+    "text": "陳傑蘇"
   },
   {
     "id": "base/ships/chenjesu/broodhome.txt::3",
@@ -18233,7 +18233,7 @@
   },
   {
     "id": "base/ships/chenjesu/broodhome.txt::4",
-    "text": "育巢。"
+    "text": "育巢艦"
   },
   {
     "id": "base/ships/chenjesu/broodhome.txt::5",
@@ -18309,7 +18309,7 @@
   },
   {
     "id": "base/ships/chmmr/avatar.txt::2",
-    "text": "克姆爾"
+    "text": "克姆爾混合種"
   },
   {
     "id": "base/ships/chmmr/avatar.txt::3",
@@ -18477,7 +18477,7 @@
   },
   {
     "id": "base/ships/human/cruiser.txt::2",
-    "text": "地球。"
+    "text": "地球人"
   },
   {
     "id": "base/ships/human/cruiser.txt::3",
@@ -18813,7 +18813,7 @@
   },
   {
     "id": "base/ships/mmrnmhrm/xform.txt::2",
-    "text": "姆爾恩。"
+    "text": "姆爾恩姆赫姆"
   },
   {
     "id": "base/ships/mmrnmhrm/xform.txt::3",
@@ -19149,7 +19149,7 @@
   },
   {
     "id": "base/ships/shofixti/scout.txt::2",
-    "text": "索菲克."
+    "text": "索菲克斯提"
   },
   {
     "id": "base/ships/shofixti/scout.txt::3",
@@ -19241,7 +19241,7 @@
   },
   {
     "id": "base/ships/slylandro/probe.txt::2",
-    "text": "斯萊蘭。"
+    "text": "斯萊蘭卓"
   },
   {
     "id": "base/ships/slylandro/probe.txt::3",
@@ -19505,7 +19505,7 @@
   },
   {
     "id": "base/ships/syreen/penetrator.txt::4",
-    "text": "穿透"
+    "text": "穿透艦"
   },
   {
     "id": "base/ships/syreen/penetrator.txt::5",
@@ -19581,7 +19581,7 @@
   },
   {
     "id": "base/ships/thraddash/torch.txt::2",
-    "text": "瑟拉。"
+    "text": "瑟拉達什"
   },
   {
     "id": "base/ships/thraddash/torch.txt::3",
@@ -19757,7 +19757,7 @@
   },
   {
     "id": "base/ships/urquan/dreadnought.txt::4",
-    "text": "無畏"
+    "text": "無畏艦"
   },
   {
     "id": "base/ships/urquan/dreadnought.txt::5",
@@ -19925,7 +19925,7 @@
   },
   {
     "id": "base/ships/vux/intruder.txt::4",
-    "text": "入侵"
+    "text": "入侵艦"
   },
   {
     "id": "base/ships/vux/intruder.txt::5",
@@ -20009,7 +20009,7 @@
   },
   {
     "id": "base/ships/yehat/terminator.txt::4",
-    "text": "終結。"
+    "text": "終結艦"
   },
   {
     "id": "base/ships/yehat/terminator.txt::5",
@@ -20085,7 +20085,7 @@
   },
   {
     "id": "base/ships/zoqfotpik/stinger.txt::2",
-    "text": "佐克－福特"
+    "text": "佐克－福特－皮克"
   },
   {
     "id": "base/ships/zoqfotpik/stinger.txt::3",

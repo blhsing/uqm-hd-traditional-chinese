@@ -1,7 +1,7 @@
 # UQM HD Traditional-Chinese localization pipeline
 
 This directory contains the content-only localization pipeline used for the
-**The Ur-Quan Masters HD Beta 1** v0.3 Traditional-Chinese release. It does not
+**The Ur-Quan Masters HD Beta 1** v0.3.1 Traditional-Chinese release. It does not
 call a translation API and does not modify the game installation. It exports
 protected JSON, merges translated `{id,text}` records, handles the engine's
 unusual text formats, generates bitmap glyphs from Noto Sans TC, and builds
@@ -140,13 +140,13 @@ localized-build/packages/hires2x-zh_TW.uqm
 localized-build/packages/hires4x-zh_TW.uqm
 ```
 
-The finalized v0.3 artifacts are:
+The finalized v0.3.1 artifacts are:
 
 | Pack | Bytes | SHA-256 |
 | --- | ---: | --- |
-| `zh_TW.uqm` | 21,220,000 | `700a93776b724eddd145537eb3eb954eb5fd61b6d6926b22ed2b241e4a17ed06` |
-| `hires2x-zh_TW.uqm` | 40,444,272 | `6d004566201ea8aaee3a9a82c2eeab61e02f30bd95e5cede7d19722050e199b0` |
-| `hires4x-zh_TW.uqm` | 60,658,122 | `7e63136a803dfbc57fe3e56360b242911d4d891fd6b4ad4b40e8d540cc1a3116` |
+| `zh_TW.uqm` | 22,456,227 | `bb08fb46fc330f40d02bd0df6dcda25155d5e650a22bacce54ecb86f754d9471` |
+| `hires2x-zh_TW.uqm` | 42,598,012 | `290ce26eb938faac913782a98857454ea049802da8c2dcb6bc7bb0d67de89b79` |
+| `hires4x-zh_TW.uqm` | 64,582,708 | `d8e6e48b368f38e2646acd0bcb98a2b208308ed088ee67f53b7b1e5de766da42` |
 
 The resource maps are generated from the installed official maps, not copied
 from the incomplete Japanese pack:
@@ -192,13 +192,21 @@ python .\tools\localization\extract_super_melee_sources.py `
 
 The combat `CREW`/`BATT` sprites are also generated as `船員`/`能量`. Each
 resolution uses a fixed optical size and weight (1x 450/6 px, 2x 400/8 px,
-4x 350/16 px) so dense Han strokes remain separated without changing the
-engine-facing canvas dimensions or color gradients.
+4x 350/16 px) so dense Han strokes remain separated. The generated RGBA/RGB-key
+pair preserves the stock gray status panel during normal rendering while
+retaining a glyph-only alpha mask for the low-energy recolor.
+
+The Super Melee ship-picker panel is rebuilt with `選擇船艦` and `船艦資料`.
+All 25 ship-information presentations are generated deterministically from
+reviewable Traditional-Chinese source data at native 320x240, 640x480, and
+1280x960 resolutions. Their localized cards cover crew, battery, cost,
+movement, weapons, special abilities, and tactics while preserving upstream
+ship artwork and animation manifests.
 
 Packages use only ZIP Deflate, disable ZIP64, reject 65,535 or more files, and
 are written deterministically. All three packages must be installed because
 their fallback mappings intentionally cross-reference the 1x/2x/4x fonts. Each
-pack's mounted shadow archive contains 5,280 normal entries and no padding
+pack's mounted shadow archive contains 5,357 normal entries and no padding
 entry; package QA compares every generated entry byte-for-byte.
 
 ## Install and launch
@@ -223,11 +231,11 @@ uqm.exe -o -r 1920x1080 -f -k -c none --resfactor=2 --addon hires4x-zh_TW
 ## Scope and visual QA
 
 This pipeline localizes engine text, bitmap glyph coverage, the five baked
-main-menu choices, the visible Super Melee setup controls, and its combat status
-labels. The repository's preferred source-built runtime separately implements
+main-menu choices, the visible Super Melee setup controls, ship picker, all 25
+ship-information pages, and combat status labels. The repository's preferred source-built runtime separately implements
 the yellow menu selection, main-menu and Super Melee mouse controls, cursor
 visibility switching, detailed vessel-stat cards, picker and in-bout Escape
-handling, and Player 1's additional RightAlt special-ability binding. The v0.3
+handling, and Player 1's additional RightAlt special-ability binding. The v0.3.1
 release bundles that GPL runtime and its dependency licenses, but does not
 bundle the upstream game's original content. A polished localization still
 benefits from a full playthrough. In particular, visually check the intro/final
@@ -243,4 +251,4 @@ python -m unittest discover `
   -v
 ```
 
-The finalized v0.3 tree passes all 48 automated tests.
+The finalized v0.3.1 tree passes all 56 automated tests.

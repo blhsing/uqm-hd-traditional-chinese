@@ -24,6 +24,7 @@ from .menuassets import (
     build_localized_status_labels,
     build_localized_super_melee_assets,
 )
+from .shipinfoassets import build_localized_ship_info_assets
 from .validation import validate_documents
 
 
@@ -581,10 +582,21 @@ def build_packages(
             font_path,
             menu_background.parent / "super-melee",
         )
+        ship_info_report = build_localized_ship_info_assets(
+            resolver,
+            shadow_trees_root,
+            font_path,
+        )
         for addon in menu_report:
             menu_report[addon]["key_help"] = key_help_report[addon]
             menu_report[addon]["combat_status_labels"] = status_label_report[addon]
             menu_report[addon]["super_melee"] = super_melee_report[addon]
+            menu_report[addon]["super_melee"]["ship_picker"] = (
+                ship_info_report[addon]["ship_picker"]
+            )
+            menu_report[addon]["super_melee"]["ship_info"] = (
+                ship_info_report[addon]["ship_info"]
+            )
         _write_metadata(trees_root, plans, font_path, font_report, menu_report)
         _validate_built_paths(resolver, trees_root, plans)
         shadow_counts = _write_shadow_archives(trees_root, shadow_trees_root, plans)

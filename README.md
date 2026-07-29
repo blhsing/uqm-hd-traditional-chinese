@@ -16,7 +16,12 @@
 - 太陽、日期／月份、船長、船名、燃料及船員等 SIS 欄位使用符合固定 HUD
   高度的字格，不再裁掉中文字形的頂部或與相鄰欄位重疊。
 - `船員`、`能量`（原 CREW、BATT）及星圖快捷鍵說明均已本地化；戰鬥
-  狀態字依解析度使用獨立光學尺寸與較輕字重，不再糊成厚重色塊。
+  狀態字依解析度使用獨立光學尺寸與較輕字重，並保留原版灰色狀態面板，
+  不再糊成厚重色塊或出現黑底。
+- Super Melee 編組時的「選擇船艦／船艦資料」面板及 Project 6014 提示已繁中化；
+  英文縮寫欄位會重用完整中文船名，不再把名稱末字顯示成句點。
+- 25 艘 Super Melee 船艦均有完整繁中資料頁，分別以原生 320×240、640×480
+  及 1280×960 產生；內容涵蓋船員、能量、費用、機動數值、武器、特殊能力及戰法。
 - 修正 HD Beta 1 開始新遊戲後可能停在黑畫面的資源封裝問題。
 - 本機 Super Melee 中按 `Esc` 可結束目前一局並返回隊伍設定；玩家的特殊能力鍵不會誤觸此功能。
 - 玩家一的特殊能力除了右 `Shift` 與數字鍵盤 `0`，亦可使用右 `Alt`；原有按鍵仍然保留。
@@ -48,7 +53,7 @@
 
 大型 `.uqm` 套件與 Windows 執行環境不放入 Git 歷史；請前往
 [GitHub Releases](https://github.com/blhsing/uqm-hd-traditional-chinese/releases/latest)。
-v0.3.0 壓縮檔包含三個繁中套件、管理式安裝器、驗證工具、
+v0.3.1 壓縮檔包含三個繁中套件、管理式安裝器、驗證工具、
 `runtime/windows-x86`（EXE、DLL、manifest 與授權文件），但**不包含原版遊戲的
 `content`／音樂／語音／圖像**；安裝時仍須提供合法取得的 UQM-HD Beta 1 內容。
 
@@ -56,19 +61,19 @@ v0.3.0 壓縮檔包含三個繁中套件、管理式安裝器、驗證工具、
 
 | 檔案 | 位元組 | SHA-256 |
 |---|---:|---|
-| `zh_TW.uqm` | 21,220,000 | `700a93776b724eddd145537eb3eb954eb5fd61b6d6926b22ed2b241e4a17ed06` |
-| `hires2x-zh_TW.uqm` | 40,444,272 | `6d004566201ea8aaee3a9a82c2eeab61e02f30bd95e5cede7d19722050e199b0` |
-| `hires4x-zh_TW.uqm` | 60,658,122 | `7e63136a803dfbc57fe3e56360b242911d4d891fd6b4ad4b40e8d540cc1a3116` |
+| `zh_TW.uqm` | 22,456,227 | `bb08fb46fc330f40d02bd0df6dcda25155d5e650a22bacce54ecb86f754d9471` |
+| `hires2x-zh_TW.uqm` | 42,598,012 | `290ce26eb938faac913782a98857454ea049802da8c2dcb6bc7bb0d67de89b79` |
+| `hires4x-zh_TW.uqm` | 64,582,708 | `d8e6e48b368f38e2646acd0bcb98a2b208308ed088ee67f53b7b1e5de766da42` |
 
-v0.3.0 推薦使用由本儲存庫原始碼建置的 Windows x86 執行環境：
+v0.3.1 推薦使用由本儲存庫原始碼建置的 Windows x86 執行環境：
 
 | 檔案 | 位元組 | SHA-256 |
 |---|---:|---|
 | `runtime/windows-x86/uqm-hd.exe` | 3,020,273 | `2ef0f8ca00baad2f9c5611f8885a34acb54f16bc5c7fecb29ee7d6632d3be018` |
 | `runtime/windows-x86/runtime-manifest.json` | 51,276 | `3facebf59aafb4a373cf55bfc59953b9d4d4fcfe4c6feac96674e316123c9220` |
 
-完整 `uqm-hd-zh-tw-v0.3.0.zip` 為 135,241,492 bytes，SHA-256：
-`86a4788adc69a03cd5ca8705a11292386cfdcd8119bee45b1b6db1640df74dae`。
+完整 `uqm-hd-zh-tw-v0.3.1.zip` 為 142,556,047 bytes，SHA-256：
+`488da5b42762bcdf2566e765fab1659611400adcef0436fc2e4f172046cf265a`。
 
 manifest 驗證 20 個 PE32/i386 payload、27 份授權檔及完整 import graph，未解析的
 非系統相依項為 0。執行檔來自乾淨的 `game/` 樹（1,043 個檔案），來源 commit 為
@@ -296,6 +301,9 @@ RU 可購買燃料與船員、建造旗艦模組及護航艦。主要來源是�
 每隊最多 14 艘船；可載入、儲存隊伍並選擇人類或電腦控制。每艘船有不同費用，讓兩隊總值接近即可進行較公平的練習。
 
 滑鼠可直接選擇右側按鈕、兩隊的 14 個欄位及 5×5 船艦清單；停在船艦上即可預覽船艦狀態。開戰前選船畫面另會顯示目前船艦的基本性能與能量資料。游標移動時顯示，按下鍵盤鍵或滑鼠鍵時隱藏，以免戰鬥中遮擋畫面。
+
+編組時開啟 5×5「選擇船艦」面板、把游標移到任一船艦，再按左 `Alt` 或右
+`Alt`，即可開啟該船艦的全螢幕「船艦資料」頁；按任意鍵返回選船面板。
 
 在開戰前選船畫面按 `Esc`，會呼叫與紅色 `X` 相同的確認視窗；確認後回到隊伍設定。在**本機** Super Melee 戰鬥中按 `Esc` 會結束目前一局。這兩條路徑都只接受實體 `Escape`，所以右 `Shift`、右 `Alt` 與數字鍵盤 `0` 仍可正常發動玩家一的特殊能力。劇情模式的原版逃跑規則不變。
 
@@ -588,12 +596,12 @@ powershell.exe -NoProfile -ExecutionPolicy Bypass `
   -SmokeTimeoutSeconds 12
 ```
 
-v0.3.0 本機驗收結果為 48 項測試全部通過；Windows PowerShell 5.1 驗證器另外完成
+v0.3.1 本機驗收結果為 56 項測試全部通過；Windows PowerShell 5.1 驗證器另外完成
 17 類檢查，包括 11,534 個管理檔案的長度及 SHA-256、三個 UQM 套件、五個捷徑、
 自訂 runtime manifest、未列入 manifest 的 EXE／DLL、玩家一右 `Alt` 綁定，以及
 12 秒 4x 1920×1080 全螢幕煙霧測試。實機 Super Melee 流程另確認繁中隊伍設定、
 較輕的 `船員／能量` 狀態字、船艦資料卡、`Esc` 返回確認及右 `Alt` 特殊能力。
-完整發行紀錄見 [v0.3.0 發行說明](docs/releases/v0.3.0.md)。
+完整發行紀錄見 [v0.3.1 發行說明](docs/releases/v0.3.1.md)。
 
 ## 專案結構
 

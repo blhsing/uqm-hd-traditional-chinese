@@ -93,6 +93,44 @@ def _validate_translation(
                     )
 
 
+def _validate_ship_name_abbreviations(
+    document: dict[str, Any], errors: list[str]
+) -> None:
+    """Keep localized ship-table short labels from losing CJK characters.
+
+    Each stock ship string table stores the full race and vessel class at
+    indices 0/3 and English space-saving variants at indices 2/4.  Han names
+    are already compact, so carrying an English trailing full stop into the
+    translation both looks like a missing glyph and needlessly truncates the
+    name.  Requiring the localized short slots to reuse the full translation
+    also keeps every UI path deterministic.
+    """
+    source_path = document["source_path"].replace("\\", "/").lower()
+    entries = document.get("entries", [])
+    if not source_path.startswith("base/ships/") or not source_path.endswith(".txt"):
+        return
+    if len(entries) < 5:
+        return
+
+    for full_index, short_index, kind in ((0, 2, "race"), (3, 4, "vessel")):
+        full_entry = entries[full_index]
+        short_entry = entries[short_index]
+        full_translation = full_entry.get("translation")
+        if (
+            full_entry.get("source") != short_entry.get("source")
+            and isinstance(full_translation, str)
+            and contains_cjk(full_translation)
+            and short_entry.get("translation") != full_translation
+        ):
+            _error(
+                errors,
+                document,
+                short_entry,
+                f"localized {kind} abbreviation must match the full CJK name "
+                f"from entry {full_index}",
+            )
+
+
 def validate_documents(
     documents: Iterable[dict[str, Any]],
     *,
@@ -107,6 +145,7 @@ def validate_documents(
             if entry.get("index") != expected_index:
                 _error(errors, document, entry, "entry index/order changed")
             _validate_translation(document, entry, errors, max_cjk_token)
+        _validate_ship_name_abbreviations(document, errors)
         try:
             rendered = render_document(document)
         except LocError as exc:

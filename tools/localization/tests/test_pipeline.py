@@ -8,6 +8,7 @@ import tempfile
 import unittest
 import zipfile
 from pathlib import Path
+from unittest.mock import patch
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -37,12 +38,15 @@ from uqmloc.menuassets import (  # noqa: E402
     KEY_HELP_VARIANTS,
     MENU_NORMAL_COLOR,
     MENU_SELECTED_COLOR,
+    STATUS_PANEL_BACKGROUND,
     STATUS_LABEL_VARIANTS,
     SUPER_MELEE_BUTTON_LABELS,
     SUPER_MELEE_CONTROL_LABELS,
     SUPER_MELEE_TITLE,
     SUPER_MELEE_VARIANTS,
     _effect_map_from_mask,
+    _render_status_label,
+    _status_ani_with_rgb_color_key,
     _status_text_mask,
 )
 from uqmloc.translation_io import export_records, merge_records  # noqa: E402
@@ -119,6 +123,31 @@ class ValidationTests(unittest.TestCase):
         errors = validate_documents([document], max_cjk_token=100)
         self.assertTrue(any("outside" in error for error in errors))
         self.assertTrue(any("starts with #" in error for error in errors))
+
+    def test_ship_abbreviation_reuses_full_cjk_name(self):
+        document = make_document(
+            "base/ships/chenjesu/broodhome.txt",
+            "#(Race1)\nChenjesu\n"
+            "#(Race2)\nChenjesu\n"
+            "#(RaceShort)\nChenje.\n"
+            "#(Vessel)\nBroodhome\n"
+            "#(VesselShort)\nBrood.\n",
+        )
+        document["entries"][0]["translation"] = "陳傑蘇"
+        document["entries"][1]["translation"] = "陳傑蘇"
+        document["entries"][2]["translation"] = "陳傑。"
+        document["entries"][3]["translation"] = "育巢艦"
+        document["entries"][4]["translation"] = "育巢。"
+
+        errors = validate_documents([document], max_cjk_token=100)
+        self.assertEqual(
+            sum("abbreviation must match the full CJK name" in error for error in errors),
+            2,
+        )
+
+        document["entries"][2]["translation"] = "陳傑蘇"
+        document["entries"][4]["translation"] = "育巢艦"
+        self.assertEqual(validate_documents([document], max_cjk_token=100), [])
 
 
 class FontTests(unittest.TestCase):
@@ -356,6 +385,109 @@ class MenuAssetTests(unittest.TestCase):
             )
             self.assertGreaterEqual(
                 variant.energy_output_size[1], round(variant.energy_size[1] * 1.6)
+            )
+
+    def test_status_labels_restore_panel_rgb_but_keep_recolour_alpha_mask(self):
+        from PIL import Image
+
+        for variant in STATUS_LABEL_VARIANTS:
+            for label, energy, source_size, output_size in (
+                (
+                    "船員",
+                    False,
+                    variant.crew_size,
+                    variant.crew_output_size,
+                ),
+                (
+                    "能量",
+                    True,
+                    variant.energy_size,
+                    variant.energy_output_size,
+                ),
+            ):
+                with self.subTest(addon=variant.addon, label=label):
+                    if variant.addon == "zh_TW":
+                        source = Image.new("P", source_size, 1)
+                        palette = [0] * 768
+                        palette[3:6] = [120, 0, 0] if energy else [0, 120, 0]
+                        source.putpalette(palette)
+                    else:
+                        color = (120, 0, 0, 255) if energy else (0, 120, 0, 255)
+                        source = Image.new("RGBA", source_size, color)
+
+                    mask = Image.new("L", output_size, 0)
+                    mask.putpixel((output_size[0] // 2, output_size[1] // 2), 255)
+                    with patch(
+                        "uqmloc.menuassets._status_text_mask", return_value=mask
+                    ):
+                        rendered = _render_status_label(
+                            Image,
+                            None,
+                            None,
+                            source,
+                            Path("unused.ttf"),
+                            label,
+                            energy=energy,
+                            output_size=output_size,
+                            font_weight=variant.font_weight,
+                            font_size=variant.font_size,
+                        )
+
+                    # DrawStamp() disables per-pixel alpha because status.ani
+                    # declares black as a colour key.  RGB therefore supplies
+                    # the visible backdrop, which must match ClearShipStatus().
+                    self.assertEqual(rendered.mode, "RGBA")
+                    self.assertEqual(
+                        rendered.getpixel((0, 0)), (*STATUS_PANEL_BACKGROUND, 0)
+                    )
+                    self.assertNotEqual(rendered.getpixel((0, 0))[:3], (0, 0, 0))
+
+                    # DrawFilledStamp() derives its low-energy fill mask from
+                    # alpha.  Only the glyph pixel may participate; the panel
+                    # backdrop must remain untouched.
+                    alpha = rendered.getchannel("A")
+                    self.assertEqual(sum(alpha.histogram()[1:]), 1)
+                    alpha.close()
+                    self.assertEqual(
+                        rendered.getpixel(
+                            (output_size[0] // 2, output_size[1] // 2)
+                        )[3],
+                        255,
+                    )
+
+                    encoded = io.BytesIO()
+                    rendered.save(encoded, format="PNG", optimize=True)
+                    encoded.seek(0)
+                    with Image.open(encoded) as decoded:
+                        self.assertEqual(
+                            decoded.convert("RGBA").getpixel((0, 0)),
+                            (*STATUS_PANEL_BACKGROUND, 0),
+                        )
+                    rendered.close()
+                    source.close()
+                    mask.close()
+
+    def test_status_animation_normalizes_only_localized_frames_to_rgb_key(self):
+        source = (
+            b"status-000.png -2 0 8 4\r\n"
+            b"status-001.png -2 0 2 4\r\n"
+            b"status-002.png 0 0 16 23\r\n"
+            b"status-003.png 0 0 -4 -4\r\n"
+            b"status-004.png -2 0 10 4\r\n"
+            b"status-005.png -2 0 11 4\r\n"
+        )
+        expected = source.replace(
+            b"status-004.png -2", b"status-004.png 0"
+        ).replace(b"status-005.png -2", b"status-005.png 0")
+        self.assertEqual(
+            _status_ani_with_rgb_color_key(source, "addons/hires2x/ui/status.ani"),
+            expected,
+        )
+
+        malformed = source.replace(b"status-005.png", b"status-006.png")
+        with self.assertRaisesRegex(LocError, "matched 1 localized status frames"):
+            _status_ani_with_rgb_color_key(
+                malformed, "addons/hires2x/ui/status.ani"
             )
 
     def test_compact_chinese_status_masks_are_crisp_and_bounded(self):

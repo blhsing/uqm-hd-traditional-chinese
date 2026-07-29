@@ -1,7 +1,7 @@
 # UQM-HD Traditional Chinese localization
 
-This workspace contains the v0.3 Traditional Chinese (`zh-TW`) localization of
-The Ur-Quan Masters HD Beta 1, finalized on 2026-07-28.
+This workspace contains the v0.3.1 Traditional Chinese (`zh-TW`) localization of
+The Ur-Quan Masters HD Beta 1, finalized on 2026-07-29.
 
 ## Translation provenance
 
@@ -24,15 +24,15 @@ editor may still wish to polish tone or word choice.
 
 | Pack | Bytes | SHA-256 |
 | --- | ---: | --- |
-| `zh_TW.uqm` | 21,220,000 | `700a93776b724eddd145537eb3eb954eb5fd61b6d6926b22ed2b241e4a17ed06` |
-| `hires2x-zh_TW.uqm` | 40,444,272 | `6d004566201ea8aaee3a9a82c2eeab61e02f30bd95e5cede7d19722050e199b0` |
-| `hires4x-zh_TW.uqm` | 60,658,122 | `7e63136a803dfbc57fe3e56360b242911d4d891fd6b4ad4b40e8d540cc1a3116` |
+| `zh_TW.uqm` | 22,456,227 | `bb08fb46fc330f40d02bd0df6dcda25155d5e650a22bacce54ecb86f754d9471` |
+| `hires2x-zh_TW.uqm` | 42,598,012 | `290ce26eb938faac913782a98857454ea049802da8c2dcb6bc7bb0d67de89b79` |
+| `hires4x-zh_TW.uqm` | 64,582,708 | `d8e6e48b368f38e2646acd0bcb98a2b208308ed088ee67f53b7b1e5de766da42` |
 
 All three archives passed ZIP integrity and exact resource-mapping audits. The
 merged workspace passed UTF-8, engine-line-length, wrapping, CJK glyph, record
 identity, protected-token, and placeholder checks.
 
-Each mounted shadow archive contains 5,280 normal entries and no padding entry.
+Each mounted shadow archive contains 5,357 normal entries and no padding entry.
 Every override was compared byte-for-byte with its generated shadow tree after
 the nested-archive refresh. The eight
 direct cutscene fonts contain both the generated Traditional-Chinese subset and
@@ -82,8 +82,14 @@ installation.
   8/10/18 pixels at 1x/2x/4x respectively, without changing the stock frame
   hotspots or crossing the HUD clip boundaries. Status-label weights are
   450/400/350 at 1x/2x/4x respectively, so the tiny Han counters remain open;
-  all six frames retain transparent glyph masks so the low-energy recoloring
-  effect remains functional.
+  the RGB/alpha encoding restores the stock gray panel during normal rendering
+  while retaining a glyph-only mask for the low-energy recoloring effect.
+- The Super Melee build picker localizes `PICK SHIP` and `SHIP INFO` as
+  `選擇船艦` and `船艦資料`. All 25 ship-information presentations are rebuilt
+  at native 320x240, 640x480, and 1280x960 with Traditional-Chinese names,
+  movement statistics, weapons, special abilities, and tactics. English-style
+  abbreviated ship-table fields reuse the full Han name so they cannot end in
+  a misleading full stop.
 - OpenAI's built-in image editor was used only to remove the five baked English
   labels while preserving the 4:3 space/panel composition. The edit prompt was:
   "Remove only the New Game, Load Game, Super Melee!, Setup, and Quit labels;
@@ -108,7 +114,7 @@ installation.
 
 The installed marker, all 11,534 managed file hashes, three pack archives, five
 shortcuts, and a hidden 12-second runtime smoke test passed the final 17-check
-verifier. The 48-test automated suite also passed. The smoke log confirmed
+verifier. The 56-test automated suite also passed. The smoke log confirmed
 `hires4x-zh_TW` and a 1920x1080 fullscreen surface with no fatal diagnostic.
 Visible 4x runtime passes additionally confirmed the always-yellow selection,
 the `新遊戲` transition into the opening sequence instead of a stalled black
@@ -120,8 +126,8 @@ inside its original 8x9-pixel cells.
 
 ## Source-built Windows runtime
 
-The v0.3 release includes a GPL source-built Windows x86 runtime and its exact
-dependency licenses. It does **not** include the upstream game's original
+The v0.3.1 release reuses the GPL source-built Windows x86 runtime introduced in
+v0.3 and includes its exact dependency licenses. It does **not** include the upstream game's original
 content; users must provide an extracted official Beta 1 tree. Runtime
 provenance is reproducible from the clean 1,043-file `game/` tree at source
 commit `1aee01896e88f759271779efcc03f58508c52f7f`.

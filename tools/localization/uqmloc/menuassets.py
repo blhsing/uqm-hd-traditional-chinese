@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import io
+import re
 from collections import Counter
 from dataclasses import dataclass
 from pathlib import Path, PurePosixPath
@@ -20,6 +21,19 @@ MENU_NORMAL_COLOR = (160, 160, 160, 255)
 MENU_SELECTED_COLOR = (255, 240, 0, 255)
 MENU_KEY_HELP = "↑↓ 選擇　Enter 確認"
 MENU_KEY_HELP_COLOR = (175, 225, 235, 255)
+
+# ClearShipStatus() paints the body of each combat status panel with
+# MAKE_RGB15(0x0A, 0x0A, 0x0A).  The PC status animation declares RGB black as
+# its transparent colour, and the SDL renderer consequently disables the PNG
+# surface's per-pixel alpha for an ordinary DrawStamp().  Give zero-alpha
+# pixels the panel RGB instead of black so that the enlarged Chinese label
+# restores the panel behind it.  DrawFilledStamp() still reads the PNG alpha
+# channel when it creates the low-energy recolour, so the zero alpha is
+# deliberately retained.
+STATUS_PANEL_BACKGROUND = (82, 82, 82)
+_STATUS_LABEL_ANI_RE = re.compile(
+    rb"(?m)^([ \t]*status-(?:004|005)\.png[ \t]+)-?\d+([ \t]+[^\r\n]*(?:\r?\n|$))"
+)
 
 
 @dataclass(frozen=True)
@@ -534,31 +548,37 @@ def _render_status_label(
     brightest = max(colors, key=lambda color: color[channel])
     colors = [brightest] * output_size[1]
 
-    if source.mode == "P":
-        output = Image.new("P", output_size, 0)
-        palette = [0] * 768
-        source_palette = source.getpalette()
-        palette[:3] = source_palette[:3]
-        row_indices = []
-        for y, color in enumerate(colors):
-            index = y + 1
-            palette[index * 3 : index * 3 + 3] = list(color)
-            row_indices.append(index)
-        output.putpalette(palette)
-        for y in range(output_size[1]):
-            for x in range(output_size[0]):
-                if mask.getpixel((x, y)) >= 96:
-                    output.putpixel((x, y), row_indices[y])
-        output.info["transparency"] = 0
-        return output
-
-    output = Image.new("RGBA", output_size, (0, 0, 0, 0))
+    # Always emit true-colour status labels, including the 1x replacement.
+    # An indexed frame can either expose its transparent backdrop (leaving the
+    # stock black gauge rectangle visible) or make that backdrop part of the
+    # low-energy fill mask; it cannot encode the two runtime behaviours
+    # independently.  RGBA lets RGB restore the normal panel while alpha keeps
+    # the recolour mask limited to the Han glyphs.
+    output = Image.new("RGBA", output_size, (*STATUS_PANEL_BACKGROUND, 0))
     for y, color in enumerate(colors):
-        for x in range(source.width):
+        for x in range(output_size[0]):
             alpha = mask.getpixel((x, y))
             if alpha:
                 output.putpixel((x, y), (*color, alpha))
     return output
+
+
+def _status_ani_with_rgb_color_key(raw: bytes, source_path: str) -> bytes:
+    """Make the two text frames use RGB black as their transparency key.
+
+    The stock 2x animation uses ``-2`` (PNG alpha) for these frames, unlike
+    the base and 4x animations.  The localized RGBA frames intentionally use
+    RGB for their normal backdrop and alpha for their fill mask, so all three
+    resolutions must take the true-colour RGB-key path in process_image().
+    """
+
+    normalized, count = _STATUS_LABEL_ANI_RE.subn(rb"\g<1>0\g<2>", raw)
+    if count != 2:
+        raise LocError(
+            f"Expected exactly status-004.png and status-005.png in {source_path}; "
+            f"matched {count} localized status frames"
+        )
+    return normalized
 
 
 def build_localized_status_labels(
@@ -607,11 +627,26 @@ def build_localized_status_labels(
             rendered.close()
             source.close()
             files.append(output_path)
+
+        source_ani_path = f"{variant.source_prefix}/status.ani"
+        output_ani_path = f"{variant.output_prefix}/status.ani"
+        destination = shadow_trees_root / variant.addon
+        destination = destination.joinpath(*PurePosixPath(output_ani_path).parts)
+        destination.parent.mkdir(parents=True, exist_ok=True)
+        destination.write_bytes(
+            _status_ani_with_rgb_color_key(
+                resolver.read_bytes(source_ani_path), source_ani_path
+            )
+        )
+        files.append(output_ani_path)
         report[variant.addon] = {
             "labels": {"CREW": "船員", "BATT": "能量"},
             "compact_labels": None,
             "font_weight": variant.font_weight,
             "font_size": variant.font_size,
+            "panel_background_rgb": list(STATUS_PANEL_BACKGROUND),
+            "normal_transparency": "rgb-black-color-key",
+            "low_energy_mask": "png-alpha",
             "source_canvases": {
                 "CREW": list(variant.crew_size),
                 "BATT": list(variant.energy_size),

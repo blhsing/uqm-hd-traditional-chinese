@@ -152,8 +152,8 @@ ZIP-compatible UQM archives, compares packs with the build output when it is
 available, independently checks all shortcut targets/arguments/working
 directories, and runs a hidden 12-second 4x fullscreen smoke test. The smoke
 log must confirm the `hires4x-zh_TW` add-on and a 1920x1080 rendering surface.
-The finalized v0.3 installation contains 11,534 managed files and passes all 17
-verifier checks; the repository's automated suite passes all 48 tests.
+The finalized v0.3.1 installation contains 11,534 managed files and passes all
+17 verifier checks; the repository's automated suite passes all 56 tests.
 
 ```powershell
 powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\tools\install\Test-UqmHdZhTwInstall.ps1 `
