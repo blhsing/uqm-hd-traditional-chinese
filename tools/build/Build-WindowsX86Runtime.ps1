@@ -238,7 +238,6 @@ else {
 
 $lockedPackages = Get-LockMap -Path $lockPath
 $lockedExplicitPackages = Get-LockMap -Path $explicitLockPath
-$env:MSYSTEM = 'MINGW32'
 $actualPackageLines = @(& $pacman -Q 2>&1)
 if ($LASTEXITCODE -ne 0) {
     throw "pacman -Q failed:`n$($actualPackageLines -join "`n")"
@@ -338,6 +337,10 @@ if ($buildPerformed) {
     $workMixed = Convert-ToMixedPath -Cygpath $cygpath -Path $work
     $command = @(
         'set -eu',
+        'export MSYSTEM=MINGW32',
+        'export BUILD_SYSTEM="$(uname -s)"',
+        'export HOST_SYSTEM="$BUILD_SYSTEM"',
+        'case "$HOST_SYSTEM" in MINGW32*) ;; *) echo "Expected MINGW32 host, got $HOST_SYSTEM" >&2; exit 1 ;; esac',
         "chmod +x $(Quote-Sh $generatedBinPosix)/svnversion",
         "export PATH=$(Quote-Sh $generatedBinPosix):/mingw32/bin:/usr/bin",
         "export BUILD_WORK=$(Quote-Sh $workMixed)",
@@ -347,10 +350,30 @@ if ($buildPerformed) {
         './build.sh uqm depend',
         './build.sh uqm'
     ) -join '; '
-    $env:CHERE_INVOKING = '1'
-    & $bash -lc $command
-    if ($LASTEXITCODE -ne 0) {
-        throw "Canonical UQM-HD release build failed with exit code $LASTEXITCODE."
+    $previousMsystem = $env:MSYSTEM
+    $previousChereInvoking = $env:CHERE_INVOKING
+    try {
+        $env:MSYSTEM = 'MINGW32'
+        $env:CHERE_INVOKING = '1'
+        & $bash -lc $command
+        $buildExitCode = $LASTEXITCODE
+    }
+    finally {
+        if ($null -eq $previousMsystem) {
+            Remove-Item Env:MSYSTEM -ErrorAction SilentlyContinue
+        }
+        else {
+            $env:MSYSTEM = $previousMsystem
+        }
+        if ($null -eq $previousChereInvoking) {
+            Remove-Item Env:CHERE_INVOKING -ErrorAction SilentlyContinue
+        }
+        else {
+            $env:CHERE_INVOKING = $previousChereInvoking
+        }
+    }
+    if ($buildExitCode -ne 0) {
+        throw "Canonical UQM-HD release build failed with exit code $buildExitCode."
     }
     $sourceExecutable = Join-Path $work 'uqm-hd.exe'
 }
