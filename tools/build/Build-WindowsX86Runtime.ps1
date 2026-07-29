@@ -8,13 +8,17 @@ param(
 
     [string]$WorkDir,
     [string]$ExecutablePath,
-    [string]$RepoRoot = (Join-Path $PSScriptRoot '..\..'),
+    [string]$RepoRoot,
     [switch]$RequireCleanSource,
     [switch]$AllowAdditionalPackages
 )
 
 $ErrorActionPreference = 'Stop'
 Set-StrictMode -Version Latest
+
+if ([string]::IsNullOrWhiteSpace($RepoRoot)) {
+    $RepoRoot = Join-Path $PSScriptRoot '..\..'
+}
 
 function Get-FullPath {
     param([Parameter(Mandatory = $true)][string]$Path)
