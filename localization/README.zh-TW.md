@@ -1,6 +1,6 @@
 # UQM-HD Traditional Chinese localization
 
-This workspace contains the v0.3.1 Traditional Chinese (`zh-TW`) localization of
+This workspace contains the v0.3.2 Traditional Chinese (`zh-TW`) localization of
 The Ur-Quan Masters HD Beta 1, finalized on 2026-07-29.
 
 ## Translation provenance
@@ -24,9 +24,9 @@ editor may still wish to polish tone or word choice.
 
 | Pack | Bytes | SHA-256 |
 | --- | ---: | --- |
-| `zh_TW.uqm` | 22,456,227 | `bb08fb46fc330f40d02bd0df6dcda25155d5e650a22bacce54ecb86f754d9471` |
-| `hires2x-zh_TW.uqm` | 42,598,012 | `290ce26eb938faac913782a98857454ea049802da8c2dcb6bc7bb0d67de89b79` |
-| `hires4x-zh_TW.uqm` | 64,582,708 | `d8e6e48b368f38e2646acd0bcb98a2b208308ed088ee67f53b7b1e5de766da42` |
+| `zh_TW.uqm` | 22,455,949 | `1a1b2bd13d6c8e1a8475c16a15c706602d62b7cab1a20fe395c9b931aa707942` |
+| `hires2x-zh_TW.uqm` | 42,596,373 | `edef271c9034827bfab29e37c1d37b568ecc779285adc6b5d7730abd5cb1f098` |
+| `hires4x-zh_TW.uqm` | 64,579,231 | `03f8491bdf5e84251a305dd73d52e353ac66efee717a9b336f3d152dc38c5749` |
 
 All three archives passed ZIP integrity and exact resource-mapping audits. The
 merged workspace passed UTF-8, engine-line-length, wrapping, CJK glyph, record
@@ -69,6 +69,10 @@ installation.
   reveals the cursor; a keyboard or mouse-button press hides it. Hovering a
   vessel shows its crew, battery, point cost, top speed, acceleration, turning,
   energy regeneration, and weapon/special costs.
+- The Super Melee build picker's rendered `選擇船艦` and `船艦資料` action labels
+  are directly clickable: the first confirms the current vessel and the second
+  opens its full-screen information page. Pressing Enter or Escape, or left-clicking
+  anywhere inside the visible page viewport, returns to the picker.
 - If a custom runtime is unavailable, the compatibility installer can instead
   apply exactly four hash-, offset-, signature-, and PE-checksum-gated patches
   to the supported upstream PE32 executable: menu highlight, in-bout Escape,
@@ -90,6 +94,12 @@ installation.
   movement statistics, weapons, special abilities, and tactics. English-style
   abbreviated ship-table fields reuse the full Han name so they cannot end in
   a misleading full stop.
+- On those ship-information pages, the replacement `船員` and `能量` captions
+  blend into the stock gray panel. Their redraw boxes preserve the gauges,
+  vertical dividers, and lower separators at every resolution.
+- The top-level README presents the 25 Super Melee vessels and campaign-only
+  Precursor Flagship in one uncollapsed 26-vessel table, with an image, full
+  labeled statistics, weapons, special abilities, and strategy for every entry.
 - OpenAI's built-in image editor was used only to remove the five baked English
   labels while preserving the 4:3 space/panel composition. The edit prompt was:
   "Remove only the New Game, Load Game, Super Melee!, Setup, and Quit labels;
@@ -114,7 +124,7 @@ installation.
 
 The installed marker, all 11,534 managed file hashes, three pack archives, five
 shortcuts, and a hidden 12-second runtime smoke test passed the final 17-check
-verifier. The 56-test automated suite also passed. The smoke log confirmed
+verifier. The 59-test automated suite also passed. The smoke log confirmed
 `hires4x-zh_TW` and a 1920x1080 fullscreen surface with no fatal diagnostic.
 Visible 4x runtime passes additionally confirmed the always-yellow selection,
 the `新遊戲` transition into the opening sequence instead of a stalled black
@@ -126,16 +136,16 @@ inside its original 8x9-pixel cells.
 
 ## Source-built Windows runtime
 
-The v0.3.1 release reuses the GPL source-built Windows x86 runtime introduced in
-v0.3 and includes its exact dependency licenses. It does **not** include the upstream game's original
+The v0.3.2 release bundles the updated GPL source-built Windows x86 runtime and
+includes its exact dependency licenses. It does **not** include the upstream game's original
 content; users must provide an extracted official Beta 1 tree. Runtime
 provenance is reproducible from the clean 1,043-file `game/` tree at source
-commit `1aee01896e88f759271779efcc03f58508c52f7f`.
+commit `7981479c611b60af041d05ec01a40791eb993f51`.
 
 | Runtime artifact | Bytes | SHA-256 |
 | --- | ---: | --- |
-| `uqm-hd.exe` | 3,020,273 | `2ef0f8ca00baad2f9c5611f8885a34acb54f16bc5c7fecb29ee7d6632d3be018` |
-| `runtime-manifest.json` | 51,276 | `3facebf59aafb4a373cf55bfc59953b9d4d4fcfe4c6feac96674e316123c9220` |
+| `uqm-hd.exe` | 3,022,388 | `6f33a1b73a38ce5e4a7045a67a5f520eaaa15a8c16eaa8f169d0cff5ecc2364f` |
+| `runtime-manifest.json` | 27,388 | `478bfc840a080977ca65fa366502b04d57d4e473405a93504e7c4c0a5bd58f5c` |
 
 The manifest closes over 20 PE32 payloads, stages 27 license files, and records
 zero unresolved non-system imports. See `../docs/BUILD-WINDOWS.md` for the

@@ -18,14 +18,14 @@ exact length and SHA-256. The manifest maps its source executable (normally
 must also contain a non-empty `LICENSES` directory. This path does not require
 Python and never applies legacy binary patches.
 
-The v0.3 release runtime was built from the clean 1,043-file `game/` tree at
-source commit `1aee01896e88f759271779efcc03f58508c52f7f`. Its manifest records
+The v0.3.2 release runtime was built from the clean 1,043-file `game/` tree at
+source commit `7981479c611b60af041d05ec01a40791eb993f51`. Its manifest records
 20 PE32 payloads, 27 license files, and zero unresolved non-system imports:
 
 | Artifact | Bytes | SHA-256 |
 | --- | ---: | --- |
-| `uqm-hd.exe` | 3,020,273 | `2ef0f8ca00baad2f9c5611f8885a34acb54f16bc5c7fecb29ee7d6632d3be018` |
-| `runtime-manifest.json` | 51,276 | `3facebf59aafb4a373cf55bfc59953b9d4d4fcfe4c6feac96674e316123c9220` |
+| `uqm-hd.exe` | 3,022,388 | `6f33a1b73a38ce5e4a7045a67a5f520eaaa15a8c16eaa8f169d0cff5ecc2364f` |
+| `runtime-manifest.json` | 27,388 | `478bfc840a080977ca65fa366502b04d57d4e473405a93504e7c4c0a5bd58f5c` |
 
 The release archive includes this GPL source-built runtime and its dependency
 licenses, but not the upstream game's original content. `SourceRoot` must
@@ -43,7 +43,7 @@ The manifest schema is intentionally small and deterministic:
     {
       "path": "uqm-hd.exe",
       "installPath": "uqm.exe",
-      "length": 3020273,
+      "length": 3022388,
       "sha256": "64 lowercase or uppercase hexadecimal digits",
       "kind": "executable",
       "package": "uqm-hd",
@@ -123,9 +123,13 @@ During an active Super Melee bout, `Escape` ends that bout by clearing only the
 deliberately scoped to Super Melee; the campaign's existing escape/run-away
 rules are unchanged, and the global `CHECK_ABORT` state is not propagated.
 In the pre-battle vessel picker, physical `Escape` follows the same confirmation
-path as the red X. Player 1's special ability keeps its Right Shift and keypad
-`0` bindings and gains RightAlt as a hidden third binding in the isolated
-profile.
+path as the red X. The `PICK SHIP` and `SHIP INFO` side labels are clickable and
+behave like Enter and Alt respectively. While a ship-information page is open,
+any left click inside its visible viewport returns to the picker. Its click
+generation/debounce state is created and consumed only in that ship-info mode,
+so a click cannot leak into the picker or another UI. Player 1's special ability
+keeps its Right Shift and keypad `0` bindings and gains RightAlt as a hidden
+third binding in the isolated profile.
 
 With `RuntimeDir`, every runtime payload file is re-hashed both during preflight
 and immediately before its atomic copy, and the managed-install marker records
@@ -152,8 +156,8 @@ ZIP-compatible UQM archives, compares packs with the build output when it is
 available, independently checks all shortcut targets/arguments/working
 directories, and runs a hidden 12-second 4x fullscreen smoke test. The smoke
 log must confirm the `hires4x-zh_TW` add-on and a 1920x1080 rendering surface.
-The finalized v0.3.1 installation contains 11,534 managed files and passes all
-17 verifier checks; the repository's automated suite passes all 56 tests.
+The finalized v0.3.2 installation contains 11,534 managed files and passes all
+17 verifier checks; the repository's automated suite passes all 59 tests.
 
 ```powershell
 powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\tools\install\Test-UqmHdZhTwInstall.ps1 `

@@ -133,8 +133,8 @@ manifest 會保存完整 import graph、每個 payload 的大小與 SHA-256，�
 C:\path\to\python.exe .\scripts\build_release.py `
   --packs-dir C:\build\localized-packs `
   --runtime-dir C:\build\uqm-hd-win32-runtime `
-  --output C:\build\uqm-hd-zh_TW-v0.3.1.zip `
-  --version 0.3.1
+  --output C:\build\uqm-hd-zh-tw-v0.3.2.zip `
+  --version 0.3.2
 ```
 
 `scripts/build_release.py` 會再次驗證 manifest schema、每個 EXE/DLL 的大小與 hash、

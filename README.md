@@ -53,7 +53,7 @@
 
 大型 `.uqm` 套件與 Windows 執行環境不放入 Git 歷史；請前往
 [GitHub Releases](https://github.com/blhsing/uqm-hd-traditional-chinese/releases/latest)。
-v0.3.1 壓縮檔包含三個繁中套件、管理式安裝器、驗證工具、
+v0.3.2 壓縮檔包含三個繁中套件、管理式安裝器、驗證工具、
 `runtime/windows-x86`（EXE、DLL、manifest 與授權文件），但**不包含原版遊戲的
 `content`／音樂／語音／圖像**；安裝時仍須提供合法取得的 UQM-HD Beta 1 內容。
 
@@ -61,23 +61,23 @@ v0.3.1 壓縮檔包含三個繁中套件、管理式安裝器、驗證工具、
 
 | 檔案 | 位元組 | SHA-256 |
 |---|---:|---|
-| `zh_TW.uqm` | 22,456,227 | `bb08fb46fc330f40d02bd0df6dcda25155d5e650a22bacce54ecb86f754d9471` |
-| `hires2x-zh_TW.uqm` | 42,598,012 | `290ce26eb938faac913782a98857454ea049802da8c2dcb6bc7bb0d67de89b79` |
-| `hires4x-zh_TW.uqm` | 64,582,708 | `d8e6e48b368f38e2646acd0bcb98a2b208308ed088ee67f53b7b1e5de766da42` |
+| `zh_TW.uqm` | 22,455,949 | `1a1b2bd13d6c8e1a8475c16a15c706602d62b7cab1a20fe395c9b931aa707942` |
+| `hires2x-zh_TW.uqm` | 42,596,373 | `edef271c9034827bfab29e37c1d37b568ecc779285adc6b5d7730abd5cb1f098` |
+| `hires4x-zh_TW.uqm` | 64,579,231 | `03f8491bdf5e84251a305dd73d52e353ac66efee717a9b336f3d152dc38c5749` |
 
-v0.3.1 推薦使用由本儲存庫原始碼建置的 Windows x86 執行環境：
+v0.3.2 推薦使用由本儲存庫原始碼建置的 Windows x86 執行環境：
 
 | 檔案 | 位元組 | SHA-256 |
 |---|---:|---|
-| `runtime/windows-x86/uqm-hd.exe` | 3,020,273 | `2ef0f8ca00baad2f9c5611f8885a34acb54f16bc5c7fecb29ee7d6632d3be018` |
-| `runtime/windows-x86/runtime-manifest.json` | 51,276 | `3facebf59aafb4a373cf55bfc59953b9d4d4fcfe4c6feac96674e316123c9220` |
+| `runtime/windows-x86/uqm-hd.exe` | 3,022,388 | `6f33a1b73a38ce5e4a7045a67a5f520eaaa15a8c16eaa8f169d0cff5ecc2364f` |
+| `runtime/windows-x86/runtime-manifest.json` | 27,388 | `478bfc840a080977ca65fa366502b04d57d4e473405a93504e7c4c0a5bd58f5c` |
 
-完整 `uqm-hd-zh-tw-v0.3.1.zip` 為 142,556,047 bytes，SHA-256：
-`488da5b42762bcdf2566e765fab1659611400adcef0436fc2e4f172046cf265a`。
+完整 `uqm-hd-zh-tw-v0.3.2.zip` 為 142,529,938 bytes，SHA-256：
+`b85413cc1d4fc7a5743042f4c41ab4bbb0b1ca6c1e4d636cd83662d1ab6be60d`。
 
 manifest 驗證 20 個 PE32/i386 payload、27 份授權檔及完整 import graph，未解析的
 非系統相依項為 0。執行檔來自乾淨的 `game/` 樹（1,043 個檔案），來源 commit 為
-`1aee01896e88f759271779efcc03f58508c52f7f`。舊版官方 EXE 的四階段雜湊鎖定
+`7981479c611b60af041d05ec01a40791eb993f51`。舊版官方 EXE 的四階段雜湊鎖定
 PE 修補器仍保留作相容性備援；它會驗證完整輸入雜湊、唯一指令特徵、固定檔案位移及
 PE checksum，遇到未知版本即拒絕修改。
 
@@ -302,8 +302,10 @@ RU 可購買燃料與船員、建造旗艦模組及護航艦。主要來源是�
 
 滑鼠可直接選擇右側按鈕、兩隊的 14 個欄位及 5×5 船艦清單；停在船艦上即可預覽船艦狀態。開戰前選船畫面另會顯示目前船艦的基本性能與能量資料。游標移動時顯示，按下鍵盤鍵或滑鼠鍵時隱藏，以免戰鬥中遮擋畫面。
 
-編組時開啟 5×5「選擇船艦」面板、把游標移到任一船艦，再按左 `Alt` 或右
-`Alt`，即可開啟該船艦的全螢幕「船艦資料」頁；按任意鍵返回選船面板。
+編組時開啟 5×5「選擇船艦」面板、把游標移到任一船艦，再按左 `Alt`、右
+`Alt` 或點擊 `船艦資料`，即可開啟該船艦的全螢幕資料頁；按 `Enter`／`Esc`，
+或在資料頁可視範圍內任意位置按一下滑鼠左鍵，即可返回選船面板。點擊
+`選擇船艦` 則與按 `Enter` 相同，會確認目前船艦。
 
 在開戰前選船畫面按 `Esc`，會呼叫與紅色 `X` 相同的確認視窗；確認後回到隊伍設定。在**本機** Super Melee 戰鬥中按 `Esc` 會結束目前一局。這兩條路徑都只接受實體 `Escape`，所以右 `Shift`、右 `Alt` 與數字鍵盤 `0` 仍可正常發動玩家一的特殊能力。劇情模式的原版逃跑規則不變。
 
@@ -311,277 +313,38 @@ RU 可購買燃料與船員、建造旗艦模組及護航艦。主要來源是�
 
 ## 船艦圖鑑
 
-Sa-Matra 與 Ur-Quan Security Drone 不是可選船艦，因此不列入以下 25 艘名單；各船艦章節標題尾端仍依序標示「船員／能量／Super Melee 費用」。下表依各船艦原始碼的 `characteristics` 欄位整理；「極速」與「推力」是引擎內部基準值，不是螢幕像素／秒。戰鬥邏輯以每秒 24 幀運作，「推力／間隔」的 `+3／5 幀` 表示每 5 幀增加 3 個速度單位；「0→極速」及「360° 轉向」則是據此推算的理想時間，假設持續按鍵、由靜止起步且不受重力、碰撞、後座力或敵方效果干擾，因此屬於便於比較的衍生值，而非保證的實戰秒數。
-
-變形、後燃器等能力會動態改變性能，已在同一格中特別列出；Slylandro 固定高速且不能停船。重力彈弓、武器後座力及特殊能力仍可能讓實際速度超出一般極速。
-
-### 船艦移動與基本數值總覽
-
-| 船艦 | 船員 | 能量 | 費用 | 極速 | 推力／間隔 | 0→極速 | 360° 轉向 |
-|---|---:|---:|---:|---:|---:|---:|---:|
-| Androsynth Guardian | 20 | 24 | 15 | 24（Blazer 60） | +3／1 幀 | 0.33 秒 | 3.33 秒（Blazer 1.33 秒） |
-| Ariloulaleelay Skiff | 6 | 20 | 16 | 40 | +40／1 幀 | 0.04 秒 | 0.67 秒 |
-| Chenjesu Broodhome | 36 | 30 | 28 | 27 | +3／5 幀 | 1.88 秒 | 4.67 秒 |
-| Chmmr Avatar | 42 | 42 | 30 | 35 | +7／6 幀 | 1.25 秒 | 2.67 秒 |
-| Druuge Mauler | 14 | 32 | 17 | 20 | +2／2 幀 | 0.83 秒 | 3.33 秒 |
-| Earthling Cruiser | 18 | 18 | 11 | 24 | +3／5 幀 | 1.67 秒 | 1.33 秒 |
-| Ilwrath Avenger | 22 | 16 | 10 | 25 | +5／1 幀 | 0.21 秒 | 2.00 秒 |
-| Kohr-Ah Marauder | 42 | 42 | 30 | 30 | +6／7 幀 | 1.46 秒 | 3.33 秒 |
-| Melnorme Trader | 20 | 42 | 18 | 36 | +6／5 幀 | 1.25 秒 | 3.33 秒 |
-| Mmrnmhrm X-Form | 20 | 10 | 19 | 飛碟 20／火箭 50 | 飛碟 +5／2 幀；火箭 +10／1 幀 | 飛碟 0.33 秒；火箭 0.21 秒 | 飛碟 2.00 秒；火箭 10.00 秒 |
-| Mycon Podship | 20 | 40 | 21 | 27 | +9／7 幀 | 0.88 秒 | 4.67 秒 |
-| Orz Nemesis | 16 | 20 | 23 | 35 | +5／1 幀 | 0.29 秒 | 1.33 秒 |
-| Pkunk Fury | 8 | 12 | 20 | 64 | +16／1 幀 | 0.17 秒 | 0.67 秒 |
-| Shofixti Scout | 6 | 4 | 5 | 35 | +5／1 幀 | 0.29 秒 | 1.33 秒 |
-| Slylandro Probe | 12 | 20 | 17 | 固定 60 | 瞬時；不能停船 | — | 0.67 秒 |
-| Spathi Eluder | 30 | 10 | 18 | 48 | +12／2 幀 | 0.33 秒 | 1.33 秒 |
-| Supox Blade | 12 | 16 | 16 | 40 | +8／1 幀 | 0.21 秒 | 1.33 秒 |
-| Syreen Penetrator | 12 | 16 | 13 | 36 | +9／2 幀 | 0.33 秒 | 1.33 秒 |
-| Thraddash Torch | 8 | 24 | 10 | 28（後燃 72） | +7／1 幀（後燃 +12／1 幀） | 常規 0.17 秒；後燃動態 | 1.33 秒 |
-| Umgah Drone | 10 | 30 | 7 | 18 | +6／4 幀 | 0.50 秒 | 3.33 秒 |
-| Ur-Quan Dreadnought | 42 | 42 | 30 | 30 | +6／7 幀 | 1.46 秒 | 3.33 秒 |
-| Utwig Jugger | 20 | 20 | 22 | 36 | +6／7 幀 | 1.75 秒 | 1.33 秒 |
-| VUX Intruder | 20 | 40 | 12 | 21 | +7／5 幀 | 0.63 秒 | 4.67 秒 |
-| Yehat Terminator | 20 | 10 | 23 | 30 | +6／3 幀 | 0.63 秒 | 2.00 秒 |
-| Zoq-Fot-Pik Stinger | 10 | 10 | 6 | 40 | +10／1 幀 | 0.17 秒 | 1.33 秒 |
-
-### 能量恢復與動作消耗總覽
-
-「自然回能」及持續能力的間隔同樣以 24 FPS 的戰鬥幀計算；武器、特殊能力欄中的數字均為每次消耗的能量，另有標示者除外。
-
-| 船艦 | 自然回能 | 武器消耗 | 特殊能力消耗／回復 |
-|---|---:|---:|---|
-| Androsynth Guardian | +1／每 9 幀 | 3 | 啟動 Blazer 至少需 2；Blazer 每 9 幀消耗 1 |
-| Ariloulaleelay Skiff | +1／每 7 幀 | 2 | 瞬移 3 |
-| Chenjesu Broodhome | +1／每 5 幀 | 5 | DOGI 30 |
-| Chmmr Avatar | +1／每 2 幀 | 2 | 牽引光束每次 1 |
-| Druuge Mauler | +1／每 51 幀 | 4 | 犧牲 1 名船員，回復 16 |
-| Earthling Cruiser | +1／每 9 幀 | 9 | 點防禦 4 |
-| Ilwrath Avenger | +4／每 5 幀 | 1 | 隱形 3 |
-| Kohr-Ah Marauder | +1／每 5 幀 | 6 | 火焰氣雲 21 |
-| Melnorme Trader | +1／每 5 幀 | 5 | 混亂射線 20 |
-| Mmrnmhrm X-Form | 飛碟 +2／每 7 幀；火箭 +1／每 7 幀 | 1 | 變形 10 |
-| Mycon Podship | +1／每 5 幀 | 20 | 回復船員 40 |
-| Orz Nemesis | +1／每 7 幀 | 6 | 控制炮塔 0；每隊陸戰隊暫用 1 名船員 |
-| Pkunk Fury | 無自然回能 | 1 | 辱罵回復 2 |
-| Shofixti Scout | +1／每 10 幀 | 1 | Glory Device 0 |
-| Slylandro Probe | 無自然回能 | 2 | 反轉 0；吸收完整小行星後回滿 |
-| Spathi Eluder | +1／每 11 幀 | 2 | B.U.T.T. 飛彈 3 |
-| Supox Blade | +1／每 5 幀 | 1 | 每次平移 1 |
-| Syreen Penetrator | +1／每 7 幀 | 1 | 船員召喚 5 |
-| Thraddash Torch | +1／每 7 幀 | 2 | 每次後燃脈衝 1 |
-| Umgah Drone | +30／每 151 幀 | 0 | 倒衝 1 |
-| Ur-Quan Dreadnought | +1／每 5 幀 | 6 | 戰鬥機 8，並暫用 1 名船員 |
-| Utwig Jugger | 無自然回能 | 0 | 每次護盾脈衝 1；吸收傷害可回能 |
-| VUX Intruder | +1／每 9 幀 | 1 | 寄生體 2 |
-| Yehat Terminator | +2／每 7 幀 | 1 | 每次護盾脈衝 3 |
-| Zoq-Fot-Pik Stinger | +1／每 5 幀 | 1 | 舌擊 7 |
-
-### 安德羅辛斯・守護艦（Androsynth Guardian）— 20／24／15
-
-<img src="docs/images/vessels/androsynth-guardian.png" width="180" alt="Androsynth Guardian">
-
-- **武器：**耐久、長壽命的追蹤酸泡泡。
-- **特殊能力：**變成高速 Blazer 彗星，以衝撞造成傷害；撞擊本身不扣自身生命，但並非對所有武器無敵。
-- **打法：**先用泡泡封鎖空間，再變形追擊。爆發機動極強，但能量耗盡會強制復原，衝撞路線也較可預測。
-
-### 阿里盧拉萊萊・小艇（Ariloulaleelay Skiff）— 6／20／16
-
-<img src="docs/images/vessels/arilou-skiff.png" width="180" alt="Ariloulaleelay Skiff">
-
-- **武器：**近距離自動瞄準雷射。
-- **特殊能力：**隨機瞬移。
-- **打法：**無慣性、可立即改向，適合貼身繞背；只有 6 名船員且射程短，瞬移落點也不可控。
-
-### 陳傑蘇・育巢艦（Chenjesu Broodhome）— 36／30／28
-
-<img src="docs/images/vessels/chenjesu-broodhome.png" width="180" alt="Chenjesu Broodhome">
-
-- **武器：**高傷害水晶；放開射擊鍵可手動炸成碎片。
-- **特殊能力：**放出 DOGI，撞擊時推開敵艦並抽走最多 10 能量。
-- **打法：**重型區域控制艦，單發威力高但加速、轉向慢；DOGI 可被擊毀，召喚也需完整能量槽。
-
-### 克姆爾混合種・化身艦（Chmmr Avatar）— 42／42／30
-
-<img src="docs/images/vessels/chmmr-avatar.png" width="180" alt="Chmmr Avatar">
-
-- **武器：**近距離連續雷射；三枚 ZapSat 自動攔截彈體並攻擊近敵。
-- **特殊能力：**牽引光束。
-- **打法：**把敵人拉入雷射及衛星殺傷圈。近戰壓制頂尖，但體型大、轉向慢，衛星被擊毀後防護會降低。
-
-### 德魯吉・重擊艦（Druuge Mauler）— 14／32／17
-
-<img src="docs/images/vessels/druuge-mauler.png" width="180" alt="Druuge Mauler">
-
-- **武器：**超長射程、6 傷害且後座力極高的炮彈。
-- **特殊能力：**犧牲 1 名船員換取 16 能量。
-- **打法：**利用炮擊後座力移動並遠距狙擊。火力優異，但自然回能極慢，失誤會同時消耗能量與船員。
-
-### 地球人・巡洋艦（Earthling Cruiser）— 18／18／11
-
-<img src="docs/images/vessels/earthling-cruiser.png" width="180" alt="Earthling Cruiser">
-
-- **武器：**長距離追蹤核彈。
-- **特殊能力：**近距離點防禦雷射。
-- **打法：**遠距離發射核彈並攔截威脅；便宜、容易上手，但核彈可被擊落，近戰及回能較弱。
-
-### 伊爾拉斯・復仇艦（Ilwrath Avenger）— 22／16／10
-
-<img src="docs/images/vessels/ilwrath-avenger.png" width="180" alt="Ilwrath Avenger">
-
-- **武器：**船首短距離火焰。
-- **特殊能力：**隱形；隱形中開火會解除隱形並自動朝向敵艦。
-- **打法：**隱形接近後貼身噴火，近距離輸出高；缺乏遠程手段，對手仍可從畫面與聲音推測位置。
-
-### 克爾阿・掠奪艦（Kohr-Ah Marauder）— 42／42／30
-
-<img src="docs/images/vessels/kohr-ah-marauder.png" width="180" alt="Kohr-Ah Marauder">
-
-- **武器：**最多部署 8 枚耐久旋鋸；放開射擊後減速，接近敵艦時重新追蹤。
-- **特殊能力：**向 16 個方向爆出火焰氣雲。
-- **打法：**擅長布置雷區與近身清場；船體笨重，環形爆發會消耗一半能量。
-
-### 梅爾諾姆・商旅艦（Melnorme Trader）— 20／42／18
-
-<img src="docs/images/vessels/melnorme-trader.png" width="180" alt="Melnorme Trader">
-
-- **武器：**可蓄力四級的能量彈，傷害為 2／4／8／16。
-- **特殊能力：**混亂射線迫使敵艦轉向並暫時封鎖特殊動作。
-- **打法：**先以混亂射線控制，再用滿蓄力彈收尾；蓄力需要時間，射線亦耗能 20。
-
-### 姆爾恩姆赫姆・變形艦（Mmrnmhrm X-Form）— 20／10／19
-
-<img src="docs/images/vessels/mmrnmhrm-x-form.png" width="180" alt="Mmrnmhrm X-Form">
-
-- **武器：**飛碟形態使用雙雷射；火箭形態使用追蹤飛彈。
-- **特殊能力：**切換飛碟／高速火箭形態。
-- **打法：**依對手在靈活近戰及高速遠攻之間切換；變形需要完整能量，兩種形態各有明顯短板。
-
-### 邁康・孢子艦（Mycon Podship）— 20／40／21
-
-<img src="docs/images/vessels/mycon-podship.png" width="180" alt="Mycon Podship">
-
-- **武器：**追蹤等離子體，威力隨飛行時間衰減。
-- **特殊能力：**耗盡 40 能量，恢復最多 4 名船員。
-- **打法：**適合遠距消耗及長局續戰；船體遲鈍，等離子體可被攔截且遠距命中時傷害較低。
-
-### 奧茲・復仇女神艦（Orz Nemesis）— 16／20／23
-
-<img src="docs/images/vessels/orz-nemesis.png" width="180" alt="Orz Nemesis">
-
-- **武器：**可獨立旋轉的炮塔；特殊鍵加左右鍵轉炮塔。
-- **特殊能力：**特殊鍵加射擊鍵派出太空陸戰隊，每隊暫時占用 1 名船員。
-- **打法：**可一邊航行一邊向不同方向射擊，陸戰隊直接削減敵船員；過度部署會掏空本艦船員。
-
-### 普坎克・狂怒艦（Pkunk Fury）— 8／12／20
-
-<img src="docs/images/vessels/pkunk-fury.png" width="180" alt="Pkunk Fury">
-
-- **武器：**同時向前、左、右三向射擊。
-- **特殊能力：**辱罵回復 2 能量；被摧毀時有 50% 機率滿狀態復活。
-- **打法：**速度與轉向極佳，容易繞側面；船員少、單發傷害低，復活完全依賴機率。
-
-### 索菲克斯提・偵察艦（Shofixti Scout）— 6／4／5
-
-<img src="docs/images/vessels/shofixti-scout.png" width="180" alt="Shofixti Scout">
-
-- **武器：**威力較弱的正面炮。
-- **特殊能力：**連續觸發可啟動 Glory Device 自爆，對近敵造成巨量傷害。
-- **打法：**低費用交換型船艦，常用來重創昂貴大船；常規戰力弱，自爆成功仍會失去本艦。
-
-### 斯萊蘭卓・探測器（Slylandro Probe）— 12／20／17
-
-<img src="docs/images/vessels/slylandro-probe.png" width="180" alt="Slylandro Probe">
-
-- **武器：**近距離追蹤閃電。
-- **特殊能力：**吸收附近完整小行星以補滿能量（不能吸收有限壽命的戰鬥碎屑）；推進鍵會立即反轉 180 度。
-- **打法：**永遠以最高速移動且免疫 Syreen 類船員移除效果，但仍會受一般傷害。沒有被動回能，也不能停船。
-
-### 斯帕西・逃逸艦（Spathi Eluder）— 30／10／18
-
-<img src="docs/images/vessels/spathi-eluder.png" width="180" alt="Spathi Eluder">
-
-- **武器：**船首弱彈。
-- **特殊能力：**從船尾發射追蹤 B.U.T.T. 飛彈。
-- **打法：**一面逃跑一面從後方射擊；速度快、船員多，但傷害較低，必須控制敵人位於船尾。
-
-### 蘇波克斯・刀鋒艦（Supox Blade）— 12／16／16
-
-<img src="docs/images/vessels/supox-blade.png" width="180" alt="Supox Blade">
-
-- **武器：**快速正面彈。
-- **特殊能力：**`Special+Up` 後退、`Special+Left/Right` 側移，三鍵可後斜移，艦首方向不變。
-- **打法：**保持瞄準同時閃避，操作上限高；船員少、常規射擊威力低，控制負擔較大。
-
-### 賽琳・穿透艦（Syreen Penetrator）— 12／16／13
-
-<img src="docs/images/vessels/syreen-penetrator.png" width="180" alt="Syreen Penetrator">
-
-- **武器：**正面炮。
-- **特殊能力：**歌聲使範圍內敵艦船員飄出太空；碰觸漂浮船員可收編。
-- **打法：**貼近高船員目標可迅速反轉兵力差；自身只有 12 人，接近過程危險，對無船員目標效果差。
-
-### 瑟拉達什・火炬艦（Thraddash Torch）— 8／24／10
-
-<img src="docs/images/vessels/thraddash-torch.png" width="180" alt="Thraddash Torch">
-
-- **武器：**威力較低的常規炮。
-- **特殊能力：**後燃器提供極高速並留下可傷敵的火焰軌跡。
-- **打法：**以爆發速度突襲、脫離或引誘追兵撞進火焰；船員少，成果高度依賴路線與能量管理。
-
-### 烏姆加・無人機（Umgah Drone）— 10／30／7
-
-<img src="docs/images/vessels/umgah-drone.png" width="180" alt="Umgah Drone">
-
-- **武器：**船首連續反物質錐，可摧毀近距離彈體。
-- **特殊能力：**朝後方高速衝刺。
-- **打法：**倒衝瞬間貼近或逃離，再以錐形武器磨碎敵人；射程極短、轉向慢，操作不直覺。
-
-### 烏爾關・無畏艦（Ur-Quan Dreadnought）— 42／42／30
-
-<img src="docs/images/vessels/ur-quan-dreadnought.png" width="180" alt="Ur-Quan Dreadnought">
-
-- **武器：**正面重型融合彈。
-- **特殊能力：**每次最多派出兩架戰鬥機，每架暫時占用 1 名船員；返艦後歸隊，被毀則永久損失。
-- **打法：**耐久、火力及持續騷擾俱佳；體型與轉向是主要弱點，戰鬥機也可能造成實質船員損失。
-
-### 烏特維格・巨獸艦（Utwig Jugger）— 20／20／22
-
-<img src="docs/images/vessels/utwig-jugger.png" width="180" alt="Utwig Jugger">
-
-- **武器：**免費的多管正面齊射。
-- **特殊能力：**護盾消耗能量，但把吸收的武器傷害轉成能量。
-- **打法：**可反制高傷害彈體；沒有自然回能，過早或空按護盾會耗乾電池，部分特殊攻擊也能繞過優勢。
-
-### VUX・入侵艦（VUX Intruder）— 20／40／12
-
-<img src="docs/images/vessels/vux-intruder.png" width="180" alt="VUX Intruder">
-
-- **武器：**近距離連續雷射。
-- **特殊能力：**追蹤寄生體，命中後永久降低敵艦加速與轉向；開戰常躍遷到近敵位置。
-- **打法：**初始位置有利時可立即壓制；寄生體可拖垮對手，但本艦極慢，突擊失敗後容易被風箏。
-
-### 耶哈特・終結艦（Yehat Terminator）— 20／10／23
-
-<img src="docs/images/vessels/yehat-terminator.png" width="180" alt="Yehat Terminator">
-
-- **武器：**快速雙炮。
-- **特殊能力：**短暫全向護盾。
-- **打法：**加速與轉向良好，可在護盾間隙換血；能量槽小，連續誤開會迅速失去防禦。
-
-### 佐克－福特－皮克・毒刺艦（Zoq-Fot-Pik Stinger）— 10／10／6
-
-<img src="docs/images/vessels/zoq-fot-pik-stinger.png" width="180" alt="Zoq-Fot-Pik Stinger">
-
-- **武器：**威力較弱的正面彈。
-- **特殊能力：**極短距離舌擊，消耗 7 能量並造成 12 傷害。
-- **打法：**低費用伏擊艦，貼身舌擊能意外擊殺昂貴目標；船員少，舌擊距離非常短。
-
-### 戰役專用：先驅者旗艦
-
-<img src="docs/images/vessels/precursor-flagship.png" width="180" alt="Precursor Flagship">
-
-旗艦由玩家命名，數值取決於已安裝的船員艙、燃料槽、儲藏艙、推進器、姿態噴射器、發電機及武器。炮組射向由槽位決定；取得技術並安裝點防禦模組後，特殊鍵可啟動防禦雷射。它的優勢是高度自訂、後期火力及續航極高；初期則遲鈍、槽位必須取捨，而且旗艦被摧毀通常代表戰役結束。
+Sa-Matra 與 Ur-Quan Security Drone 不是可選船艦，因此不列入圖鑑。下表以單一、永遠展開的表格收錄 25 艘 Super Melee 船艦及戰役專用的先驅者旗艦；每一列都同時列出圖片、繁體中文名稱、英文名稱、完整數值、武器、特殊能力與策略。
+
+「極速」及每次推進增加的速度單位都是引擎內部基準值，不是螢幕像素／秒。戰鬥邏輯以每秒 24 個戰鬥幀運作。由靜止加速至極速及完成 360 度轉向的時間是理想推算值，假設持續按鍵且不受重力、碰撞、後座力或敵方效果干擾；實戰結果可能不同。變形、後燃器等能力造成的性能變化已在對應欄位明確標示；重力彈弓、武器後座力及特殊能力仍可能使實際速度超出一般極速。除非另有說明，武器與特殊能力的能量數字均指每次使用的消耗。
+
+| 船艦圖片與名稱 | 完整數值與資源規則 | 武器 | 特殊能力 | 策略、優勢與弱點 |
+|---|---|---|---|---|
+| <img src="docs/images/vessels/androsynth-guardian.png" width="180" alt="Androsynth Guardian"><br><strong>安德羅辛斯・守護艦</strong><br><em>Androsynth Guardian</em> | <strong>最大船員數：</strong>20<br><strong>最大能量值：</strong>24<br><strong>超級對戰編隊費用：</strong>15<br><strong>一般極速（引擎基準值）：</strong>24<br><strong>Blazer 彗星形態極速（引擎基準值）：</strong>60<br><strong>一般推進：</strong>每 1 個戰鬥幀增加 3 個速度單位<br><strong>由靜止加速至一般極速：</strong>0.33 秒（理想值）<br><strong>一般形態完成 360 度轉向：</strong>3.33 秒（理想值）<br><strong>Blazer 彗星形態完成 360 度轉向：</strong>1.33 秒（理想值）<br><strong>自然能量恢復：</strong>每 9 個戰鬥幀恢復 1<br><strong>主武器能量消耗：</strong>每次 3<br><strong>特殊能力的能量規則：</strong>啟動 Blazer 彗星形態至少需要 2；維持期間每 9 個戰鬥幀消耗 1 | 耐久、長壽命的追蹤酸泡泡。 | 變成高速 Blazer 彗星，以衝撞造成傷害；撞擊本身不扣自身生命，但並非對所有武器無敵。 | 先用泡泡封鎖空間，再變形追擊。爆發機動極強，但能量耗盡會強制復原，衝撞路線也較可預測。 |
+| <img src="docs/images/vessels/arilou-skiff.png" width="180" alt="Ariloulaleelay Skiff"><br><strong>阿里盧拉萊萊・小艇</strong><br><em>Ariloulaleelay Skiff</em> | <strong>最大船員數：</strong>6<br><strong>最大能量值：</strong>20<br><strong>超級對戰編隊費用：</strong>16<br><strong>極速（引擎基準值）：</strong>40<br><strong>推進：</strong>每 1 個戰鬥幀增加 40 個速度單位<br><strong>由靜止加速至極速：</strong>0.04 秒（理想值）<br><strong>完成 360 度轉向：</strong>0.67 秒（理想值）<br><strong>自然能量恢復：</strong>每 7 個戰鬥幀恢復 1<br><strong>主武器能量消耗：</strong>每次 2<br><strong>特殊能力能量消耗：</strong>每次瞬移消耗 3 | 近距離自動瞄準雷射。 | 隨機瞬移。 | 無慣性、可立即改向，適合貼身繞背；只有 6 名船員且射程短，瞬移落點也不可控。 |
+| <img src="docs/images/vessels/chenjesu-broodhome.png" width="180" alt="Chenjesu Broodhome"><br><strong>陳傑蘇・育巢艦</strong><br><em>Chenjesu Broodhome</em> | <strong>最大船員數：</strong>36<br><strong>最大能量值：</strong>30<br><strong>超級對戰編隊費用：</strong>28<br><strong>極速（引擎基準值）：</strong>27<br><strong>推進：</strong>每 5 個戰鬥幀增加 3 個速度單位<br><strong>由靜止加速至極速：</strong>1.88 秒（理想值）<br><strong>完成 360 度轉向：</strong>4.67 秒（理想值）<br><strong>自然能量恢復：</strong>每 5 個戰鬥幀恢復 1<br><strong>主武器能量消耗：</strong>每次 5<br><strong>特殊能力能量消耗：</strong>每次放出 DOGI 干擾衛星消耗 30 | 高傷害水晶；放開射擊鍵可手動炸成碎片。 | 放出 DOGI 干擾衛星，撞擊時推開敵艦並抽走最多 10 能量。 | 重型區域控制艦，單發威力高但加速、轉向慢；DOGI 干擾衛星可被擊毀，召喚也需完整能量槽。 |
+| <img src="docs/images/vessels/chmmr-avatar.png" width="180" alt="Chmmr Avatar"><br><strong>克姆爾混合種・化身艦</strong><br><em>Chmmr Avatar</em> | <strong>最大船員數：</strong>42<br><strong>最大能量值：</strong>42<br><strong>超級對戰編隊費用：</strong>30<br><strong>極速（引擎基準值）：</strong>35<br><strong>推進：</strong>每 6 個戰鬥幀增加 7 個速度單位<br><strong>由靜止加速至極速：</strong>1.25 秒（理想值）<br><strong>完成 360 度轉向：</strong>2.67 秒（理想值）<br><strong>自然能量恢復：</strong>每 2 個戰鬥幀恢復 1<br><strong>主武器能量消耗：</strong>每次 2<br><strong>特殊能力能量消耗：</strong>牽引光束每次消耗 1 | 近距離連續雷射；三枚 ZapSat 護航衛星會自動攔截彈體並攻擊近敵。 | 牽引光束。 | 把敵人拉入雷射及衛星殺傷圈。近戰壓制頂尖，但體型大、轉向慢，衛星被擊毀後防護會降低。 |
+| <img src="docs/images/vessels/druuge-mauler.png" width="180" alt="Druuge Mauler"><br><strong>德魯吉・重擊艦</strong><br><em>Druuge Mauler</em> | <strong>最大船員數：</strong>14<br><strong>最大能量值：</strong>32<br><strong>超級對戰編隊費用：</strong>17<br><strong>極速（引擎基準值）：</strong>20<br><strong>推進：</strong>每 2 個戰鬥幀增加 2 個速度單位<br><strong>由靜止加速至極速：</strong>0.83 秒（理想值）<br><strong>完成 360 度轉向：</strong>3.33 秒（理想值）<br><strong>自然能量恢復：</strong>每 51 個戰鬥幀恢復 1<br><strong>主武器能量消耗：</strong>每次 4<br><strong>特殊能力的資源規則：</strong>犧牲 1 名船員，回復 16 能量 | 超長射程、造成 6 傷害且後座力極高的炮彈。 | 犧牲 1 名船員換取 16 能量。 | 利用炮擊後座力移動並遠距狙擊。火力優異，但自然能量恢復極慢，失誤會同時消耗能量與船員。 |
+| <img src="docs/images/vessels/earthling-cruiser.png" width="180" alt="Earthling Cruiser"><br><strong>地球人・巡洋艦</strong><br><em>Earthling Cruiser</em> | <strong>最大船員數：</strong>18<br><strong>最大能量值：</strong>18<br><strong>超級對戰編隊費用：</strong>11<br><strong>極速（引擎基準值）：</strong>24<br><strong>推進：</strong>每 5 個戰鬥幀增加 3 個速度單位<br><strong>由靜止加速至極速：</strong>1.67 秒（理想值）<br><strong>完成 360 度轉向：</strong>1.33 秒（理想值）<br><strong>自然能量恢復：</strong>每 9 個戰鬥幀恢復 1<br><strong>主武器能量消耗：</strong>每次 9<br><strong>特殊能力能量消耗：</strong>每次點防禦消耗 4 | 長距離追蹤核彈。 | 近距離點防禦雷射。 | 遠距離發射核彈並攔截威脅；便宜、容易上手，但核彈可被擊落，近戰及能量恢復較弱。 |
+| <img src="docs/images/vessels/ilwrath-avenger.png" width="180" alt="Ilwrath Avenger"><br><strong>伊爾拉斯・復仇艦</strong><br><em>Ilwrath Avenger</em> | <strong>最大船員數：</strong>22<br><strong>最大能量值：</strong>16<br><strong>超級對戰編隊費用：</strong>10<br><strong>極速（引擎基準值）：</strong>25<br><strong>推進：</strong>每 1 個戰鬥幀增加 5 個速度單位<br><strong>由靜止加速至極速：</strong>0.21 秒（理想值）<br><strong>完成 360 度轉向：</strong>2.00 秒（理想值）<br><strong>自然能量恢復：</strong>每 5 個戰鬥幀恢復 4<br><strong>主武器能量消耗：</strong>每次 1<br><strong>特殊能力能量消耗：</strong>每次進入隱形消耗 3 | 船首短距離火焰。 | 隱形；隱形中開火會解除隱形並自動朝向敵艦。 | 隱形接近後貼身噴火，近距離輸出高；缺乏遠程手段，對手仍可從畫面與聲音推測位置。 |
+| <img src="docs/images/vessels/kohr-ah-marauder.png" width="180" alt="Kohr-Ah Marauder"><br><strong>克爾阿・掠奪艦</strong><br><em>Kohr-Ah Marauder</em> | <strong>最大船員數：</strong>42<br><strong>最大能量值：</strong>42<br><strong>超級對戰編隊費用：</strong>30<br><strong>極速（引擎基準值）：</strong>30<br><strong>推進：</strong>每 7 個戰鬥幀增加 6 個速度單位<br><strong>由靜止加速至極速：</strong>1.46 秒（理想值）<br><strong>完成 360 度轉向：</strong>3.33 秒（理想值）<br><strong>自然能量恢復：</strong>每 5 個戰鬥幀恢復 1<br><strong>主武器能量消耗：</strong>每次 6<br><strong>特殊能力能量消耗：</strong>每次環形火焰氣雲消耗 21 | 最多部署 8 枚耐久旋鋸；放開射擊後減速，接近敵艦時重新追蹤。 | 向 16 個方向爆出火焰氣雲。 | 擅長布置雷區與近身清場；船體笨重，環形爆發會消耗一半能量。 |
+| <img src="docs/images/vessels/melnorme-trader.png" width="180" alt="Melnorme Trader"><br><strong>梅爾諾姆・商旅艦</strong><br><em>Melnorme Trader</em> | <strong>最大船員數：</strong>20<br><strong>最大能量值：</strong>42<br><strong>超級對戰編隊費用：</strong>18<br><strong>極速（引擎基準值）：</strong>36<br><strong>推進：</strong>每 5 個戰鬥幀增加 6 個速度單位<br><strong>由靜止加速至極速：</strong>1.25 秒（理想值）<br><strong>完成 360 度轉向：</strong>3.33 秒（理想值）<br><strong>自然能量恢復：</strong>每 5 個戰鬥幀恢復 1<br><strong>主武器能量消耗：</strong>每次 5<br><strong>特殊能力能量消耗：</strong>每次混亂射線消耗 20 | 可蓄力四級的能量彈；四級傷害依序為 2、4、8、16。 | 混亂射線迫使敵艦轉向並暫時封鎖特殊動作。 | 先以混亂射線控制，再用滿蓄力彈收尾；蓄力需要時間，射線亦會消耗 20 能量。 |
+| <img src="docs/images/vessels/mmrnmhrm-x-form.png" width="180" alt="Mmrnmhrm X-Form"><br><strong>姆爾恩姆赫姆・變形艦</strong><br><em>Mmrnmhrm X-Form</em> | <strong>最大船員數：</strong>20<br><strong>最大能量值：</strong>10<br><strong>超級對戰編隊費用：</strong>19<br><strong>飛碟形態極速（引擎基準值）：</strong>20<br><strong>飛碟形態推進：</strong>每 2 個戰鬥幀增加 5 個速度單位<br><strong>飛碟形態由靜止加速至極速：</strong>0.33 秒（理想值）<br><strong>飛碟形態完成 360 度轉向：</strong>2.00 秒（理想值）<br><strong>火箭形態極速（引擎基準值）：</strong>50<br><strong>火箭形態推進：</strong>每 1 個戰鬥幀增加 10 個速度單位<br><strong>火箭形態由靜止加速至極速：</strong>0.21 秒（理想值）<br><strong>火箭形態完成 360 度轉向：</strong>10.00 秒（理想值）<br><strong>飛碟形態自然能量恢復：</strong>每 7 個戰鬥幀恢復 2<br><strong>火箭形態自然能量恢復：</strong>每 7 個戰鬥幀恢復 1<br><strong>主武器能量消耗：</strong>每次 1<br><strong>特殊能力能量消耗：</strong>每次變形消耗 10 | 飛碟形態使用雙雷射；火箭形態使用追蹤飛彈。 | 在飛碟與高速火箭形態之間切換。 | 依對手在靈活近戰及高速遠攻之間切換；變形需要完整能量，兩種形態各有明顯短板。 |
+| <img src="docs/images/vessels/mycon-podship.png" width="180" alt="Mycon Podship"><br><strong>邁康・孢子艦</strong><br><em>Mycon Podship</em> | <strong>最大船員數：</strong>20<br><strong>最大能量值：</strong>40<br><strong>超級對戰編隊費用：</strong>21<br><strong>極速（引擎基準值）：</strong>27<br><strong>推進：</strong>每 7 個戰鬥幀增加 9 個速度單位<br><strong>由靜止加速至極速：</strong>0.88 秒（理想值）<br><strong>完成 360 度轉向：</strong>4.67 秒（理想值）<br><strong>自然能量恢復：</strong>每 5 個戰鬥幀恢復 1<br><strong>主武器能量消耗：</strong>每次 20<br><strong>特殊能力能量消耗：</strong>每次船員再生消耗 40 | 追蹤等離子體，威力隨飛行時間衰減。 | 耗盡 40 能量，恢復最多 4 名船員。 | 適合遠距消耗及長局續戰；船體遲鈍，等離子體可被攔截且遠距命中時傷害較低。 |
+| <img src="docs/images/vessels/orz-nemesis.png" width="180" alt="Orz Nemesis"><br><strong>奧茲・復仇女神艦</strong><br><em>Orz Nemesis</em> | <strong>最大船員數：</strong>16<br><strong>最大能量值：</strong>20<br><strong>超級對戰編隊費用：</strong>23<br><strong>極速（引擎基準值）：</strong>35<br><strong>推進：</strong>每 1 個戰鬥幀增加 5 個速度單位<br><strong>由靜止加速至極速：</strong>0.29 秒（理想值）<br><strong>完成 360 度轉向：</strong>1.33 秒（理想值）<br><strong>自然能量恢復：</strong>每 7 個戰鬥幀恢復 1<br><strong>主武器能量消耗：</strong>每次 6<br><strong>炮塔控制能量消耗：</strong>0<br><strong>太空陸戰隊的資源規則：</strong>每隊暫時占用 1 名本艦船員 | 可獨立旋轉的炮塔；按住特殊能力鍵再按左右方向鍵可轉動炮塔。 | 按住特殊能力鍵再按射擊鍵可派出太空陸戰隊；每隊暫時占用 1 名船員。 | 可一邊航行一邊向不同方向射擊，陸戰隊直接削減敵船員；過度部署會掏空本艦船員。 |
+| <img src="docs/images/vessels/pkunk-fury.png" width="180" alt="Pkunk Fury"><br><strong>普坎克・狂怒艦</strong><br><em>Pkunk Fury</em> | <strong>最大船員數：</strong>8<br><strong>最大能量值：</strong>12<br><strong>超級對戰編隊費用：</strong>20<br><strong>極速（引擎基準值）：</strong>64<br><strong>推進：</strong>每 1 個戰鬥幀增加 16 個速度單位<br><strong>由靜止加速至極速：</strong>0.17 秒（理想值）<br><strong>完成 360 度轉向：</strong>0.67 秒（理想值）<br><strong>自然能量恢復：</strong>沒有<br><strong>主武器能量消耗：</strong>每次 1<br><strong>特殊能力的能量規則：</strong>每次辱罵回復 2 | 同時向前、左、右三向射擊。 | 辱罵可回復 2 能量；被摧毀時有 50% 機率以滿狀態復活。 | 速度與轉向極佳，容易繞側面；船員少、單發傷害低，復活完全依賴機率。 |
+| <img src="docs/images/vessels/shofixti-scout.png" width="180" alt="Shofixti Scout"><br><strong>索菲克斯提・偵察艦</strong><br><em>Shofixti Scout</em> | <strong>最大船員數：</strong>6<br><strong>最大能量值：</strong>4<br><strong>超級對戰編隊費用：</strong>5<br><strong>極速（引擎基準值）：</strong>35<br><strong>推進：</strong>每 1 個戰鬥幀增加 5 個速度單位<br><strong>由靜止加速至極速：</strong>0.29 秒（理想值）<br><strong>完成 360 度轉向：</strong>1.33 秒（理想值）<br><strong>自然能量恢復：</strong>每 10 個戰鬥幀恢復 1<br><strong>主武器能量消耗：</strong>每次 1<br><strong>榮光自爆裝置能量消耗：</strong>0 | 威力較弱的正面炮。 | 連續觸發可啟動 Glory Device（榮光自爆裝置），對近敵造成巨量傷害。 | 低費用交換型船艦，常用來重創昂貴大船；常規戰力弱，自爆成功仍會失去本艦。 |
+| <img src="docs/images/vessels/slylandro-probe.png" width="180" alt="Slylandro Probe"><br><strong>斯萊蘭卓・探測器</strong><br><em>Slylandro Probe</em> | <strong>最大船員數：</strong>12<br><strong>最大能量值：</strong>20<br><strong>超級對戰編隊費用：</strong>17<br><strong>固定極速（引擎基準值）：</strong>60<br><strong>推進方式：</strong>瞬時維持固定高速，無法停船<br><strong>由靜止加速至極速：</strong>不適用，因為船艦永遠維持固定高速<br><strong>完成 360 度轉向：</strong>0.67 秒（理想值）<br><strong>自然能量恢復：</strong>沒有<br><strong>主武器能量消耗：</strong>每次 2<br><strong>立即反轉能量消耗：</strong>0<br><strong>小行星充能：</strong>吸收完整小行星後補滿能量 | 近距離追蹤閃電。 | 吸收附近完整小行星以補滿能量，但不能吸收有限壽命的戰鬥碎屑；推進鍵會立即反轉 180 度。 | 永遠以最高速移動且免疫 Syreen 類船員移除效果，但仍會受一般傷害。沒有被動能量恢復，也不能停船。 |
+| <img src="docs/images/vessels/spathi-eluder.png" width="180" alt="Spathi Eluder"><br><strong>斯帕西・逃逸艦</strong><br><em>Spathi Eluder</em> | <strong>最大船員數：</strong>30<br><strong>最大能量值：</strong>10<br><strong>超級對戰編隊費用：</strong>18<br><strong>極速（引擎基準值）：</strong>48<br><strong>推進：</strong>每 2 個戰鬥幀增加 12 個速度單位<br><strong>由靜止加速至極速：</strong>0.33 秒（理想值）<br><strong>完成 360 度轉向：</strong>1.33 秒（理想值）<br><strong>自然能量恢復：</strong>每 11 個戰鬥幀恢復 1<br><strong>主武器能量消耗：</strong>每次 2<br><strong>特殊能力能量消耗：</strong>每枚 B.U.T.T.（船尾追蹤）飛彈消耗 3 | 船首弱彈。 | 從船尾發射追蹤 B.U.T.T. 飛彈。 | 一面逃跑一面從後方射擊；速度快、船員多，但傷害較低，必須控制敵人位於船尾。 |
+| <img src="docs/images/vessels/supox-blade.png" width="180" alt="Supox Blade"><br><strong>蘇波克斯・刀鋒艦</strong><br><em>Supox Blade</em> | <strong>最大船員數：</strong>12<br><strong>最大能量值：</strong>16<br><strong>超級對戰編隊費用：</strong>16<br><strong>極速（引擎基準值）：</strong>40<br><strong>推進：</strong>每 1 個戰鬥幀增加 8 個速度單位<br><strong>由靜止加速至極速：</strong>0.21 秒（理想值）<br><strong>完成 360 度轉向：</strong>1.33 秒（理想值）<br><strong>自然能量恢復：</strong>每 5 個戰鬥幀恢復 1<br><strong>主武器能量消耗：</strong>每次 1<br><strong>特殊移動能量消耗：</strong>0，本版本的側移、後退與斜移均不扣能量 | 快速正面彈。 | 按住特殊能力鍵再按向上可後退；配合向左或向右可側移；同時按三鍵可後斜移，艦首方向不變。 | 保持瞄準同時閃避，操作上限高；船員少、常規射擊威力低，控制負擔較大。 |
+| <img src="docs/images/vessels/syreen-penetrator.png" width="180" alt="Syreen Penetrator"><br><strong>賽琳・穿透艦</strong><br><em>Syreen Penetrator</em> | <strong>初始船員數：</strong>12<br><strong>最大船員數：</strong>42<br><strong>最大能量值：</strong>16<br><strong>超級對戰編隊費用：</strong>13<br><strong>極速（引擎基準值）：</strong>36<br><strong>推進：</strong>每 2 個戰鬥幀增加 9 個速度單位<br><strong>由靜止加速至極速：</strong>0.33 秒（理想值）<br><strong>完成 360 度轉向：</strong>1.33 秒（理想值）<br><strong>自然能量恢復：</strong>每 7 個戰鬥幀恢復 1<br><strong>主武器能量消耗：</strong>每次 1<br><strong>特殊能力能量消耗：</strong>每次船員召喚消耗 5 | 正面炮。 | 歌聲使範圍內敵艦船員飄出太空；碰觸漂浮船員可收編，最多可增至 42 人。 | 初始只有 12 人，但貼近高船員目標可迅速反轉兵力差；接近過程危險，對無船員目標效果差。 |
+| <img src="docs/images/vessels/thraddash-torch.png" width="180" alt="Thraddash Torch"><br><strong>瑟拉達什・火炬艦</strong><br><em>Thraddash Torch</em> | <strong>最大船員數：</strong>8<br><strong>最大能量值：</strong>24<br><strong>超級對戰編隊費用：</strong>10<br><strong>一般極速（引擎基準值）：</strong>28<br><strong>後燃器極速（引擎基準值）：</strong>72<br><strong>一般推進：</strong>每 1 個戰鬥幀增加 7 個速度單位<br><strong>後燃器推進：</strong>每 1 個戰鬥幀增加 12 個速度單位<br><strong>由靜止加速至一般極速：</strong>0.17 秒（理想值）<br><strong>後燃器加速：</strong>隨脈衝動態變化<br><strong>完成 360 度轉向：</strong>1.33 秒（理想值）<br><strong>自然能量恢復：</strong>每 7 個戰鬥幀恢復 1<br><strong>主武器能量消耗：</strong>每次 2<br><strong>特殊能力能量消耗：</strong>每次後燃器脈衝消耗 1 | 威力較低的常規炮。 | 後燃器提供極高速並留下可傷敵的火焰軌跡。 | 以爆發速度突襲、脫離或引誘追兵撞進火焰；船員少，成果高度依賴路線與能量管理。 |
+| <img src="docs/images/vessels/umgah-drone.png" width="180" alt="Umgah Drone"><br><strong>烏姆加・無人機</strong><br><em>Umgah Drone</em> | <strong>最大船員數：</strong>10<br><strong>最大能量值：</strong>30<br><strong>超級對戰編隊費用：</strong>7<br><strong>一般極速（引擎基準值）：</strong>18<br><strong>一般推進：</strong>每 4 個戰鬥幀增加 6 個速度單位<br><strong>由靜止加速至一般極速：</strong>0.50 秒（理想值）<br><strong>完成 360 度轉向：</strong>3.33 秒（理想值）<br><strong>自然能量恢復：</strong>每 151 個戰鬥幀恢復 30<br><strong>主武器能量消耗：</strong>0<br><strong>特殊能力能量消耗：</strong>每次倒衝消耗 1 | 船首連續反物質錐，可摧毀近距離彈體。 | 朝後方高速衝刺。 | 倒衝瞬間貼近或逃離，再以錐形武器磨碎敵人；射程極短、轉向慢，操作不直覺。 |
+| <img src="docs/images/vessels/ur-quan-dreadnought.png" width="180" alt="Ur-Quan Dreadnought"><br><strong>烏爾關・無畏艦</strong><br><em>Ur-Quan Dreadnought</em> | <strong>最大船員數：</strong>42<br><strong>最大能量值：</strong>42<br><strong>超級對戰編隊費用：</strong>30<br><strong>極速（引擎基準值）：</strong>30<br><strong>推進：</strong>每 7 個戰鬥幀增加 6 個速度單位<br><strong>由靜止加速至極速：</strong>1.46 秒（理想值）<br><strong>完成 360 度轉向：</strong>3.33 秒（理想值）<br><strong>自然能量恢復：</strong>每 5 個戰鬥幀恢復 1<br><strong>主武器能量消耗：</strong>每次 6<br><strong>特殊能力的能量與船員規則：</strong>每次啟動消耗 8 能量，最多派出兩架戰鬥機；每架暫時占用 1 名船員 | 正面重型融合彈。 | 每次啟動最多派出兩架戰鬥機，每架暫時占用 1 名船員；返艦後歸隊，被毀則永久損失。 | 耐久、火力及持續騷擾俱佳；體型與轉向是主要弱點，戰鬥機也可能造成實質船員損失。 |
+| <img src="docs/images/vessels/utwig-jugger.png" width="180" alt="Utwig Jugger"><br><strong>烏特維格・巨獸艦</strong><br><em>Utwig Jugger</em> | <strong>最大船員數：</strong>20<br><strong>初始能量值：</strong>10<br><strong>最大能量值：</strong>20<br><strong>超級對戰編隊費用：</strong>22<br><strong>極速（引擎基準值）：</strong>36<br><strong>推進：</strong>每 7 個戰鬥幀增加 6 個速度單位<br><strong>由靜止加速至極速：</strong>1.75 秒（理想值）<br><strong>完成 360 度轉向：</strong>1.33 秒（理想值）<br><strong>自然能量恢復：</strong>沒有<br><strong>主武器能量消耗：</strong>0<br><strong>特殊能力的能量規則：</strong>每次護盾脈衝消耗 1；吸收武器傷害可回復能量 | 免費的多管正面齊射。 | 護盾消耗能量，但把吸收的武器傷害轉成能量。 | 可反制高傷害彈體；沒有自然能量恢復，過早或空按護盾會耗乾電池，部分特殊攻擊也能繞過優勢。 |
+| <img src="docs/images/vessels/vux-intruder.png" width="180" alt="VUX Intruder"><br><strong>VUX・入侵艦</strong><br><em>VUX Intruder</em> | <strong>最大船員數：</strong>20<br><strong>最大能量值：</strong>40<br><strong>超級對戰編隊費用：</strong>12<br><strong>極速（引擎基準值）：</strong>21<br><strong>推進：</strong>每 5 個戰鬥幀增加 7 個速度單位<br><strong>由靜止加速至極速：</strong>0.63 秒（理想值）<br><strong>完成 360 度轉向：</strong>4.67 秒（理想值）<br><strong>自然能量恢復：</strong>每 9 個戰鬥幀恢復 1<br><strong>主武器能量消耗：</strong>每次 1<br><strong>特殊能力能量消耗：</strong>每個寄生體消耗 2 | 近距離連續雷射。 | 追蹤寄生體命中後會永久降低敵艦極速、加速與轉向；開戰時常躍遷到接近敵艦的位置。 | 初始位置有利時可立即壓制；寄生體可拖垮對手，但本艦極慢，突擊失敗後容易被風箏。 |
+| <img src="docs/images/vessels/yehat-terminator.png" width="180" alt="Yehat Terminator"><br><strong>耶哈特・終結艦</strong><br><em>Yehat Terminator</em> | <strong>最大船員數：</strong>20<br><strong>最大能量值：</strong>10<br><strong>超級對戰編隊費用：</strong>23<br><strong>極速（引擎基準值）：</strong>30<br><strong>推進：</strong>每 3 個戰鬥幀增加 6 個速度單位<br><strong>由靜止加速至極速：</strong>0.63 秒（理想值）<br><strong>完成 360 度轉向：</strong>2.00 秒（理想值）<br><strong>自然能量恢復：</strong>每 7 個戰鬥幀恢復 2<br><strong>主武器能量消耗：</strong>每次 1<br><strong>特殊能力能量消耗：</strong>每次護盾脈衝消耗 3 | 快速雙炮。 | 短暫全向護盾。 | 加速與轉向良好，可在護盾間隙換血；能量槽小，連續誤開會迅速失去防禦。 |
+| <img src="docs/images/vessels/zoq-fot-pik-stinger.png" width="180" alt="Zoq-Fot-Pik Stinger"><br><strong>佐克－福特－皮克・毒刺艦</strong><br><em>Zoq-Fot-Pik Stinger</em> | <strong>最大船員數：</strong>10<br><strong>最大能量值：</strong>10<br><strong>超級對戰編隊費用：</strong>6<br><strong>極速（引擎基準值）：</strong>40<br><strong>推進：</strong>每 1 個戰鬥幀增加 10 個速度單位<br><strong>由靜止加速至極速：</strong>0.17 秒（理想值）<br><strong>完成 360 度轉向：</strong>1.33 秒（理想值）<br><strong>自然能量恢復：</strong>每 5 個戰鬥幀恢復 1<br><strong>主武器能量消耗：</strong>每次 1<br><strong>特殊能力能量消耗：</strong>每次舌擊消耗 7 | 威力較弱的正面彈。 | 極短距離舌擊，消耗 7 能量並造成 12 傷害。 | 低費用伏擊艦，貼身舌擊能意外擊殺昂貴目標；船員少，舌擊距離非常短。 |
+| <img src="docs/images/vessels/precursor-flagship.png" width="180" alt="Precursor Flagship"><br><strong>先驅者旗艦（戰役專用）</strong><br><em>Precursor Flagship</em> | <strong>船艦名稱：</strong>由玩家命名<br><strong>最大船員數：</strong>每個船員艙提供 50 名容量，另計艦長 1 名；因此數值取決於已安裝的船員艙<br><strong>最大能量值：</strong>42<br><strong>超級對戰編隊費用：</strong>不適用，因為本艦只在戰役中使用<br><strong>極速：</strong>取決於 11 個推進器位置中已安裝的聚變推進器<br><strong>加速：</strong>取決於已安裝的聚變推進器；沒有單一固定的加速至極速時間<br><strong>完成 360 度轉向：</strong>取決於 8 個姿態噴射器位置中已安裝的噴射器；沒有單一固定時間<br><strong>自然能量恢復：</strong>取決於 16 個主要模組槽中的發電機種類與數量<br><strong>主武器能量消耗：</strong>取決於武器模組及追蹤系統配置<br><strong>特殊能力能量消耗：</strong>取決於已安裝的點防禦模組數量；未安裝時無法使用<br><strong>燃料容量與貨艙容量：</strong>分別取決於燃料槽與儲藏艙 | 可安裝離子脈衝砲等武器模組；砲組射向由安裝槽位決定。 | 取得技術並安裝點防禦模組後，特殊能力鍵可啟動防禦雷射；未安裝時沒有這項能力。 | 高度自訂，後期火力與續航可達極高水準；初期則遲鈍，各類模組會競爭有限槽位，而且旗艦被摧毀通常代表戰役結束。 |
 
 ## 測試與驗證
 
@@ -596,12 +359,13 @@ powershell.exe -NoProfile -ExecutionPolicy Bypass `
   -SmokeTimeoutSeconds 12
 ```
 
-v0.3.1 本機驗收結果為 56 項測試全部通過；Windows PowerShell 5.1 驗證器另外完成
+v0.3.2 本機驗收結果為 59 項測試全部通過；Windows PowerShell 5.1 驗證器另外完成
 17 類檢查，包括 11,534 個管理檔案的長度及 SHA-256、三個 UQM 套件、五個捷徑、
 自訂 runtime manifest、未列入 manifest 的 EXE／DLL、玩家一右 `Alt` 綁定，以及
 12 秒 4x 1920×1080 全螢幕煙霧測試。實機 Super Melee 流程另確認繁中隊伍設定、
-較輕的 `船員／能量` 狀態字、船艦資料卡、`Esc` 返回確認及右 `Alt` 特殊能力。
-完整發行紀錄見 [v0.3.1 發行說明](docs/releases/v0.3.1.md)。
+較輕的 `船員／能量` 狀態字、船艦資料卡、`Esc` 返回確認及右 `Alt` 特殊能力；
+選船／資料按鈕與資料頁滑鼠返回另由來源與資產回歸測試覆蓋。
+完整發行紀錄見 [v0.3.2 發行說明](docs/releases/v0.3.2.md)。
 
 ## 專案結構
 

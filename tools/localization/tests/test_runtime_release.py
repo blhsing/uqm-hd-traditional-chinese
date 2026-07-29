@@ -18,22 +18,22 @@ def _sha256(data: bytes) -> str:
 
 
 class RuntimeReleaseTests(unittest.TestCase):
-    def test_release_metadata_matches_v031_payloads(self) -> None:
-        self.assertEqual(release.DEFAULT_VERSION, "0.3.1")
+    def test_release_metadata_matches_v032_payloads(self) -> None:
+        self.assertEqual(release.DEFAULT_VERSION, "0.3.2")
         self.assertEqual(
             release.PACKS,
             {
                 "zh_TW.uqm": (
-                    22_456_227,
-                    "bb08fb46fc330f40d02bd0df6dcda25155d5e650a22bacce54ecb86f754d9471",
+                    22_455_949,
+                    "1a1b2bd13d6c8e1a8475c16a15c706602d62b7cab1a20fe395c9b931aa707942",
                 ),
                 "hires2x-zh_TW.uqm": (
-                    42_598_012,
-                    "290ce26eb938faac913782a98857454ea049802da8c2dcb6bc7bb0d67de89b79",
+                    42_596_373,
+                    "edef271c9034827bfab29e37c1d37b568ecc779285adc6b5d7730abd5cb1f098",
                 ),
                 "hires4x-zh_TW.uqm": (
-                    64_582_708,
-                    "d8e6e48b368f38e2646acd0bcb98a2b208308ed088ee67f53b7b1e5de766da42",
+                    64_579_231,
+                    "03f8491bdf5e84251a305dd73d52e353ac66efee717a9b336f3d152dc38c5749",
                 ),
             },
         )

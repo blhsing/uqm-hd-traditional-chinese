@@ -1,7 +1,7 @@
 # UQM HD Traditional-Chinese localization pipeline
 
 This directory contains the content-only localization pipeline used for the
-**The Ur-Quan Masters HD Beta 1** v0.3.1 Traditional-Chinese release. It does not
+**The Ur-Quan Masters HD Beta 1** v0.3.2 Traditional-Chinese release. It does not
 call a translation API and does not modify the game installation. It exports
 protected JSON, merges translated `{id,text}` records, handles the engine's
 unusual text formats, generates bitmap glyphs from Noto Sans TC, and builds
@@ -140,13 +140,21 @@ localized-build/packages/hires2x-zh_TW.uqm
 localized-build/packages/hires4x-zh_TW.uqm
 ```
 
-The finalized v0.3.1 artifacts are:
+The finalized v0.3.2 artifacts are:
 
 | Pack | Bytes | SHA-256 |
 | --- | ---: | --- |
-| `zh_TW.uqm` | 22,456,227 | `bb08fb46fc330f40d02bd0df6dcda25155d5e650a22bacce54ecb86f754d9471` |
-| `hires2x-zh_TW.uqm` | 42,598,012 | `290ce26eb938faac913782a98857454ea049802da8c2dcb6bc7bb0d67de89b79` |
-| `hires4x-zh_TW.uqm` | 64,582,708 | `d8e6e48b368f38e2646acd0bcb98a2b208308ed088ee67f53b7b1e5de766da42` |
+| `zh_TW.uqm` | 22,455,949 | `1a1b2bd13d6c8e1a8475c16a15c706602d62b7cab1a20fe395c9b931aa707942` |
+| `hires2x-zh_TW.uqm` | 42,596,373 | `edef271c9034827bfab29e37c1d37b568ecc779285adc6b5d7730abd5cb1f098` |
+| `hires4x-zh_TW.uqm` | 64,579,231 | `03f8491bdf5e84251a305dd73d52e353ac66efee717a9b336f3d152dc38c5749` |
+
+The content-only package regeneration leaves the v0.3.2 Windows runtime
+unchanged:
+
+| Runtime file | Bytes | SHA-256 |
+| --- | ---: | --- |
+| `runtime/windows-x86/uqm-hd.exe` | 3,022,388 | `6f33a1b73a38ce5e4a7045a67a5f520eaaa15a8c16eaa8f169d0cff5ecc2364f` |
+| `runtime/windows-x86/runtime-manifest.json` | 27,388 | `478bfc840a080977ca65fa366502b04d57d4e473405a93504e7c4c0a5bd58f5c` |
 
 The resource maps are generated from the installed official maps, not copied
 from the incomplete Japanese pack:
@@ -193,15 +201,19 @@ python .\tools\localization\extract_super_melee_sources.py `
 The combat `CREW`/`BATT` sprites are also generated as `船員`/`能量`. Each
 resolution uses a fixed optical size and weight (1x 450/6 px, 2x 400/8 px,
 4x 350/16 px) so dense Han strokes remain separated. The generated RGBA/RGB-key
-pair preserves the stock gray status panel during normal rendering while
-retaining a glyph-only alpha mask for the low-energy recolor.
+pair blends into the stock gray status panel during normal rendering, retains
+a glyph-only alpha mask for the low-energy recolor, and confines label removal
+to half-open regions that do not overwrite gauges, dividers, or separators.
 
 The Super Melee ship-picker panel is rebuilt with `選擇船艦` and `船艦資料`.
-All 25 ship-information presentations are generated deterministically from
-reviewable Traditional-Chinese source data at native 320x240, 640x480, and
-1280x960 resolutions. Their localized cards cover crew, battery, cost,
-movement, weapons, special abilities, and tactics while preserving upstream
-ship artwork and animation manifests.
+The source-built runtime makes both labels clickable and lets a left click
+anywhere inside the visible viewport dismiss a ship-information presentation. All 25 ship-information presentations
+are generated deterministically from reviewable Traditional-Chinese source data
+at native 320x240, 640x480, and 1280x960 resolutions. Their localized cards
+cover crew, battery, cost, movement, weapons, special abilities, and tactics
+while preserving upstream ship artwork and animation manifests. The top-level
+Traditional-Chinese player guide presents the 25 Super Melee craft and campaign
+flagship together in a single uncollapsed 26-vessel table.
 
 Packages use only ZIP Deflate, disable ZIP64, reject 65,535 or more files, and
 are written deterministically. All three packages must be installed because
@@ -235,7 +247,7 @@ main-menu choices, the visible Super Melee setup controls, ship picker, all 25
 ship-information pages, and combat status labels. The repository's preferred source-built runtime separately implements
 the yellow menu selection, main-menu and Super Melee mouse controls, cursor
 visibility switching, detailed vessel-stat cards, picker and in-bout Escape
-handling, and Player 1's additional RightAlt special-ability binding. The v0.3.1
+handling, and Player 1's additional RightAlt special-ability binding. The v0.3.2
 release bundles that GPL runtime and its dependency licenses, but does not
 bundle the upstream game's original content. A polished localization still
 benefits from a full playthrough. In particular, visually check the intro/final
@@ -251,4 +263,4 @@ python -m unittest discover `
   -v
 ```
 
-The finalized v0.3.1 tree passes all 56 automated tests.
+The finalized v0.3.2 tree passes all 59 automated tests.
