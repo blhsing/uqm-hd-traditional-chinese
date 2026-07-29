@@ -291,12 +291,16 @@ if ($packageErrors.Count -ne 0) {
 }
 
 $sourceBefore = Get-GameTreeFingerprint -GameRoot $gameRoot
-$gitCommit = (& git -C $repo rev-parse HEAD 2>&1 | Select-Object -First 1).Trim()
-if ($LASTEXITCODE -ne 0 -or $gitCommit -notmatch '^[0-9a-fA-F]{40}$') {
+$gitCommitLines = @(& git -C $repo rev-parse HEAD 2>&1)
+$gitCommitExitCode = $LASTEXITCODE
+$gitCommit = ([string]($gitCommitLines | Select-Object -First 1)).Trim()
+if ($gitCommitExitCode -ne 0 -or $gitCommit -notmatch '^[0-9a-fA-F]{40}$') {
     throw 'The repository must have a readable Git commit.'
 }
-$sourceDateEpochText = (& git -C $repo show -s --format=%ct HEAD 2>&1 | Select-Object -First 1).Trim()
-if ($LASTEXITCODE -ne 0 -or $sourceDateEpochText -notmatch '^\d+$') {
+$sourceDateEpochLines = @(& git -C $repo show -s --format=%ct HEAD 2>&1)
+$sourceDateEpochExitCode = $LASTEXITCODE
+$sourceDateEpochText = ([string]($sourceDateEpochLines | Select-Object -First 1)).Trim()
+if ($sourceDateEpochExitCode -ne 0 -or $sourceDateEpochText -notmatch '^\d+$') {
     throw 'Could not read the source commit timestamp.'
 }
 $sourceDateEpoch = [Int64]$sourceDateEpochText
