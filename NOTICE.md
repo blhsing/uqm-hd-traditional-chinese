@@ -16,24 +16,40 @@ SourceForge 均無從屬、贊助或背書關係。名稱與商標屬各自權�
   CC BY-NC-SA 2.5 提供，不得作商業用途。
 - Noto Sans TC 用於產生繁中字形；相關字型軟體依 SIL OFL 1.1 授權。
 
-## 可執行程式的兩項來源修改
+## 來源建置的執行環境與程式修改
 
-相對於官方 UQM-HD Beta 1 原始碼，本倉庫只修改兩個 C 原始檔；兩處均在來源
-旁以 `Traditional Chinese distribution change (2026-07-27)` 標示：
+v0.3 的首選 Windows x86 執行環境由本倉庫中的 UQM-HD 原始碼建置，不再只靠
+修改官方執行檔。相對於官方 Beta 1，發行版的程式變更包括：
 
-1. `game/src/uqm/restart.c`：主選單目前項目採明亮黃色脈衝，使選取狀態明顯。
-2. `game/src/uqm/battle.c`：本機 Super Melee 戰鬥中，獨立的
-   `KEY_MENU_EDIT_CANCEL`（預設只有 `Esc`）會清除 `IN_BATTLE`，經既有戰後流程
-   回到隊伍設定；不設定 `CHECK_ABORT`，也不把玩家一的特殊能力鍵當成退出鍵。
+1. 主選單目前項目採明亮黃色脈衝，並支援滑鼠停駐與點選。
+2. SDL 輸入層提供執行緒安全的邏輯畫布滑鼠座標；移動滑鼠會顯示游標，按鍵或
+   按下滑鼠鍵會隱藏游標。
+3. Super Melee 的隊伍設定、船艦格、右側控制、船艦總覽與開戰前選船均支援
+   滑鼠。停駐或鍵盤選取船艦時會顯示船員、能量、費用、極速、加速、轉向、
+   回能與武器／特殊能力消耗。
+4. 本機 Super Melee 對戰中，實體 `Esc` 只結束目前一局並回到隊伍設定，不
+   改變劇情戰鬥及 `CHECK_ABORT` 語義；開戰前選船的 `Esc` 則與紅色 X 共用
+   確認返回流程。
+5. 玩家一特殊能力保留右 `Shift` 與數字鍵盤 `0`，並增加右 `Alt` 作為第三個
+   綁定。
 
-Windows PE 補丁工具只接受已知 SHA-256 與唯一指令特徵；未知版本會被拒絕。
-倉庫及發行包不散布獨立的已修改 `uqm.exe`。
+相關來源分布於 `game/src/uqm/restart.c`、`game/src/uqm/battle.c`、
+`game/src/uqm/supermelee/` 與 `game/src/libs/` 的輸入／SDL 圖形層；不是只有
+兩個 C 檔。`game/build/msvc6/UrQuanMasters.vcproj` 的上游開發者絕對資源
+路徑亦改為可重現的相對路徑；未使用的個人設定及二進位 JAR 沒有納入倉庫。
 
-此外，`game/build/msvc6/UrQuanMasters.vcproj` 的四個上游開發者絕對資源
-路徑已改為等價的 `..\..\src\res` 相對路徑；已不用的個人
-`uqmanimationtool.conf` 與其二進位 JAR 未納入倉庫。這些整理不改變遊戲行為。
+v0.3 發行壓縮檔包含 GPL-2.0-or-later 的來源建置 `uqm-hd.exe`、其 19 個
+執行階段 DLL，以及對應授權文件；安裝時執行檔會映射成 `uqm.exe`。它**不包含
+上游遊戲的原始內容**，使用者仍須自行提供官方 Beta 1 的已解壓內容樹。每個
+DLL 的實際授權與來源套件由 `runtime-manifest.json` 及隨附 `LICENSES/` 精確
+記錄。
 
-## 可重現來源雜湊
+若未提供來源建置的 runtime，安裝器才會使用相容模式：依序在目的地副本套用
+四項雜湊鎖定 PE 補丁（黃色選取、對戰中 `Esc`、玩家一 RightAlt、選船
+`Esc`）。補丁工具會同時檢查已知 SHA-256、唯一指令特徵、固定檔案位移及 PE
+checksum；未知版本一律拒絕。此相容路徑不含來源版的完整滑鼠與船艦資料功能。
+
+## 可重現來源與發行雜湊
 
 | 項目 | SHA-256 |
 |---|---|
@@ -41,7 +57,17 @@ Windows PE 補丁工具只接受已知 SHA-256 與唯一指令特徵；未知版
 | 官方 Windows Beta 1 安裝程式 | `17ba52347dde55c3103bdaf566c1511e88d509ad7eb50eda60e4f2912f108bde` |
 | 官方 `hires4x.zip` | `76af440bd845a63bd42b88913347374eb62c40c149d0bea37045a10bd0bd6618` |
 | 官方未修改 `uqm.exe` | `c43c258aa41c4effe5d092c8541560a517cdd7be91e3c576a10a4ad306f776d3` |
-| 套用目前兩項補丁後的 `uqm.exe` | `3d2174f5dab4ce9b7a2dcd0eec7c59473f543239953b18664c51fff631f36bc9` |
+| v0.3 來源建置 `uqm-hd.exe`（3,020,273 bytes） | `2ef0f8ca00baad2f9c5611f8885a34acb54f16bc5c7fecb29ee7d6632d3be018` |
+| v0.3 `runtime-manifest.json`（51,276 bytes） | `3facebf59aafb4a373cf55bfc59953b9d4d4fcfe4c6feac96674e316123c9220` |
+| `zh_TW.uqm`（21,220,000 bytes） | `700a93776b724eddd145537eb3eb954eb5fd61b6d6926b22ed2b241e4a17ed06` |
+| `hires2x-zh_TW.uqm`（40,444,272 bytes） | `6d004566201ea8aaee3a9a82c2eeab61e02f30bd95e5cede7d19722050e199b0` |
+| `hires4x-zh_TW.uqm`（60,658,122 bytes） | `7e63136a803dfbc57fe3e56360b242911d4d891fd6b4ad4b40e8d540cc1a3116` |
+
+runtime 取自來源 commit
+`1aee01896e88f759271779efcc03f58508c52f7f` 的乾淨 1,043 檔 `game/`
+樹。其 manifest 驗證 20 個 PE32 payload、27 份授權文件與零個未解析的非系統
+匯入。最終 48 項自動化測試及 17 項安裝驗證均通過；完整建置流程見
+`docs/BUILD-WINDOWS.md`。
 
 完整授權文本與上游歸屬見 `LICENSE`、`LICENSES/UPSTREAM-COPYING.txt`、
 `LICENSES/OFL-1.1-NotoSansCJK.txt`、`game/COPYING` 及個別來源檔頭。

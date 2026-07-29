@@ -11,13 +11,17 @@
 - Super Melee 隊伍設定畫面的標題、玩家／電腦難度、連線、儲存、載入、
   開戰及離開按鈕均已本地化；控制框保留原版角色與選取光效。
 - 選取項目使用持續可辨識的黃色脈衝，不再與未選取項目或原版暗紅色混淆。
-- 使用 Noto Sans TC 產生可重現的點陣字型；主選單採 Medium/500，小字採 Bold/700。
+- 使用 Noto Sans TC 產生可重現的點陣字型；主選單採 Medium/500，一般小字採
+  Bold/700，戰鬥狀態標籤則依解析度改用較輕的 450／400／350 字重。
 - 太陽、日期／月份、船長、船名、燃料及船員等 SIS 欄位使用符合固定 HUD
   高度的字格，不再裁掉中文字形的頂部或與相鄰欄位重疊。
 - `船員`、`能量`（原 CREW、BATT）及星圖快捷鍵說明均已本地化；戰鬥
   狀態字依解析度使用獨立光學尺寸與較輕字重，不再糊成厚重色塊。
 - 修正 HD Beta 1 開始新遊戲後可能停在黑畫面的資源封裝問題。
 - 本機 Super Melee 中按 `Esc` 可結束目前一局並返回隊伍設定；玩家的特殊能力鍵不會誤觸此功能。
+- 玩家一的特殊能力除了右 `Shift` 與數字鍵盤 `0`，亦可使用右 `Alt`；原有按鍵仍然保留。
+- 主選單、Super Melee 隊伍設定、船艦編組與開戰前選船均支援滑鼠；游標停在船艦上會更新目前船艦資料。移動滑鼠會顯示游標，按鍵或按下滑鼠鍵會隱藏游標。
+- Super Melee 開戰前的選船畫面會顯示目前船艦的船員、能量、費用、極速、加速、轉向、回能與動作消耗；`Esc` 與紅色 `X` 共用確認返回流程。
 - 建議以 4x 高解析度全螢幕模式遊玩繁體中文。
 
 <p align="center">
@@ -33,34 +37,46 @@
 <p align="center"><em>4x Super Melee 實機畫面；標題與右側控制、儲存、載入、開戰及離開項目均為繁中。</em></p>
 
 <p align="center">
-  <img src="localization/qa/installed-super-melee-combat-4x.png" width="760" alt="Super Melee 戰鬥 HUD 的繁中船員與能量標籤">
+  <img src="localization/qa/installed-super-melee-combat-demo-4x.png" width="760" alt="Super Melee 實戰中的繁中船員與能量標籤">
 </p>
 
-<p align="center"><em>4x 戰鬥實機畫面；「船員／能量」使用較輕、筆畫保持分離的字形。</em></p>
+<p align="center"><em>4x Super Melee 實戰畫面；Slylandro 與 Pkunk 對戰，雙方 HUD 均顯示繁中的「船員／能量」。</em></p>
 
 ## 下載、建置與安裝
 
 ### 已建置套件
 
-大型 `.uqm` 套件不放入 Git 歷史；請前往 [GitHub Releases](https://github.com/blhsing/uqm-hd-traditional-chinese/releases/latest)。發布用壓縮檔會連同管理式安裝器、驗證工具及本專案所需的授權文件一起提供。
+大型 `.uqm` 套件與 Windows 執行環境不放入 Git 歷史；請前往
+[GitHub Releases](https://github.com/blhsing/uqm-hd-traditional-chinese/releases/latest)。
+v0.3.0 壓縮檔包含三個繁中套件、管理式安裝器、驗證工具、
+`runtime/windows-x86`（EXE、DLL、manifest 與授權文件），但**不包含原版遊戲的
+`content`／音樂／語音／圖像**；安裝時仍須提供合法取得的 UQM-HD Beta 1 內容。
 
 本版本的三個套件必須一起安裝：
 
 | 檔案 | 位元組 | SHA-256 |
 |---|---:|---|
-| `zh_TW.uqm` | 21,228,292 | `7c9a7c6e5eaf8e3e9310d00ac7b4a21ce05b069d97810dd4d5d2300149edad6a` |
-| `hires2x-zh_TW.uqm` | 40,452,546 | `13df254be681a6cae051d661336fdc594673ccf62b327715ec2d794091a6f4d7` |
-| `hires4x-zh_TW.uqm` | 60,667,227 | `9ce7a837d039c4937c6d697797d2629bc0c78cf90437701b4393c9a57ed9ca4a` |
+| `zh_TW.uqm` | 21,220,000 | `700a93776b724eddd145537eb3eb954eb5fd61b6d6926b22ed2b241e4a17ed06` |
+| `hires2x-zh_TW.uqm` | 40,444,272 | `6d004566201ea8aaee3a9a82c2eeab61e02f30bd95e5cede7d19722050e199b0` |
+| `hires4x-zh_TW.uqm` | 60,658,122 | `7e63136a803dfbc57fe3e56360b242911d4d891fd6b4ad4b40e8d540cc1a3116` |
 
-Windows Beta 1 執行檔在套用主選單與 Super Melee 修補後的 SHA-256 為：
+v0.3.0 推薦使用由本儲存庫原始碼建置的 Windows x86 執行環境：
 
-```text
-3d2174f5dab4ce9b7a2dcd0eec7c59473f543239953b18664c51fff631f36bc9
-```
+| 檔案 | 位元組 | SHA-256 |
+|---|---:|---|
+| `runtime/windows-x86/uqm-hd.exe` | 3,020,273 | `2ef0f8ca00baad2f9c5611f8885a34acb54f16bc5c7fecb29ee7d6632d3be018` |
+| `runtime/windows-x86/runtime-manifest.json` | 51,276 | `3facebf59aafb4a373cf55bfc59953b9d4d4fcfe4c6feac96674e316123c9220` |
 
-修補器會檢查完整輸入雜湊、唯一指令特徵、固定檔案位移及 PE checksum；遇到未知版本會拒絕修改。
+完整 `uqm-hd-zh-tw-v0.3.0.zip` 為 135,241,492 bytes，SHA-256：
+`86a4788adc69a03cd5ca8705a11292386cfdcd8119bee45b1b6db1640df74dae`。
 
-### 自行重建
+manifest 驗證 20 個 PE32/i386 payload、27 份授權檔及完整 import graph，未解析的
+非系統相依項為 0。執行檔來自乾淨的 `game/` 樹（1,043 個檔案），來源 commit 為
+`1aee01896e88f759271779efcc03f58508c52f7f`。舊版官方 EXE 的四階段雜湊鎖定
+PE 修補器仍保留作相容性備援；它會驗證完整輸入雜湊、唯一指令特徵、固定檔案位移及
+PE checksum，遇到未知版本即拒絕修改。
+
+### 自行重建繁中套件
 
 需求：
 
@@ -82,23 +98,34 @@ python .\tools\localization\uqm_localize.py build `
   --menu-background .\localization\menu-assets\source\newgame4x-clean-imagegen.png
 ```
 
+如要從 `game/` 重建及稽核 Windows PE32 執行環境，請依
+[Windows x86 執行環境建置文件](docs/BUILD-WINDOWS.md)使用鎖定的可攜式 MSYS2
+工具鏈；正式命令會拒絕 dirty `game/`、套件版本漂移、未解析 DLL 或缺少授權文字。
+
 ### Windows 管理式安裝
 
-先用 `-PlanOnly` 演練；確認輸入後再移除該參數正式安裝。安裝器會在暫存
-副本上預驗證主選單及 Super Melee 的兩個雜湊鎖定補丁，正式安裝時只修改
-受管理目的地中的 `uqm.exe`，不會變更官方 `SourceRoot`。
+先用 `-PlanOnly` 演練；確認輸入後再移除該參數正式安裝。推薦傳入發行包的
+`runtime/windows-x86`：安裝器會驗證 manifest、每個 EXE／DLL 的大小與 SHA-256、
+安裝路徑及授權來源，再把 `uqm-hd.exe` 安裝為受管理的 `uqm.exe`。這條路徑不需
+Python，也不會對 EXE 套用二進位補丁。
 
 ```powershell
 powershell.exe -NoProfile -ExecutionPolicy Bypass `
   -File .\tools\install\Install-UqmHdZhTw.ps1 `
   -SourceRoot C:\path\to\UQM-HD `
-  -PacksDir .\localized-build\packages `
+  -PacksDir .\packages `
+  -RuntimeDir .\runtime\windows-x86 `
   -InstallRoot C:\Games\UQM-HD-TW `
   -ProfileDir "$env:APPDATA\UQM-HD-zh_TW" `
   -PlanOnly
 ```
 
-安裝器會建立隔離的設定／存檔目錄、桌面與開始選單捷徑，以及 1x、2x、4x 視窗模式捷徑。它不會鏡像刪除目的地中的無關檔案。
+使用自訂 runtime 時，`SourceRoot` 只需提供原版 `content` 與 `content\addons`；
+來源根目錄的 EXE／DLL 不會複製進安裝。安裝器會建立隔離的設定／存檔目錄、
+桌面與開始選單全螢幕捷徑，以及 1x、2x、4x 視窗模式捷徑。更新時只會移除上一次
+由本安裝器管理、且長度與 SHA-256 仍完全相符的舊檔；使用者修改過的管理檔會令
+安裝停止，無關檔案不會被鏡像刪除。進行中的交易使用獨立 `.installing` marker，
+直到新安裝完整成功才取代上一份 complete marker。
 
 ### 推薦全螢幕模式
 
@@ -143,7 +170,7 @@ uqm.exe -o -r 1920x1080 -f -k -c none --resfactor=2 `
 | 航行／戰鬥 | 推進 | `↑` 或數字鍵盤 `8` |
 | 航行／戰鬥 | 左／右轉 | `←`／`→` 或數字鍵盤 `4`／`6` |
 | 戰鬥 | 主要武器 | 右 `Ctrl` 或 `Enter` |
-| 戰鬥 | 特殊能力 | 右 `Shift` 或數字鍵盤 `0` |
+| 戰鬥 | 特殊能力 | 右 `Shift`、右 `Alt` 或數字鍵盤 `0` |
 | 劇情戰鬥 | 允許時緊急脫離 | `Esc` |
 | 本機 Super Melee | 結束目前一局 | **只有 `Esc`** |
 
@@ -268,263 +295,279 @@ RU 可購買燃料與船員、建造旗艦模組及護航艦。主要來源是�
 
 每隊最多 14 艘船；可載入、儲存隊伍並選擇人類或電腦控制。每艘船有不同費用，讓兩隊總值接近即可進行較公平的練習。
 
-在**本機** Super Melee 戰鬥中按 `Esc` 會結束目前一局。修補只清除 `IN_BATTLE`，不設定 `CHECK_ABORT`，因此會經過原有戰後流程並回到隊伍設定，不會退出整個 Super Melee。程式讀取 stock `KEY_MENU_EDIT_CANCEL`（只綁定 `Escape`），所以 `Right Shift` 與數字鍵盤 `0` 仍可正常發動玩家一的特殊能力。劇情模式的原版逃跑規則不變。
+滑鼠可直接選擇右側按鈕、兩隊的 14 個欄位及 5×5 船艦清單；停在船艦上即可預覽船艦狀態。開戰前選船畫面另會顯示目前船艦的基本性能與能量資料。游標移動時顯示，按下鍵盤鍵或滑鼠鍵時隱藏，以免戰鬥中遮擋畫面。
+
+在開戰前選船畫面按 `Esc`，會呼叫與紅色 `X` 相同的確認視窗；確認後回到隊伍設定。在**本機** Super Melee 戰鬥中按 `Esc` 會結束目前一局。這兩條路徑都只接受實體 `Escape`，所以右 `Shift`、右 `Alt` 與數字鍵盤 `0` 仍可正常發動玩家一的特殊能力。劇情模式的原版逃跑規則不變。
 
 網路 Super Melee 尚未驗證，也沒有為這項本機輸入新增網路同步；請勿假定遠端對戰具有相同行為。
 
 ## 船艦圖鑑
 
-數值依序為「船員／能量／Super Melee 費用」。Sa-Matra 與 Ur-Quan Security Drone 不是可選船艦，因此不列入以下 25 艘名單。
+Sa-Matra 與 Ur-Quan Security Drone 不是可選船艦，因此不列入以下 25 艘名單；各船艦章節標題尾端仍依序標示「船員／能量／Super Melee 費用」。下表依各船艦原始碼的 `characteristics` 欄位整理；「極速」與「推力」是引擎內部基準值，不是螢幕像素／秒。戰鬥邏輯以每秒 24 幀運作，「推力／間隔」的 `+3／5 幀` 表示每 5 幀增加 3 個速度單位；「0→極速」及「360° 轉向」則是據此推算的理想時間，假設持續按鍵、由靜止起步且不受重力、碰撞、後座力或敵方效果干擾，因此屬於便於比較的衍生值，而非保證的實戰秒數。
 
-<details>
-<summary><strong>安德羅辛斯・守護艦（Androsynth Guardian）— 20／24／15</strong></summary>
+變形、後燃器等能力會動態改變性能，已在同一格中特別列出；Slylandro 固定高速且不能停船。重力彈弓、武器後座力及特殊能力仍可能讓實際速度超出一般極速。
+
+### 船艦移動與基本數值總覽
+
+| 船艦 | 船員 | 能量 | 費用 | 極速 | 推力／間隔 | 0→極速 | 360° 轉向 |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| Androsynth Guardian | 20 | 24 | 15 | 24（Blazer 60） | +3／1 幀 | 0.33 秒 | 3.33 秒（Blazer 1.33 秒） |
+| Ariloulaleelay Skiff | 6 | 20 | 16 | 40 | +40／1 幀 | 0.04 秒 | 0.67 秒 |
+| Chenjesu Broodhome | 36 | 30 | 28 | 27 | +3／5 幀 | 1.88 秒 | 4.67 秒 |
+| Chmmr Avatar | 42 | 42 | 30 | 35 | +7／6 幀 | 1.25 秒 | 2.67 秒 |
+| Druuge Mauler | 14 | 32 | 17 | 20 | +2／2 幀 | 0.83 秒 | 3.33 秒 |
+| Earthling Cruiser | 18 | 18 | 11 | 24 | +3／5 幀 | 1.67 秒 | 1.33 秒 |
+| Ilwrath Avenger | 22 | 16 | 10 | 25 | +5／1 幀 | 0.21 秒 | 2.00 秒 |
+| Kohr-Ah Marauder | 42 | 42 | 30 | 30 | +6／7 幀 | 1.46 秒 | 3.33 秒 |
+| Melnorme Trader | 20 | 42 | 18 | 36 | +6／5 幀 | 1.25 秒 | 3.33 秒 |
+| Mmrnmhrm X-Form | 20 | 10 | 19 | 飛碟 20／火箭 50 | 飛碟 +5／2 幀；火箭 +10／1 幀 | 飛碟 0.33 秒；火箭 0.21 秒 | 飛碟 2.00 秒；火箭 10.00 秒 |
+| Mycon Podship | 20 | 40 | 21 | 27 | +9／7 幀 | 0.88 秒 | 4.67 秒 |
+| Orz Nemesis | 16 | 20 | 23 | 35 | +5／1 幀 | 0.29 秒 | 1.33 秒 |
+| Pkunk Fury | 8 | 12 | 20 | 64 | +16／1 幀 | 0.17 秒 | 0.67 秒 |
+| Shofixti Scout | 6 | 4 | 5 | 35 | +5／1 幀 | 0.29 秒 | 1.33 秒 |
+| Slylandro Probe | 12 | 20 | 17 | 固定 60 | 瞬時；不能停船 | — | 0.67 秒 |
+| Spathi Eluder | 30 | 10 | 18 | 48 | +12／2 幀 | 0.33 秒 | 1.33 秒 |
+| Supox Blade | 12 | 16 | 16 | 40 | +8／1 幀 | 0.21 秒 | 1.33 秒 |
+| Syreen Penetrator | 12 | 16 | 13 | 36 | +9／2 幀 | 0.33 秒 | 1.33 秒 |
+| Thraddash Torch | 8 | 24 | 10 | 28（後燃 72） | +7／1 幀（後燃 +12／1 幀） | 常規 0.17 秒；後燃動態 | 1.33 秒 |
+| Umgah Drone | 10 | 30 | 7 | 18 | +6／4 幀 | 0.50 秒 | 3.33 秒 |
+| Ur-Quan Dreadnought | 42 | 42 | 30 | 30 | +6／7 幀 | 1.46 秒 | 3.33 秒 |
+| Utwig Jugger | 20 | 20 | 22 | 36 | +6／7 幀 | 1.75 秒 | 1.33 秒 |
+| VUX Intruder | 20 | 40 | 12 | 21 | +7／5 幀 | 0.63 秒 | 4.67 秒 |
+| Yehat Terminator | 20 | 10 | 23 | 30 | +6／3 幀 | 0.63 秒 | 2.00 秒 |
+| Zoq-Fot-Pik Stinger | 10 | 10 | 6 | 40 | +10／1 幀 | 0.17 秒 | 1.33 秒 |
+
+### 能量恢復與動作消耗總覽
+
+「自然回能」及持續能力的間隔同樣以 24 FPS 的戰鬥幀計算；武器、特殊能力欄中的數字均為每次消耗的能量，另有標示者除外。
+
+| 船艦 | 自然回能 | 武器消耗 | 特殊能力消耗／回復 |
+|---|---:|---:|---|
+| Androsynth Guardian | +1／每 9 幀 | 3 | 啟動 Blazer 至少需 2；Blazer 每 9 幀消耗 1 |
+| Ariloulaleelay Skiff | +1／每 7 幀 | 2 | 瞬移 3 |
+| Chenjesu Broodhome | +1／每 5 幀 | 5 | DOGI 30 |
+| Chmmr Avatar | +1／每 2 幀 | 2 | 牽引光束每次 1 |
+| Druuge Mauler | +1／每 51 幀 | 4 | 犧牲 1 名船員，回復 16 |
+| Earthling Cruiser | +1／每 9 幀 | 9 | 點防禦 4 |
+| Ilwrath Avenger | +4／每 5 幀 | 1 | 隱形 3 |
+| Kohr-Ah Marauder | +1／每 5 幀 | 6 | 火焰氣雲 21 |
+| Melnorme Trader | +1／每 5 幀 | 5 | 混亂射線 20 |
+| Mmrnmhrm X-Form | 飛碟 +2／每 7 幀；火箭 +1／每 7 幀 | 1 | 變形 10 |
+| Mycon Podship | +1／每 5 幀 | 20 | 回復船員 40 |
+| Orz Nemesis | +1／每 7 幀 | 6 | 控制炮塔 0；每隊陸戰隊暫用 1 名船員 |
+| Pkunk Fury | 無自然回能 | 1 | 辱罵回復 2 |
+| Shofixti Scout | +1／每 10 幀 | 1 | Glory Device 0 |
+| Slylandro Probe | 無自然回能 | 2 | 反轉 0；吸收完整小行星後回滿 |
+| Spathi Eluder | +1／每 11 幀 | 2 | B.U.T.T. 飛彈 3 |
+| Supox Blade | +1／每 5 幀 | 1 | 每次平移 1 |
+| Syreen Penetrator | +1／每 7 幀 | 1 | 船員召喚 5 |
+| Thraddash Torch | +1／每 7 幀 | 2 | 每次後燃脈衝 1 |
+| Umgah Drone | +30／每 151 幀 | 0 | 倒衝 1 |
+| Ur-Quan Dreadnought | +1／每 5 幀 | 6 | 戰鬥機 8，並暫用 1 名船員 |
+| Utwig Jugger | 無自然回能 | 0 | 每次護盾脈衝 1；吸收傷害可回能 |
+| VUX Intruder | +1／每 9 幀 | 1 | 寄生體 2 |
+| Yehat Terminator | +2／每 7 幀 | 1 | 每次護盾脈衝 3 |
+| Zoq-Fot-Pik Stinger | +1／每 5 幀 | 1 | 舌擊 7 |
+
+### 安德羅辛斯・守護艦（Androsynth Guardian）— 20／24／15
 
 <img src="docs/images/vessels/androsynth-guardian.png" width="180" alt="Androsynth Guardian">
 
 - **武器：**耐久、長壽命的追蹤酸泡泡。
 - **特殊能力：**變成高速 Blazer 彗星，以衝撞造成傷害；撞擊本身不扣自身生命，但並非對所有武器無敵。
 - **打法：**先用泡泡封鎖空間，再變形追擊。爆發機動極強，但能量耗盡會強制復原，衝撞路線也較可預測。
-</details>
 
-<details>
-<summary><strong>阿里盧拉萊萊・小艇（Ariloulaleelay Skiff）— 6／20／16</strong></summary>
+### 阿里盧拉萊萊・小艇（Ariloulaleelay Skiff）— 6／20／16
 
 <img src="docs/images/vessels/arilou-skiff.png" width="180" alt="Ariloulaleelay Skiff">
 
 - **武器：**近距離自動瞄準雷射。
 - **特殊能力：**隨機瞬移。
 - **打法：**無慣性、可立即改向，適合貼身繞背；只有 6 名船員且射程短，瞬移落點也不可控。
-</details>
 
-<details>
-<summary><strong>陳傑蘇・育巢艦（Chenjesu Broodhome）— 36／30／28</strong></summary>
+### 陳傑蘇・育巢艦（Chenjesu Broodhome）— 36／30／28
 
 <img src="docs/images/vessels/chenjesu-broodhome.png" width="180" alt="Chenjesu Broodhome">
 
 - **武器：**高傷害水晶；放開射擊鍵可手動炸成碎片。
 - **特殊能力：**放出 DOGI，撞擊時推開敵艦並抽走最多 10 能量。
 - **打法：**重型區域控制艦，單發威力高但加速、轉向慢；DOGI 可被擊毀，召喚也需完整能量槽。
-</details>
 
-<details>
-<summary><strong>克姆爾混合種・化身艦（Chmmr Avatar）— 42／42／30</strong></summary>
+### 克姆爾混合種・化身艦（Chmmr Avatar）— 42／42／30
 
 <img src="docs/images/vessels/chmmr-avatar.png" width="180" alt="Chmmr Avatar">
 
 - **武器：**近距離連續雷射；三枚 ZapSat 自動攔截彈體並攻擊近敵。
 - **特殊能力：**牽引光束。
 - **打法：**把敵人拉入雷射及衛星殺傷圈。近戰壓制頂尖，但體型大、轉向慢，衛星被擊毀後防護會降低。
-</details>
 
-<details>
-<summary><strong>德魯吉・重擊艦（Druuge Mauler）— 14／32／17</strong></summary>
+### 德魯吉・重擊艦（Druuge Mauler）— 14／32／17
 
 <img src="docs/images/vessels/druuge-mauler.png" width="180" alt="Druuge Mauler">
 
 - **武器：**超長射程、6 傷害且後座力極高的炮彈。
 - **特殊能力：**犧牲 1 名船員換取 16 能量。
 - **打法：**利用炮擊後座力移動並遠距狙擊。火力優異，但自然回能極慢，失誤會同時消耗能量與船員。
-</details>
 
-<details>
-<summary><strong>地球人・巡洋艦（Earthling Cruiser）— 18／18／11</strong></summary>
+### 地球人・巡洋艦（Earthling Cruiser）— 18／18／11
 
 <img src="docs/images/vessels/earthling-cruiser.png" width="180" alt="Earthling Cruiser">
 
 - **武器：**長距離追蹤核彈。
 - **特殊能力：**近距離點防禦雷射。
 - **打法：**遠距離發射核彈並攔截威脅；便宜、容易上手，但核彈可被擊落，近戰及回能較弱。
-</details>
 
-<details>
-<summary><strong>伊爾拉斯・復仇艦（Ilwrath Avenger）— 22／16／10</strong></summary>
+### 伊爾拉斯・復仇艦（Ilwrath Avenger）— 22／16／10
 
 <img src="docs/images/vessels/ilwrath-avenger.png" width="180" alt="Ilwrath Avenger">
 
 - **武器：**船首短距離火焰。
 - **特殊能力：**隱形；隱形中開火會解除隱形並自動朝向敵艦。
 - **打法：**隱形接近後貼身噴火，近距離輸出高；缺乏遠程手段，對手仍可從畫面與聲音推測位置。
-</details>
 
-<details>
-<summary><strong>克爾阿・掠奪艦（Kohr-Ah Marauder）— 42／42／30</strong></summary>
+### 克爾阿・掠奪艦（Kohr-Ah Marauder）— 42／42／30
 
 <img src="docs/images/vessels/kohr-ah-marauder.png" width="180" alt="Kohr-Ah Marauder">
 
 - **武器：**最多部署 8 枚耐久旋鋸；放開射擊後減速，接近敵艦時重新追蹤。
 - **特殊能力：**向 16 個方向爆出火焰氣雲。
 - **打法：**擅長布置雷區與近身清場；船體笨重，環形爆發會消耗一半能量。
-</details>
 
-<details>
-<summary><strong>梅爾諾姆・商旅艦（Melnorme Trader）— 20／42／18</strong></summary>
+### 梅爾諾姆・商旅艦（Melnorme Trader）— 20／42／18
 
 <img src="docs/images/vessels/melnorme-trader.png" width="180" alt="Melnorme Trader">
 
 - **武器：**可蓄力四級的能量彈，傷害為 2／4／8／16。
 - **特殊能力：**混亂射線迫使敵艦轉向並暫時封鎖特殊動作。
 - **打法：**先以混亂射線控制，再用滿蓄力彈收尾；蓄力需要時間，射線亦耗能 20。
-</details>
 
-<details>
-<summary><strong>姆爾恩姆赫姆・變形艦（Mmrnmhrm X-Form）— 20／10／19</strong></summary>
+### 姆爾恩姆赫姆・變形艦（Mmrnmhrm X-Form）— 20／10／19
 
 <img src="docs/images/vessels/mmrnmhrm-x-form.png" width="180" alt="Mmrnmhrm X-Form">
 
 - **武器：**飛碟形態使用雙雷射；火箭形態使用追蹤飛彈。
 - **特殊能力：**切換飛碟／高速火箭形態。
 - **打法：**依對手在靈活近戰及高速遠攻之間切換；變形需要完整能量，兩種形態各有明顯短板。
-</details>
 
-<details>
-<summary><strong>邁康・孢子艦（Mycon Podship）— 20／40／21</strong></summary>
+### 邁康・孢子艦（Mycon Podship）— 20／40／21
 
 <img src="docs/images/vessels/mycon-podship.png" width="180" alt="Mycon Podship">
 
 - **武器：**追蹤等離子體，威力隨飛行時間衰減。
 - **特殊能力：**耗盡 40 能量，恢復最多 4 名船員。
 - **打法：**適合遠距消耗及長局續戰；船體遲鈍，等離子體可被攔截且遠距命中時傷害較低。
-</details>
 
-<details>
-<summary><strong>奧茲・復仇女神艦（Orz Nemesis）— 16／20／23</strong></summary>
+### 奧茲・復仇女神艦（Orz Nemesis）— 16／20／23
 
 <img src="docs/images/vessels/orz-nemesis.png" width="180" alt="Orz Nemesis">
 
 - **武器：**可獨立旋轉的炮塔；特殊鍵加左右鍵轉炮塔。
 - **特殊能力：**特殊鍵加射擊鍵派出太空陸戰隊，每隊暫時占用 1 名船員。
 - **打法：**可一邊航行一邊向不同方向射擊，陸戰隊直接削減敵船員；過度部署會掏空本艦船員。
-</details>
 
-<details>
-<summary><strong>普坎克・狂怒艦（Pkunk Fury）— 8／12／20</strong></summary>
+### 普坎克・狂怒艦（Pkunk Fury）— 8／12／20
 
 <img src="docs/images/vessels/pkunk-fury.png" width="180" alt="Pkunk Fury">
 
 - **武器：**同時向前、左、右三向射擊。
 - **特殊能力：**辱罵回復 2 能量；被摧毀時有 50% 機率滿狀態復活。
 - **打法：**速度與轉向極佳，容易繞側面；船員少、單發傷害低，復活完全依賴機率。
-</details>
 
-<details>
-<summary><strong>索菲克斯提・偵察艦（Shofixti Scout）— 6／4／5</strong></summary>
+### 索菲克斯提・偵察艦（Shofixti Scout）— 6／4／5
 
 <img src="docs/images/vessels/shofixti-scout.png" width="180" alt="Shofixti Scout">
 
 - **武器：**威力較弱的正面炮。
 - **特殊能力：**連續觸發可啟動 Glory Device 自爆，對近敵造成巨量傷害。
 - **打法：**低費用交換型船艦，常用來重創昂貴大船；常規戰力弱，自爆成功仍會失去本艦。
-</details>
 
-<details>
-<summary><strong>斯萊蘭卓・探測器（Slylandro Probe）— 12／20／17</strong></summary>
+### 斯萊蘭卓・探測器（Slylandro Probe）— 12／20／17
 
 <img src="docs/images/vessels/slylandro-probe.png" width="180" alt="Slylandro Probe">
 
 - **武器：**近距離追蹤閃電。
 - **特殊能力：**吸收附近完整小行星以補滿能量（不能吸收有限壽命的戰鬥碎屑）；推進鍵會立即反轉 180 度。
 - **打法：**永遠以最高速移動且免疫 Syreen 類船員移除效果，但仍會受一般傷害。沒有被動回能，也不能停船。
-</details>
 
-<details>
-<summary><strong>斯帕西・逃逸艦（Spathi Eluder）— 30／10／18</strong></summary>
+### 斯帕西・逃逸艦（Spathi Eluder）— 30／10／18
 
 <img src="docs/images/vessels/spathi-eluder.png" width="180" alt="Spathi Eluder">
 
 - **武器：**船首弱彈。
 - **特殊能力：**從船尾發射追蹤 B.U.T.T. 飛彈。
 - **打法：**一面逃跑一面從後方射擊；速度快、船員多，但傷害較低，必須控制敵人位於船尾。
-</details>
 
-<details>
-<summary><strong>蘇波克斯・刀鋒艦（Supox Blade）— 12／16／16</strong></summary>
+### 蘇波克斯・刀鋒艦（Supox Blade）— 12／16／16
 
 <img src="docs/images/vessels/supox-blade.png" width="180" alt="Supox Blade">
 
 - **武器：**快速正面彈。
 - **特殊能力：**`Special+Up` 後退、`Special+Left/Right` 側移，三鍵可後斜移，艦首方向不變。
 - **打法：**保持瞄準同時閃避，操作上限高；船員少、常規射擊威力低，控制負擔較大。
-</details>
 
-<details>
-<summary><strong>賽琳・穿透艦（Syreen Penetrator）— 12／16／13</strong></summary>
+### 賽琳・穿透艦（Syreen Penetrator）— 12／16／13
 
 <img src="docs/images/vessels/syreen-penetrator.png" width="180" alt="Syreen Penetrator">
 
 - **武器：**正面炮。
 - **特殊能力：**歌聲使範圍內敵艦船員飄出太空；碰觸漂浮船員可收編。
 - **打法：**貼近高船員目標可迅速反轉兵力差；自身只有 12 人，接近過程危險，對無船員目標效果差。
-</details>
 
-<details>
-<summary><strong>瑟拉達什・火炬艦（Thraddash Torch）— 8／24／10</strong></summary>
+### 瑟拉達什・火炬艦（Thraddash Torch）— 8／24／10
 
 <img src="docs/images/vessels/thraddash-torch.png" width="180" alt="Thraddash Torch">
 
 - **武器：**威力較低的常規炮。
 - **特殊能力：**後燃器提供極高速並留下可傷敵的火焰軌跡。
 - **打法：**以爆發速度突襲、脫離或引誘追兵撞進火焰；船員少，成果高度依賴路線與能量管理。
-</details>
 
-<details>
-<summary><strong>烏姆加・無人機（Umgah Drone）— 10／30／7</strong></summary>
+### 烏姆加・無人機（Umgah Drone）— 10／30／7
 
 <img src="docs/images/vessels/umgah-drone.png" width="180" alt="Umgah Drone">
 
 - **武器：**船首連續反物質錐，可摧毀近距離彈體。
 - **特殊能力：**朝後方高速衝刺。
 - **打法：**倒衝瞬間貼近或逃離，再以錐形武器磨碎敵人；射程極短、轉向慢，操作不直覺。
-</details>
 
-<details>
-<summary><strong>烏爾關・無畏艦（Ur-Quan Dreadnought）— 42／42／30</strong></summary>
+### 烏爾關・無畏艦（Ur-Quan Dreadnought）— 42／42／30
 
 <img src="docs/images/vessels/ur-quan-dreadnought.png" width="180" alt="Ur-Quan Dreadnought">
 
 - **武器：**正面重型融合彈。
 - **特殊能力：**每次最多派出兩架戰鬥機，每架暫時占用 1 名船員；返艦後歸隊，被毀則永久損失。
 - **打法：**耐久、火力及持續騷擾俱佳；體型與轉向是主要弱點，戰鬥機也可能造成實質船員損失。
-</details>
 
-<details>
-<summary><strong>烏特維格・巨獸艦（Utwig Jugger）— 20／20／22</strong></summary>
+### 烏特維格・巨獸艦（Utwig Jugger）— 20／20／22
 
 <img src="docs/images/vessels/utwig-jugger.png" width="180" alt="Utwig Jugger">
 
 - **武器：**免費的多管正面齊射。
 - **特殊能力：**護盾消耗能量，但把吸收的武器傷害轉成能量。
 - **打法：**可反制高傷害彈體；沒有自然回能，過早或空按護盾會耗乾電池，部分特殊攻擊也能繞過優勢。
-</details>
 
-<details>
-<summary><strong>VUX・入侵艦（VUX Intruder）— 20／40／12</strong></summary>
+### VUX・入侵艦（VUX Intruder）— 20／40／12
 
 <img src="docs/images/vessels/vux-intruder.png" width="180" alt="VUX Intruder">
 
 - **武器：**近距離連續雷射。
 - **特殊能力：**追蹤寄生體，命中後永久降低敵艦加速與轉向；開戰常躍遷到近敵位置。
 - **打法：**初始位置有利時可立即壓制；寄生體可拖垮對手，但本艦極慢，突擊失敗後容易被風箏。
-</details>
 
-<details>
-<summary><strong>耶哈特・終結艦（Yehat Terminator）— 20／10／23</strong></summary>
+### 耶哈特・終結艦（Yehat Terminator）— 20／10／23
 
 <img src="docs/images/vessels/yehat-terminator.png" width="180" alt="Yehat Terminator">
 
 - **武器：**快速雙炮。
 - **特殊能力：**短暫全向護盾。
 - **打法：**加速與轉向良好，可在護盾間隙換血；能量槽小，連續誤開會迅速失去防禦。
-</details>
 
-<details>
-<summary><strong>佐克－福特－皮克・毒刺艦（Zoq-Fot-Pik Stinger）— 10／10／6</strong></summary>
+### 佐克－福特－皮克・毒刺艦（Zoq-Fot-Pik Stinger）— 10／10／6
 
 <img src="docs/images/vessels/zoq-fot-pik-stinger.png" width="180" alt="Zoq-Fot-Pik Stinger">
 
 - **武器：**威力較弱的正面彈。
 - **特殊能力：**極短距離舌擊，消耗 7 能量並造成 12 傷害。
 - **打法：**低費用伏擊艦，貼身舌擊能意外擊殺昂貴目標；船員少，舌擊距離非常短。
-</details>
 
 ### 戰役專用：先驅者旗艦
 
@@ -545,21 +588,28 @@ powershell.exe -NoProfile -ExecutionPolicy Bypass `
   -SmokeTimeoutSeconds 12
 ```
 
-本機驗收涵蓋 23 項本地化單元測試、11,530 個管理檔案的長度及 SHA-256、三個 UQM 套件、五個捷徑，以及 4x 1920×1080 全螢幕煙霧測試。另以實際 Super Melee 流程確認繁中隊伍設定、戰鬥狀態字與 `Esc` 返回功能。
+v0.3.0 本機驗收結果為 48 項測試全部通過；Windows PowerShell 5.1 驗證器另外完成
+17 類檢查，包括 11,534 個管理檔案的長度及 SHA-256、三個 UQM 套件、五個捷徑、
+自訂 runtime manifest、未列入 manifest 的 EXE／DLL、玩家一右 `Alt` 綁定，以及
+12 秒 4x 1920×1080 全螢幕煙霧測試。實機 Super Melee 流程另確認繁中隊伍設定、
+較輕的 `船員／能量` 狀態字、船艦資料卡、`Esc` 返回確認及右 `Alt` 特殊能力。
+完整發行紀錄見 [v0.3.0 發行說明](docs/releases/v0.3.0.md)。
 
 ## 專案結構
 
 | 路徑 | 內容 |
 |---|---|
-| `game/` | UQM-HD Beta 1 程式原始碼及本專案的 `battle.c`、`restart.c` 修改。 |
+| `game/` | UQM-HD Beta 1 程式原始碼，以及輸入、SDL 滑鼠、主選單、Super Melee 編組／選船／資料卡、`Esc` 與右 `Alt` 修改。 |
 | `localization/workspace.zh-TW.final/` | 受格式契約保護的完整 LLM 繁中翻譯。 |
 | `localization/records.*.json` | 英文來源與 LLM 翻譯的平面記錄。 |
 | `tools/localization/` | 匯出、合併、換行、驗證、點陣字型及套件建置工具。 |
 | `tools/localization/extract_super_melee_sources.py` | 從上游翻譯包 PSD 可重現地擷取無文字的 Super Melee 介面底圖。 |
 | `tools/install/` | Windows 安裝、PE 修補、捷徑及完整驗證工具。 |
+| `tools/build/` | 鎖定 MSYS2 套件、建置設定、授權來源與可重現 Windows x86 runtime 配方。 |
+| `docs/BUILD-WINDOWS.md` | Windows PE32 編譯、import 閉包、provenance 與授權稽核說明。 |
 | `docs/images/vessels/` | 25 艘 Super Melee 船艦及戰役旗艦的 HD 圖像。 |
 | `scripts/extract_vessel_images.py` | 從官方 `hires4x.zip` 可重現地擷取圖鑑圖片。 |
-| `scripts/build_release.py` | 驗證套件大小與 SHA-256，建立決定性的完整發行壓縮檔。 |
+| `scripts/build_release.py` | 驗證套件與 runtime manifest、雜湊及授權，建立決定性的完整發行壓縮檔。 |
 
 ## 已知限制
 
@@ -567,7 +617,7 @@ powershell.exe -NoProfile -ExecutionPolicy Bypass `
 - 英文原聲沒有重新配音；繁中以字幕呈現。
 - LLM 初譯尚未完成逐句母語人工校訂及完整劇情通關。
 - 1x 字格過小，只供相容性用途；長時間遊玩請用 4x。
-- PE 修補器只支援它明確列出的 Windows HD Beta 1 執行檔雜湊。
+- 推薦使用發行包內由原始碼建置的 runtime；備援 PE 修補器只支援它明確列出的 Windows HD Beta 1 執行檔雜湊。
 - 本機 Super Melee 的 `Esc` 中止已實作；網路 Super Melee 未驗證。
 
 ## 授權與致謝

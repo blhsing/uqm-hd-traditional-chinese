@@ -1,10 +1,12 @@
 # UQM HD Traditional-Chinese localization pipeline
 
-This directory contains a content-only localization pipeline for **The Ur-Quan
-Masters HD Beta 1**. It does not call a translation API and does not modify the
-game installation. It exports protected JSON, merges translated `{id,text}`
-records, handles the engine's unusual text formats, generates bitmap glyphs from
-Noto Sans TC, and builds three installable `.uqm` add-ons.
+This directory contains the content-only localization pipeline used for the
+**The Ur-Quan Masters HD Beta 1** v0.3 Traditional-Chinese release. It does not
+call a translation API and does not modify the game installation. It exports
+protected JSON, merges translated `{id,text}` records, handles the engine's
+unusual text formats, generates bitmap glyphs from Noto Sans TC, and builds
+three installable `.uqm` add-ons. The separate source-built Windows runtime is
+documented in `../../docs/BUILD-WINDOWS.md`.
 
 ## Requirements
 
@@ -138,6 +140,14 @@ localized-build/packages/hires2x-zh_TW.uqm
 localized-build/packages/hires4x-zh_TW.uqm
 ```
 
+The finalized v0.3 artifacts are:
+
+| Pack | Bytes | SHA-256 |
+| --- | ---: | --- |
+| `zh_TW.uqm` | 21,220,000 | `700a93776b724eddd145537eb3eb954eb5fd61b6d6926b22ed2b241e4a17ed06` |
+| `hires2x-zh_TW.uqm` | 40,444,272 | `6d004566201ea8aaee3a9a82c2eeab61e02f30bd95e5cede7d19722050e199b0` |
+| `hires4x-zh_TW.uqm` | 60,658,122 | `7e63136a803dfbc57fe3e56360b242911d4d891fd6b4ad4b40e8d540cc1a3116` |
+
 The resource maps are generated from the installed official maps, not copied
 from the incomplete Japanese pack:
 
@@ -181,13 +191,15 @@ python .\tools\localization\extract_super_melee_sources.py `
 ```
 
 The combat `CREW`/`BATT` sprites are also generated as `船員`/`能量`. Each
-resolution uses a fixed optical size and weight (1x 500/6 px, 2x 450/8 px,
-4x 400/16 px) so dense Han strokes remain separated without changing the
+resolution uses a fixed optical size and weight (1x 450/6 px, 2x 400/8 px,
+4x 350/16 px) so dense Han strokes remain separated without changing the
 engine-facing canvas dimensions or color gradients.
 
 Packages use only ZIP Deflate, disable ZIP64, reject 65,535 or more files, and
 are written deterministically. All three packages must be installed because
-their fallback mappings intentionally cross-reference the 1x/2x/4x fonts.
+their fallback mappings intentionally cross-reference the 1x/2x/4x fonts. Each
+pack's mounted shadow archive contains 5,280 normal entries and no padding
+entry; package QA compares every generated entry byte-for-byte.
 
 ## Install and launch
 
@@ -212,12 +224,16 @@ uqm.exe -o -r 1920x1080 -f -k -c none --resfactor=2 --addon hires4x-zh_TW
 
 This pipeline localizes engine text, bitmap glyph coverage, the five baked
 main-menu choices, the visible Super Melee setup controls, and its combat status
-labels. The Beta 1 executable still contains a few hardcoded strings
-such as `SCRAP` and `QuasiSpace`; translating those would require a rebuilt
-executable. A polished release still benefits from a full playthrough. In
-particular, visually check the intro/final subtitles, credits, setup menu, every
-alien conversation font, the 21 lander reports copied into each high-resolution
-tree, save/load screens, and name entry.
+labels. The repository's preferred source-built runtime separately implements
+the yellow menu selection, main-menu and Super Melee mouse controls, cursor
+visibility switching, detailed vessel-stat cards, picker and in-bout Escape
+handling, and Player 1's additional RightAlt special-ability binding. The v0.3
+release bundles that GPL runtime and its dependency licenses, but does not
+bundle the upstream game's original content. A polished localization still
+benefits from a full playthrough. In particular, visually check the intro/final
+subtitles, credits, setup menu, every alien conversation font, the 21 lander
+reports copied into each high-resolution tree, save/load screens, and name
+entry.
 
 ## Tests
 
@@ -226,3 +242,5 @@ python -m unittest discover `
   -s .\tools\localization\tests `
   -v
 ```
+
+The finalized v0.3 tree passes all 48 automated tests.

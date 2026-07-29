@@ -18,6 +18,20 @@ exact length and SHA-256. The manifest maps its source executable (normally
 must also contain a non-empty `LICENSES` directory. This path does not require
 Python and never applies legacy binary patches.
 
+The v0.3 release runtime was built from the clean 1,043-file `game/` tree at
+source commit `1aee01896e88f759271779efcc03f58508c52f7f`. Its manifest records
+20 PE32 payloads, 27 license files, and zero unresolved non-system imports:
+
+| Artifact | Bytes | SHA-256 |
+| --- | ---: | --- |
+| `uqm-hd.exe` | 3,020,273 | `2ef0f8ca00baad2f9c5611f8885a34acb54f16bc5c7fecb29ee7d6632d3be018` |
+| `runtime-manifest.json` | 51,276 | `3facebf59aafb4a373cf55bfc59953b9d4d4fcfe4c6feac96674e316123c9220` |
+
+The release archive includes this GPL source-built runtime and its dependency
+licenses, but not the upstream game's original content. `SourceRoot` must
+therefore still point at an extracted official Beta 1 tree containing
+`content/addons`.
+
 The manifest schema is intentionally small and deterministic:
 
 ```json
@@ -29,11 +43,11 @@ The manifest schema is intentionally small and deterministic:
     {
       "path": "uqm-hd.exe",
       "installPath": "uqm.exe",
-      "length": 3013112,
+      "length": 3020273,
       "sha256": "64 lowercase or uppercase hexadecimal digits",
       "kind": "executable",
       "package": "uqm-hd",
-      "version": "source revision or release",
+      "version": "0.7.0 + HD Mod BETA (revision 1347M)",
       "license": "GPL-2.0-or-later",
       "licenseFiles": ["LICENSES/uqm-hd/COPYING"],
       "provenance": {"source": "repository/build identification"}
@@ -45,9 +59,9 @@ The manifest schema is intentionally small and deterministic:
       "sha256": "64 lowercase or uppercase hexadecimal digits",
       "kind": "runtime-library",
       "package": "mingw-w64-i686-SDL",
-      "version": "1.2.16-1",
+      "version": "1.2.15+r419+gef3a6c05-1",
       "license": "LGPL-2.1-or-later",
-      "licenseFiles": ["LICENSES/SDL/COPYING"],
+      "licenseFiles": ["LICENSES/mingw-w64-i686-SDL/COPYING"],
       "provenance": {"source": "MSYS2 package identification"}
     }
   ]
@@ -108,18 +122,23 @@ During an active Super Melee bout, `Escape` ends that bout by clearing only the
 `IN_BATTLE` state and returns to the Super Melee setup screen. This behavior is
 deliberately scoped to Super Melee; the campaign's existing escape/run-away
 rules are unchanged, and the global `CHECK_ABORT` state is not propagated.
+In the pre-battle vessel picker, physical `Escape` follows the same confirmation
+path as the red X. Player 1's special ability keeps its Right Shift and keypad
+`0` bindings and gains RightAlt as a hidden third binding in the isolated
+profile.
 
 With `RuntimeDir`, every runtime payload file is re-hashed both during preflight
 and immediately before its atomic copy, and the managed-install marker records
 the custom runtime manifest hash and the final hash of every installed file.
 
-Without `RuntimeDir`, the managed executable receives the deterministic,
-hash-gated compatibility patch pipeline (menu highlight, in-bout Escape,
-Player 1 RightAlt, and pre-battle picker Escape). The upstream `SourceRoot` is
-never modified. `-PlanOnly` verifies the full chain against a temporary copy;
-a real install patches only the destination copy before its final manifest hash
-is recorded. Every patcher rejects unknown executable hashes and supports
-`--check`.
+Without `RuntimeDir`, the managed executable receives exactly four
+deterministic, hash-gated compatibility patches: menu highlight, in-bout Escape,
+Player 1 RightAlt, and pre-battle picker Escape. This fallback does not provide
+the source runtime's complete mouse-selection and vessel-stat-card features.
+The upstream `SourceRoot` is never modified. `-PlanOnly` verifies the full chain
+against a temporary copy; a real install patches only the destination copy
+before its final manifest hash is recorded. Every patcher rejects unknown
+executable hashes and supports `--check`.
 
 Shortcut file and folder names intentionally use ASCII for compatibility with
 Windows hosts whose legacy shortcut API cannot save Unicode paths. The game UI,
@@ -127,7 +146,14 @@ dialogue, menus, and localized add-on data remain Traditional Chinese.
 
 ## Verification
 
-The default verification is intentionally thorough: it checks every managed file's length and SHA-256 against the install manifest, validates all three ZIP-compatible UQM archives, compares packs with the build output when it is available, independently checks all shortcut targets/arguments/working directories, and runs a hidden 12-second 4x fullscreen smoke test. The smoke log must confirm the `hires4x-zh_TW` add-on and a 1920x1080 rendering surface.
+The default verification is intentionally thorough: it checks every managed
+file's length and SHA-256 against the install manifest, validates all three
+ZIP-compatible UQM archives, compares packs with the build output when it is
+available, independently checks all shortcut targets/arguments/working
+directories, and runs a hidden 12-second 4x fullscreen smoke test. The smoke
+log must confirm the `hires4x-zh_TW` add-on and a 1920x1080 rendering surface.
+The finalized v0.3 installation contains 11,534 managed files and passes all 17
+verifier checks; the repository's automated suite passes all 48 tests.
 
 ```powershell
 powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\tools\install\Test-UqmHdZhTwInstall.ps1 `
@@ -144,6 +170,10 @@ The smoke test terminates only the process it starts and retains its log at `%AP
 - The installer refuses volume roots, protected directories, wildcards, nested source/install/profile paths, reparse points, and non-empty destinations without its exact product marker.
 - Every replacement is an exact literal path below a validated managed root. Files are staged and SHA-256 checked before atomic replacement.
 - Existing unrelated files are never mirrored or deleted. Rerunning the installer only replaces managed files whose hash changed.
-- A provisional product marker makes an interrupted first install safely resumable.
+- A transactional `.installing` sidecar makes an interrupted first install
+  safely resumable without replacing the last complete product marker.
+- Stale files from a prior managed runtime are removed only when their current
+  length and SHA-256 still match the previous marker; user-modified files are
+  refused rather than silently deleted.
 - Existing Desktop or Start Menu shortcuts with different settings are not overwritten unless the previous complete marker proves that this installer owns their exact paths.
 - Compiler output, debug CRT/audio DLLs, source build archives/scripts, old launch batches, baseline userdata, and logs are excluded from the portable copy.
