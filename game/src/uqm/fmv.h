@@ -28,6 +28,6 @@ extern void Victory (void);
 extern void DoShipSpin (COUNT index, MUSIC_REF hMusic);
 
 extern BOOLEAN ShowPresentation (RESOURCE presentation);
+extern BOOLEAN ShowPresentationWithMouseExit (RESOURCE presentation);
 
 #endif  /* _FMV_H */
-

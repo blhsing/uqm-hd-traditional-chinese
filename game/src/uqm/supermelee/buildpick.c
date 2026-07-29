@@ -33,6 +33,39 @@ static FRAME BuildPickFrame;
 #define BUILD_PICK_STATS_HEIGHT (44 << RESOLUTION_FACTOR)
 #define BUILD_PICK_STATS_GAP (2 << RESOLUTION_FACTOR)
 
+/* Coordinates of the two vertical action labels in the 4x picker artwork.
+ * Scaling from the actual frame dimensions keeps their hit targets aligned
+ * with the independently sized 1x, 2x, and 4x resources. */
+#define BUILD_PICK_REFERENCE_WIDTH 508
+#define BUILD_PICK_REFERENCE_HEIGHT 465
+#define BUILD_PICK_ACTION_TOP 74
+#define BUILD_PICK_ACTION_BOTTOM 445
+#define BUILD_PICK_CONFIRM_LEFT 13
+#define BUILD_PICK_CONFIRM_RIGHT 67
+#define BUILD_PICK_INFO_LEFT 440
+#define BUILD_PICK_INFO_RIGHT 495
+
+typedef enum
+{
+	BUILD_PICK_ACTION_NONE,
+	BUILD_PICK_ACTION_CONFIRM,
+	BUILD_PICK_ACTION_INFO
+} BUILD_PICK_ACTION;
+
+static void
+BuildPick_syncMouseState (MELEE_STATE *pMS)
+{
+	TFB_MOUSE_STATE mouse;
+
+	pMS->mouseMotionGeneration = 0;
+	pMS->mousePressGeneration = 0;
+	if (TFB_GetMouseState (&mouse))
+	{
+		pMS->mouseMotionGeneration = mouse.motion_generation;
+		pMS->mousePressGeneration = mouse.press_generation;
+	}
+}
+
 void
 BuildBuildPickFrame (void)
 {
@@ -218,6 +251,62 @@ BuildPick_findShipAt (SWORD mouseX, SWORD mouseY, MeleeShip *result)
 	return FALSE;
 }
 
+static COORD
+BuildPick_scaleActionCoordinate (COORD value, COORD extent, COORD reference)
+{
+	return (COORD)(((SDWORD)value * extent + (reference >> 1)) / reference);
+}
+
+static BOOLEAN
+BuildPick_findActionAt (SWORD mouseX, SWORD mouseY,
+		BUILD_PICK_ACTION *result)
+{
+	RECT popupRect;
+	RECT actionRect;
+	POINT point;
+	COORD top;
+	COORD bottom;
+	COORD left;
+	COORD right;
+
+	GetBuildPickPopupRect (&popupRect);
+	point.x = mouseX;
+	point.y = mouseY;
+	top = BuildPick_scaleActionCoordinate (BUILD_PICK_ACTION_TOP,
+			popupRect.extent.height, BUILD_PICK_REFERENCE_HEIGHT);
+	bottom = BuildPick_scaleActionCoordinate (BUILD_PICK_ACTION_BOTTOM,
+			popupRect.extent.height, BUILD_PICK_REFERENCE_HEIGHT);
+	actionRect.corner.y = popupRect.corner.y + top;
+	actionRect.extent.height = bottom - top;
+
+	left = BuildPick_scaleActionCoordinate (BUILD_PICK_CONFIRM_LEFT,
+			popupRect.extent.width, BUILD_PICK_REFERENCE_WIDTH);
+	right = BuildPick_scaleActionCoordinate (BUILD_PICK_CONFIRM_RIGHT,
+			popupRect.extent.width, BUILD_PICK_REFERENCE_WIDTH);
+	actionRect.corner.x = popupRect.corner.x + left;
+	actionRect.extent.width = right - left;
+	if (pointWithinRect (actionRect, point))
+	{
+		*result = BUILD_PICK_ACTION_CONFIRM;
+		return TRUE;
+	}
+
+	left = BuildPick_scaleActionCoordinate (BUILD_PICK_INFO_LEFT,
+			popupRect.extent.width, BUILD_PICK_REFERENCE_WIDTH);
+	right = BuildPick_scaleActionCoordinate (BUILD_PICK_INFO_RIGHT,
+			popupRect.extent.width, BUILD_PICK_REFERENCE_WIDTH);
+	actionRect.corner.x = popupRect.corner.x + left;
+	actionRect.extent.width = right - left;
+	if (pointWithinRect (actionRect, point))
+	{
+		*result = BUILD_PICK_ACTION_INFO;
+		return TRUE;
+	}
+
+	*result = BUILD_PICK_ACTION_NONE;
+	return FALSE;
+}
+
 static BOOLEAN
 BuildPick_processMouse (MELEE_STATE *pMS)
 {
@@ -227,6 +316,7 @@ BuildPick_processMouse (MELEE_STATE *pMS)
 	MeleeShip hoveredShip;
 	MeleeShip pressedShip;
 	BOOLEAN leftPress;
+	BUILD_PICK_ACTION pressedAction;
 
 	if (!TFB_GetMouseState (&mouse))
 		return FALSE;
@@ -239,6 +329,26 @@ BuildPick_processMouse (MELEE_STATE *pMS)
 
 	leftPress = newPress && mouse.last_button == TFB_MOUSE_BUTTON_LEFT;
 	if (leftPress && mouse.press_inside_viewport &&
+			BuildPick_findActionAt (mouse.press_x, mouse.press_y,
+			&pressedAction))
+	{
+		if (pressedAction == BUILD_PICK_ACTION_CONFIRM)
+		{
+			pMS->buildPickConfirmed = true;
+			PlayMenuSound (MENU_SOUND_SUCCESS);
+			return TRUE;
+		}
+		if (pressedAction == BUILD_PICK_ACTION_INFO &&
+				pMS->currentShip != MELEE_NONE)
+		{
+			DoShipSpin (pMS->currentShip, (MUSIC_REF) 0);
+			/* Consume the click which closed the info page, otherwise a
+			 * stationary pointer over this label would reopen it. */
+			BuildPick_syncMouseState (pMS);
+			return FALSE;
+		}
+	}
+	else if (leftPress && mouse.press_inside_viewport &&
 			BuildPick_findShipAt (mouse.press_x, mouse.press_y, &pressedShip))
 	{
 		if (pressedShip != pMS->currentShip)
@@ -293,6 +403,7 @@ DoPickShip (MELEE_STATE *pMS)
 	{
 		// Show ship spin video.
 		DoShipSpin (pMS->currentShip, (MUSIC_REF) 0);
+		BuildPick_syncMouseState (pMS);
 		return TRUE;
 	}
 
@@ -347,16 +458,8 @@ DoPickShip (MELEE_STATE *pMS)
 bool
 BuildPickShip (MELEE_STATE *pMS)
 {
-	TFB_MOUSE_STATE mouse;
-
 	FlushInput ();
-	pMS->mouseMotionGeneration = 0;
-	pMS->mousePressGeneration = 0;
-	if (TFB_GetMouseState (&mouse))
-	{
-		pMS->mouseMotionGeneration = mouse.motion_generation;
-		pMS->mousePressGeneration = mouse.press_generation;
-	}
+	BuildPick_syncMouseState (pMS);
 
 	if (pMS->currentShip == MELEE_NONE)
 		pMS->currentShip = 0;

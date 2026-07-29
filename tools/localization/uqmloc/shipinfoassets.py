@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import io
+from collections import Counter
 from dataclasses import dataclass
 from pathlib import Path, PurePosixPath
 
@@ -387,6 +388,22 @@ SHIP_PICK_LABELS = {
 }
 
 
+# The stock CREW/BATT words sit below their vertical gauges.  Keep the
+# localized replacement inside that wording band: the gauge artwork reaches
+# y=303 on the 4x canvas, while the English glyphs occupy y=320..331.  The
+# previous erase rectangles began at y=307 and consequently painted over the
+# bottom of both gauges.
+SHIP_INFO_GAUGE_LABEL_ERASE_BOXES = (
+    (29, 315, 132, 352),
+    (168, 315, 276, 352),
+)
+SHIP_INFO_GAUGE_LABEL_TEXT_BOXES = (
+    (31, 315, 130, 348),
+    (172, 315, 272, 348),
+)
+SHIP_INFO_PANEL_SAMPLE_BOX = (132, 315, 166, 350)
+
+
 def _load_pillow():
     try:
         from PIL import Image, ImageDraw, ImageFont  # type: ignore
@@ -437,6 +454,39 @@ def _scaled_box(
 def _text_width(draw, text: str, font) -> int:
     box = draw.textbbox((0, 0), text, font=font)
     return box[2] - box[0]
+
+
+def _nearby_panel_background(image, canvas: tuple[int, int]):
+    """Return the dominant neutral panel color beside the gauge labels."""
+
+    sample_box = _scaled_box(canvas, SHIP_INFO_PANEL_SAMPLE_BOX)
+    sample = image.crop(sample_box).convert("RGBA")
+    try:
+        pixels = [pixel for pixel in sample.get_flattened_data() if pixel[3]]
+    finally:
+        sample.close()
+    neutral = [
+        pixel[:3]
+        for pixel in pixels
+        if max(pixel[:3]) - min(pixel[:3]) <= 4
+    ]
+    candidates = neutral or [pixel[:3] for pixel in pixels]
+    if not candidates:
+        return (80, 80, 80, 255)
+    color = Counter(candidates).most_common(1)[0][0]
+    return (*color, 255)
+
+
+def _fill_scaled_box(draw, canvas, box, *, fill) -> None:
+    """Fill a scaled half-open box without touching its right/bottom edge."""
+
+    x0, y0, x1, y1 = _scaled_box(canvas, box)
+    if x1 <= x0 or y1 <= y0:
+        return
+    # ImageDraw.rectangle includes both endpoints.  Treating our layout boxes
+    # as half-open keeps the stock x=276 divider and y=352 separator intact at
+    # every native tier, including their rounded 1x positions x=69/y=88.
+    draw.rectangle((x0, y0, x1 - 1, y1 - 1), fill=fill)
 
 
 def _wrap_cjk(draw, text: str, font, max_width: int) -> list[str]:
@@ -617,8 +667,9 @@ def _render_ship_info_frames(
     # restore both source tones while removing every pale English pixel.
     draw.rectangle(_scaled_box(canvas, (281, 101, 340, 239)), fill=(80, 80, 80, 255))
     draw.rectangle(_scaled_box(canvas, (340, 101, 1025, 239)), fill=(88, 88, 88, 255))
-    draw.rectangle(_scaled_box(canvas, (29, 307, 130, 354)), fill=(88, 88, 88, 255))
-    draw.rectangle(_scaled_box(canvas, (168, 307, 281, 354)), fill=(88, 88, 88, 255))
+    panel_background = _nearby_panel_background(base, canvas)
+    for box in SHIP_INFO_GAUGE_LABEL_ERASE_BOXES:
+        _fill_scaled_box(draw, canvas, box, fill=panel_background)
     draw.rectangle(_scaled_box(canvas, (1040, 256, 1250, 350)), fill=(4, 5, 91, 255))
 
     # The Shofixti pilot portrait contains a baked DESTRUCT readout.  It is
@@ -681,9 +732,8 @@ def _render_ship_info_frames(
         max_lines=2,
         center=True,
     )
-    for label, box in (
-        ("船員", (31, 310, 126, 350)),
-        ("能量", (172, 310, 278, 350)),
+    for label, box in zip(
+        ("船員", "能量"), SHIP_INFO_GAUGE_LABEL_TEXT_BOXES
     ):
         _draw_wrapped(
             draw,

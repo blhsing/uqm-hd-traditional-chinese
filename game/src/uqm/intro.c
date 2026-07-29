@@ -29,13 +29,15 @@
 #include "nameref.h"
 #include "libs/graphics/gfx_common.h"
 #include "libs/graphics/drawable.h"
+#include "libs/inplib.h"
 #include "libs/sound/sound.h"
 #include "libs/vidlib.h"
 #include "libs/log.h"
 
 #include <ctype.h>
 
-static BOOLEAN ShowSlidePresentation (STRING PresStr);
+static BOOLEAN ShowSlidePresentation (STRING PresStr,
+		BOOLEAN mouseClickExit);
 
 typedef struct
 {
@@ -72,6 +74,8 @@ typedef struct
 	int MovieFrame;
 	int MovieEndFrame;
 	int InterframeDelay;
+	BOOLEAN MouseClickExit;
+	unsigned int MousePressGeneration;
 
 } PRESENTATION_INPUT_STATE;
 
@@ -285,12 +289,26 @@ Present_DrawMovieFrame (PRESENTATION_INPUT_STATE* pPIS)
 }
 
 static BOOLEAN
-ShowPresentationFile (const char *name)
+ShowPresentationFile (const char *name, BOOLEAN mouseClickExit)
 {
 	STRING pres = CaptureStringTable (LoadStringTableFile (contentDir, name));
-	BOOLEAN result = ShowSlidePresentation (pres);
+	BOOLEAN result = ShowSlidePresentation (pres, mouseClickExit);
 	DestroyStringTable (ReleaseStringTable (pres));
 	return result;
+}
+
+static BOOLEAN
+Presentation_mouseClickExitRequested (PRESENTATION_INPUT_STATE *pPIS)
+{
+	TFB_MOUSE_STATE mouse;
+
+	if (!pPIS->MouseClickExit || !TFB_GetMouseState (&mouse) ||
+			mouse.press_generation == pPIS->MousePressGeneration)
+		return FALSE;
+
+	pPIS->MousePressGeneration = mouse.press_generation;
+	return mouse.last_button == TFB_MOUSE_BUTTON_LEFT &&
+			mouse.press_inside_viewport;
 }
 
 static BOOLEAN
@@ -298,7 +316,8 @@ DoPresentation (void *pIS)
 {
 	PRESENTATION_INPUT_STATE* pPIS = (PRESENTATION_INPUT_STATE*) pIS;
 
-	if (PulsedInputState.menu[KEY_MENU_CANCEL]
+	if (Presentation_mouseClickExitRequested (pPIS)
+			|| PulsedInputState.menu[KEY_MENU_CANCEL]
 			|| (GLOBAL (CurrentActivity) & CHECK_ABORT))
 		return FALSE; /* abort requested - we are done */
 
@@ -817,7 +836,8 @@ DoPresentation (void *pIS)
 			Present_UnbatchGraphics (pPIS, TRUE);
 
 			utf8StringCopy (pPIS->Buffer, sizeof (pPIS->Buffer), pStr);
-			ShowPresentationFile (pPIS->Buffer);
+			ShowPresentationFile (pPIS->Buffer,
+					pPIS->MouseClickExit);
 		}
 		else if (strcmp (Opcode, "LINE") == 0)
 		{
@@ -880,12 +900,13 @@ DoPresentation (void *pIS)
 }
 
 static BOOLEAN
-ShowSlidePresentation (STRING PresStr)
+ShowSlidePresentation (STRING PresStr, BOOLEAN mouseClickExit)
 {
 	CONTEXT OldContext;
 	FONT OldFont;
 	RECT OldRect;
 	PRESENTATION_INPUT_STATE pis;
+	TFB_MOUSE_STATE mouse;
 	int i;
 
 	memset (&pis, 0, sizeof(pis));
@@ -894,6 +915,9 @@ ShowSlidePresentation (STRING PresStr)
 		return FALSE;
 	pis.SlideShow = SetAbsStringTableIndex (pis.SlideShow, 0);
 	pis.OperIndex = 0;
+	pis.MouseClickExit = mouseClickExit;
+	if (pis.MouseClickExit && TFB_GetMouseState (&mouse))
+		pis.MousePressGeneration = mouse.press_generation;
 
 	LockMutex (GraphicsLock);
 	OldContext = SetContext (ScreenContext);
@@ -1009,8 +1033,8 @@ ShowLegacyVideo (LEGACY_VIDEO vid)
 	return TRUE;
 }
 
-BOOLEAN
-ShowPresentation (RESOURCE res)
+static BOOLEAN
+ShowPresentationInternal (RESOURCE res, BOOLEAN mouseClickExit)
 {
 	const char *resType = res_GetResourceType (res);
 	if (!resType)
@@ -1020,7 +1044,7 @@ ShowPresentation (RESOURCE res)
 	if (!strcmp (resType, "STRTAB"))
 	{
 		STRING pres = CaptureStringTable (LoadStringTable (res));
-		BOOLEAN result = ShowSlidePresentation (pres);
+		BOOLEAN result = ShowSlidePresentation (pres, mouseClickExit);
 		DestroyStringTable (ReleaseStringTable (pres));
 		return result;
 	}
@@ -1034,4 +1058,16 @@ ShowPresentation (RESOURCE res)
 	
 	log_add (log_Warning, "Tried to present '%s', of non-presentable type '%s'", res, resType);
 	return FALSE;
+}
+
+BOOLEAN
+ShowPresentation (RESOURCE res)
+{
+	return ShowPresentationInternal (res, FALSE);
+}
+
+BOOLEAN
+ShowPresentationWithMouseExit (RESOURCE res)
+{
+	return ShowPresentationInternal (res, TRUE);
 }

@@ -13,9 +13,11 @@ sys.path.insert(0, str(ROOT / "tools" / "localization"))
 
 from uqmloc.shipinfoassets import (  # noqa: E402
     SHIP_INFO_PAGES,
+    SHIP_INFO_GAUGE_LABEL_ERASE_BOXES,
     SHIP_INFO_VARIANTS,
     SHIP_PICK_LABELS,
     _render_ship_info_frames,
+    _scaled_box,
     _wrap_cjk,
     build_localized_ship_info_assets,
 )
@@ -184,6 +186,116 @@ class ShipInfoAssetTests(unittest.TestCase):
         self.assertGreater(len(pixels), 1)
         panel.close()
         base.close()
+
+    @unittest.skipUnless(
+        Path(r"C:\Windows\Fonts\NotoSansTC-VF.ttf").is_file(),
+        "Noto Sans TC variable font is not installed",
+    )
+    def test_gauge_labels_match_panel_without_covering_gauge_artwork(self):
+        from PIL import Image, ImageDraw, ImageFont
+
+        panel_color = (73, 73, 73)
+        crew_gauge_color = (0, 211, 31)
+        energy_gauge_color = (221, 13, 17)
+        old_crew_label_color = (5, 89, 5)
+        old_energy_label_color = (101, 4, 4)
+        frame_color = (116, 116, 116)
+        font = Path(r"C:\Windows\Fonts\NotoSansTC-VF.ttf")
+
+        for variant in SHIP_INFO_VARIANTS:
+            with self.subTest(addon=variant.addon):
+                source = Image.new("RGB", variant.canvas, panel_color)
+                draw = ImageDraw.Draw(source)
+                draw.rectangle(
+                    _scaled_box(variant.canvas, (40, 296, 68, 313)),
+                    fill=crew_gauge_color,
+                )
+                draw.rectangle(
+                    _scaled_box(variant.canvas, (236, 296, 264, 313)),
+                    fill=energy_gauge_color,
+                )
+                draw.rectangle(
+                    _scaled_box(variant.canvas, (40, 320, 127, 332)),
+                    fill=old_crew_label_color,
+                )
+                draw.rectangle(
+                    _scaled_box(variant.canvas, (180, 320, 263, 332)),
+                    fill=old_energy_label_color,
+                )
+                scale_x = variant.canvas[0] / 1280
+                scale_y = variant.canvas[1] / 960
+                divider_x = round(276 * scale_x)
+                separator_y = round(352 * scale_y)
+                divider_top = round(205 * scale_y)
+                separator_left = round(20 * scale_x)
+                separator_right = round(280 * scale_x)
+                draw.line(
+                    (divider_x, divider_top, divider_x, separator_y),
+                    fill=frame_color,
+                )
+                draw.line(
+                    (
+                        separator_left,
+                        separator_y,
+                        separator_right,
+                        separator_y,
+                    ),
+                    fill=frame_color,
+                )
+
+                base, overlay = _render_ship_info_frames(
+                    Image,
+                    ImageDraw,
+                    ImageFont,
+                    source,
+                    SHIP_INFO_PAGES[0],
+                    font,
+                )
+                source.close()
+                overlay.close()
+                rendered = base.convert("RGB")
+
+                crew_probe = _scaled_box(
+                    variant.canvas, (45, 307, 46, 308)
+                )[:2]
+                energy_probe = _scaled_box(
+                    variant.canvas, (241, 307, 242, 308)
+                )[:2]
+                self.assertEqual(
+                    rendered.getpixel(crew_probe), crew_gauge_color
+                )
+                self.assertEqual(
+                    rendered.getpixel(energy_probe), energy_gauge_color
+                )
+                self.assertEqual(
+                    {
+                        rendered.getpixel((divider_x, y))
+                        for y in range(divider_top, separator_y + 1)
+                    },
+                    {frame_color},
+                )
+                self.assertEqual(
+                    {
+                        rendered.getpixel((x, separator_y))
+                        for x in range(separator_left, separator_right + 1)
+                    },
+                    {frame_color},
+                )
+
+                for box, old_color in zip(
+                    SHIP_INFO_GAUGE_LABEL_ERASE_BOXES,
+                    (old_crew_label_color, old_energy_label_color),
+                ):
+                    rendered_box = rendered.crop(
+                        _scaled_box(variant.canvas, box)
+                    )
+                    self.assertNotIn(
+                        old_color, set(rendered_box.get_flattened_data())
+                    )
+                    self.assertEqual(rendered_box.getpixel((0, 0)), panel_color)
+                    rendered_box.close()
+                rendered.close()
+                base.close()
 
 
 if __name__ == "__main__":

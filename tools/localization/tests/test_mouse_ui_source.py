@@ -67,5 +67,61 @@ class SuperMeleeStatsCardTests(unittest.TestCase):
         self.assertIn("返回隊伍設定", pickmele)
 
 
+class SuperMeleeShipPickerMouseActionTests(unittest.TestCase):
+    def test_picker_side_labels_dispatch_keyboard_equivalent_actions(self):
+        source = (
+            REPO_ROOT / "game/src/uqm/supermelee/buildpick.c"
+        ).read_text(encoding="utf-8")
+        assets = (
+            REPO_ROOT / "tools/localization/uqmloc/shipinfoassets.py"
+        ).read_text(encoding="utf-8")
+
+        self.assertIn("BuildPick_findActionAt", source)
+        self.assertIn("BUILD_PICK_ACTION_CONFIRM", source)
+        self.assertIn("BUILD_PICK_ACTION_INFO", source)
+        self.assertIn(
+            "BuildPick_findActionAt (mouse.press_x, mouse.press_y,",
+            source,
+        )
+        confirm = source.index("pressedAction == BUILD_PICK_ACTION_CONFIRM")
+        info = source.index("pressedAction == BUILD_PICK_ACTION_INFO")
+        self.assertIn("pMS->buildPickConfirmed = true;", source[confirm:info])
+        self.assertIn("DoShipSpin (pMS->currentShip", source[info:])
+        for c_name, coordinate in (
+            ("BUILD_PICK_CONFIRM_LEFT", 13),
+            ("BUILD_PICK_CONFIRM_RIGHT", 67),
+            ("BUILD_PICK_INFO_LEFT", 440),
+            ("BUILD_PICK_INFO_RIGHT", 495),
+        ):
+            self.assertIn(f"#define {c_name} {coordinate}", source)
+        self.assertIn("(13, 74, 67, 445)", assets)
+        self.assertIn("(440, 74, 495, 445)", assets)
+
+    def test_ship_info_click_exit_is_scoped_and_debounced(self):
+        buildpick = (
+            REPO_ROOT / "game/src/uqm/supermelee/buildpick.c"
+        ).read_text(encoding="utf-8")
+        fmv = (REPO_ROOT / "game/src/uqm/fmv.c").read_text(encoding="utf-8")
+        intro = (REPO_ROOT / "game/src/uqm/intro.c").read_text(
+            encoding="utf-8"
+        )
+
+        self.assertIn("ShowPresentationWithMouseExit (vnbuf);", fmv)
+        self.assertIn("Presentation_mouseClickExitRequested", intro)
+        self.assertIn("mouse.last_button == TFB_MOUSE_BUTTON_LEFT", intro)
+        self.assertIn("mouse.press_inside_viewport", intro)
+        self.assertIn("mouse.press_generation", intro)
+        self.assertIn(
+            "pis.MousePressGeneration = mouse.press_generation;", intro
+        )
+        self.assertIn("ShowPresentationInternal (res, FALSE)", intro)
+        self.assertIn("ShowPresentationInternal (res, TRUE)", intro)
+
+        info = buildpick.index("pressedAction == BUILD_PICK_ACTION_INFO")
+        spin = buildpick.index("DoShipSpin (pMS->currentShip", info)
+        sync = buildpick.index("BuildPick_syncMouseState (pMS);", spin)
+        self.assertLess(spin, sync)
+
+
 if __name__ == "__main__":
     unittest.main()

@@ -53,7 +53,7 @@ DoShipSpin (COUNT index, MUSIC_REF hMusic)
 
 	// TODO: It would be nice to have better resource names for these.
 	sprintf (vnbuf, "slides.spins.%02u", (unsigned)index);
-	ShowPresentation (vnbuf);
+	ShowPresentationWithMouseExit (vnbuf);
 
 	SleepThreadUntil (FadeScreen (FadeAllToBlack, ONE_SECOND / 4));
 	FlushColorXForms ();
@@ -155,6 +155,5 @@ Victory (void)
 		
 	FadeScreen (FadeAllToBlack, 0);
 }
-
 
 
