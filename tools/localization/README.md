@@ -212,8 +212,8 @@ are generated deterministically from reviewable Traditional-Chinese source data
 at native 320x240, 640x480, and 1280x960 resolutions. Their localized cards
 cover crew, battery, cost, movement, weapons, special abilities, and tactics
 while preserving upstream ship artwork and animation manifests. The top-level
-Traditional-Chinese player guide presents the 25 Super Melee craft and campaign
-flagship together in a single uncollapsed 26-vessel table.
+Traditional-Chinese player guide compares the 25 Super Melee craft in a single
+uncollapsed, per-stat-column table and introduces the campaign flagship separately.
 
 Packages use only ZIP Deflate, disable ZIP64, reject 65,535 or more files, and
 are written deterministically. All three packages must be installed because

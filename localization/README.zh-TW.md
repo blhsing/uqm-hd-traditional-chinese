@@ -97,9 +97,9 @@ installation.
 - On those ship-information pages, the replacement `船員` and `能量` captions
   blend into the stock gray panel. Their redraw boxes preserve the gauges,
   vertical dividers, and lower separators at every resolution.
-- The top-level README presents the 25 Super Melee vessels and campaign-only
-  Precursor Flagship in one uncollapsed 26-vessel table, with an image, full
-  labeled statistics, weapons, special abilities, and strategy for every entry.
+- The top-level README compares the 25 Super Melee vessels in one uncollapsed
+  table with individually separated statistics. The campaign-only Precursor
+  Flagship has its own illustrated section below the table.
 - OpenAI's built-in image editor was used only to remove the five baked English
   labels while preserving the 4:3 space/panel composition. The edit prompt was:
   "Remove only the New Game, Load Game, Super Melee!, Setup, and Quit labels;
