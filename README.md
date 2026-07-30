@@ -313,25 +313,24 @@ RU 可購買燃料與船員、建造旗艦模組及護航艦。主要來源是�
 
 ## 船艦圖鑑
 
-Sa-Matra 與 Ur-Quan Security Drone 不是可選船艦，因此不列入圖鑑。下表以單一、永遠展開的 HTML 表格收錄 25 艘 Super Melee 船艦。每艘船使用兩列：繁體中文及英文名稱位於第一欄並跨越兩列；船員、能量、費用、極速、推進、加速時間、轉向、回能、武器與特殊能力資源等數值各有獨立欄位。下一列以橫跨其餘 11 欄的儲存格呈現船艦圖片及說明，圖片位於左側，右側分行列出武器、特殊能力與策略。初始值與上限相同時只顯示一次；只有 Syreen 船員數及 Utwig 能量值會分別列出初始值與上限。戰役專用的先驅者旗艦另於表格下方介紹。
+Sa-Matra 與 Ur-Quan Security Drone 不是可選船艦，因此不列入圖鑑。下表以單一、永遠展開的 HTML 表格收錄 25 艘 Super Melee 船艦。每艘船使用兩列：繁體中文及英文名稱位於第一欄並跨越兩列；其餘欄位依序列出船員、能量、費用、極速、加速、極速需時、自轉需時、能量恢復、武器耗能及特殊能力耗能。下一列以橫跨其餘 10 欄的儲存格呈現船艦圖片及說明；圖片靠左，武器、特殊能力與策略文字在右側自動換行。只有確實使用其他資源的特殊能力才會在特殊能力說明後另列資源規則。初始值與上限相同時只顯示一次；只有 Syreen 船員數及 Utwig 能量值會分別列出初始值與上限。戰役專用的先驅者旗艦另於表格下方介紹。
 
-「極速」及每次推進增加的速度單位都是引擎內部基準值，不是螢幕像素／秒。戰鬥邏輯以每秒 24 個戰鬥幀運作。由靜止加速至極速及完成 360 度轉向的時間是理想推算值，假設持續按鍵且不受重力、碰撞、後座力或敵方效果干擾；實戰結果可能不同。變形、後燃器等能力造成的性能變化已在對應欄位明確標示；重力彈弓、武器後座力及特殊能力仍可能使實際速度超出一般極速。除非另有說明，武器與特殊能力的能量數字均指每次使用的消耗。
+表頭上標對應表後的單位及情境註釋。戰鬥邏輯以每秒 24 個戰鬥幀運作；加速及轉向時間依持續按鍵且不受重力、碰撞、後座力或敵方效果干擾的情況換算，實戰結果可能不同。變形、後燃器等能力造成的性能變化已在對應欄位標示；重力彈弓、武器後座力及特殊能力仍可能使實際速度超出一般極速。
 
-<table>
+<table width="100%">
 <thead>
 <tr>
 <th>船艦名稱</th>
-<th>船員數</th>
-<th>能量值</th>
-<th>Super Melee 編隊費用</th>
-<th>極速（引擎基準值）</th>
-<th>推進／加速度</th>
-<th>加速至極速</th>
-<th>完成 360 度轉向</th>
-<th>自然能量恢復</th>
-<th>主武器能量消耗</th>
-<th>特殊能力能量規則</th>
-<th>特殊能力其他資源規則</th>
+<th>船員<sup>1</sup></th>
+<th>能量<sup>2</sup></th>
+<th>費用<sup>3</sup></th>
+<th>極速<sup>4</sup></th>
+<th>加速<sup>5</sup></th>
+<th>極速需時<sup>6</sup></th>
+<th>自轉需時<sup>7</sup></th>
+<th>能量恢復<sup>8</sup></th>
+<th>武器耗能<sup>9</sup></th>
+<th>特殊能力耗能<sup>10</sup></th>
 </tr>
 </thead>
 <tbody>
@@ -341,25 +340,15 @@ Sa-Matra 與 Ur-Quan Security Drone 不是可選船艦，因此不列入圖鑑�
 <td>24</td>
 <td>15</td>
 <td><strong>一般：</strong>24<br><strong>Blazer 彗星形態：</strong>60</td>
-<td>每 1 個戰鬥幀增加 3 個速度單位</td>
-<td>0.33 秒</td>
-<td><strong>一般形態：</strong>3.33 秒<br><strong>Blazer 彗星形態：</strong>1.33 秒</td>
-<td>每 9 個戰鬥幀恢復 1</td>
-<td>每次 3</td>
-<td>啟動 Blazer 彗星形態至少需要 2；維持期間每 9 個戰鬥幀消耗 1</td>
-<td>—</td>
+<td>3</td>
+<td>0.33</td>
+<td><strong>一般形態：</strong>3.33<br><strong>Blazer 彗星形態：</strong>1.33</td>
+<td>1（9）</td>
+<td>3</td>
+<td><strong>啟動：</strong>2<br><strong>維持：</strong>1（9）</td>
 </tr>
 <tr>
-<td colspan="11">
-<table>
-<tbody>
-<tr>
-<td><img src="docs/images/vessels/androsynth-guardian.png" width="180" alt="Androsynth Guardian"></td>
-<td><strong>武器：</strong>耐久、長壽命的追蹤酸泡泡。<br><strong>特殊能力：</strong>變成高速 Blazer 彗星，以衝撞造成傷害；撞擊本身不扣自身生命，但並非對所有武器無敵。<br><strong>策略：</strong>先用泡泡封鎖空間，再變形追擊。爆發機動極強，但能量耗盡會強制復原，衝撞路線也較可預測。</td>
-</tr>
-</tbody>
-</table>
-</td>
+<td colspan="10"><img src="docs/images/vessels/androsynth-guardian.png" width="140" align="left" hspace="8" alt="Androsynth Guardian"><strong>武器：</strong>耐久、長壽命的追蹤酸泡泡。<br><strong>特殊能力：</strong>變成高速 Blazer 彗星，以衝撞造成傷害；撞擊本身不扣自身生命，但並非對所有武器無敵。<br><strong>策略：</strong>先用泡泡封鎖空間，再變形追擊。爆發機動極強，但能量耗盡會強制復原，衝撞路線也較可預測。</td>
 </tr>
 <tr>
 <td rowspan="2"><strong>阿里盧拉萊萊・小艇</strong><br><em>Ariloulaleelay Skiff</em></td>
@@ -367,25 +356,15 @@ Sa-Matra 與 Ur-Quan Security Drone 不是可選船艦，因此不列入圖鑑�
 <td>20</td>
 <td>16</td>
 <td>40</td>
-<td>每 1 個戰鬥幀增加 40 個速度單位</td>
-<td>0.04 秒</td>
-<td>0.67 秒</td>
-<td>每 7 個戰鬥幀恢復 1</td>
-<td>每次 2</td>
-<td>每次瞬移消耗 3</td>
-<td>—</td>
+<td>40</td>
+<td>0.04</td>
+<td>0.67</td>
+<td>1（7）</td>
+<td>2</td>
+<td>3</td>
 </tr>
 <tr>
-<td colspan="11">
-<table>
-<tbody>
-<tr>
-<td><img src="docs/images/vessels/arilou-skiff.png" width="180" alt="Ariloulaleelay Skiff"></td>
-<td><strong>武器：</strong>近距離自動瞄準雷射。<br><strong>特殊能力：</strong>隨機瞬移。<br><strong>策略：</strong>無慣性、可立即改向，適合貼身繞背；只有 6 名船員且射程短，瞬移落點也不可控。</td>
-</tr>
-</tbody>
-</table>
-</td>
+<td colspan="10"><img src="docs/images/vessels/arilou-skiff.png" width="140" align="left" hspace="8" alt="Ariloulaleelay Skiff"><strong>武器：</strong>近距離自動瞄準雷射。<br><strong>特殊能力：</strong>隨機瞬移。<br><strong>策略：</strong>無慣性、可立即改向，適合貼身繞背；只有 6 名船員且射程短，瞬移落點也不可控。</td>
 </tr>
 <tr>
 <td rowspan="2"><strong>陳傑蘇・育巢艦</strong><br><em>Chenjesu Broodhome</em></td>
@@ -393,25 +372,15 @@ Sa-Matra 與 Ur-Quan Security Drone 不是可選船艦，因此不列入圖鑑�
 <td>30</td>
 <td>28</td>
 <td>27</td>
-<td>每 5 個戰鬥幀增加 3 個速度單位</td>
-<td>1.88 秒</td>
-<td>4.67 秒</td>
-<td>每 5 個戰鬥幀恢復 1</td>
-<td>每次 5</td>
-<td>每次放出 DOGI 干擾衛星消耗 30</td>
-<td>—</td>
+<td>0.6</td>
+<td>1.88</td>
+<td>4.67</td>
+<td>1（5）</td>
+<td>5</td>
+<td>30</td>
 </tr>
 <tr>
-<td colspan="11">
-<table>
-<tbody>
-<tr>
-<td><img src="docs/images/vessels/chenjesu-broodhome.png" width="180" alt="Chenjesu Broodhome"></td>
-<td><strong>武器：</strong>高傷害水晶；放開射擊鍵可手動炸成碎片。<br><strong>特殊能力：</strong>放出 DOGI 干擾衛星，撞擊時推開敵艦並抽走最多 10 能量。<br><strong>策略：</strong>重型區域控制艦，單發威力高但加速、轉向慢；DOGI 干擾衛星可被擊毀，召喚也需完整能量槽。</td>
-</tr>
-</tbody>
-</table>
-</td>
+<td colspan="10"><img src="docs/images/vessels/chenjesu-broodhome.png" width="140" align="left" hspace="8" alt="Chenjesu Broodhome"><strong>武器：</strong>高傷害水晶；放開射擊鍵可手動炸成碎片。<br><strong>特殊能力：</strong>放出 DOGI 干擾衛星，撞擊時推開敵艦並抽走最多 10 能量。<br><strong>策略：</strong>重型區域控制艦，單發威力高但加速、轉向慢；DOGI 干擾衛星可被擊毀，召喚也需完整能量槽。</td>
 </tr>
 <tr>
 <td rowspan="2"><strong>克姆爾混合種・化身艦</strong><br><em>Chmmr Avatar</em></td>
@@ -419,25 +388,15 @@ Sa-Matra 與 Ur-Quan Security Drone 不是可選船艦，因此不列入圖鑑�
 <td>42</td>
 <td>30</td>
 <td>35</td>
-<td>每 6 個戰鬥幀增加 7 個速度單位</td>
-<td>1.25 秒</td>
-<td>2.67 秒</td>
-<td>每 2 個戰鬥幀恢復 1</td>
-<td>每次 2</td>
-<td>牽引光束每次消耗 1</td>
-<td>—</td>
+<td>1.17</td>
+<td>1.25</td>
+<td>2.67</td>
+<td>1（2）</td>
+<td>2</td>
+<td>1</td>
 </tr>
 <tr>
-<td colspan="11">
-<table>
-<tbody>
-<tr>
-<td><img src="docs/images/vessels/chmmr-avatar.png" width="180" alt="Chmmr Avatar"></td>
-<td><strong>武器：</strong>近距離連續雷射；三枚 ZapSat 護航衛星會自動攔截彈體並攻擊近敵。<br><strong>特殊能力：</strong>牽引光束。<br><strong>策略：</strong>把敵人拉入雷射及衛星殺傷圈。近戰壓制頂尖，但體型大、轉向慢，衛星被擊毀後防護會降低。</td>
-</tr>
-</tbody>
-</table>
-</td>
+<td colspan="10"><img src="docs/images/vessels/chmmr-avatar.png" width="140" align="left" hspace="8" alt="Chmmr Avatar"><strong>武器：</strong>近距離連續雷射；三枚 ZapSat 護航衛星會自動攔截彈體並攻擊近敵。<br><strong>特殊能力：</strong>牽引光束。<br><strong>策略：</strong>把敵人拉入雷射及衛星殺傷圈。近戰壓制頂尖，但體型大、轉向慢，衛星被擊毀後防護會降低。</td>
 </tr>
 <tr>
 <td rowspan="2"><strong>德魯吉・重擊艦</strong><br><em>Druuge Mauler</em></td>
@@ -445,25 +404,15 @@ Sa-Matra 與 Ur-Quan Security Drone 不是可選船艦，因此不列入圖鑑�
 <td>32</td>
 <td>17</td>
 <td>20</td>
-<td>每 2 個戰鬥幀增加 2 個速度單位</td>
-<td>0.83 秒</td>
-<td>3.33 秒</td>
-<td>每 51 個戰鬥幀恢復 1</td>
-<td>每次 4</td>
+<td>1</td>
+<td>0.83</td>
+<td>3.33</td>
+<td>1（51）</td>
+<td>4</td>
 <td>—</td>
-<td>犧牲 1 名船員，回復 16 能量</td>
 </tr>
 <tr>
-<td colspan="11">
-<table>
-<tbody>
-<tr>
-<td><img src="docs/images/vessels/druuge-mauler.png" width="180" alt="Druuge Mauler"></td>
-<td><strong>武器：</strong>超長射程、造成 6 傷害且後座力極高的炮彈。<br><strong>特殊能力：</strong>犧牲 1 名船員換取 16 能量。<br><strong>策略：</strong>利用炮擊後座力移動並遠距狙擊。火力優異，但自然能量恢復極慢，失誤會同時消耗能量與船員。</td>
-</tr>
-</tbody>
-</table>
-</td>
+<td colspan="10"><img src="docs/images/vessels/druuge-mauler.png" width="140" align="left" hspace="8" alt="Druuge Mauler"><strong>武器：</strong>超長射程、造成 6 傷害且後座力極高的炮彈。<br><strong>特殊能力：</strong>犧牲 1 名船員換取 16 能量。<br><strong>資源規則：</strong>犧牲 1 名船員，回復 16 能量<br><strong>策略：</strong>利用炮擊後座力移動並遠距狙擊。火力優異，但自然能量恢復極慢，失誤會同時消耗能量與船員。</td>
 </tr>
 <tr>
 <td rowspan="2"><strong>地球人・巡洋艦</strong><br><em>Earthling Cruiser</em></td>
@@ -471,25 +420,15 @@ Sa-Matra 與 Ur-Quan Security Drone 不是可選船艦，因此不列入圖鑑�
 <td>18</td>
 <td>11</td>
 <td>24</td>
-<td>每 5 個戰鬥幀增加 3 個速度單位</td>
-<td>1.67 秒</td>
-<td>1.33 秒</td>
-<td>每 9 個戰鬥幀恢復 1</td>
-<td>每次 9</td>
-<td>每次點防禦消耗 4</td>
-<td>—</td>
+<td>0.6</td>
+<td>1.67</td>
+<td>1.33</td>
+<td>1（9）</td>
+<td>9</td>
+<td>4</td>
 </tr>
 <tr>
-<td colspan="11">
-<table>
-<tbody>
-<tr>
-<td><img src="docs/images/vessels/earthling-cruiser.png" width="180" alt="Earthling Cruiser"></td>
-<td><strong>武器：</strong>長距離追蹤核彈。<br><strong>特殊能力：</strong>近距離點防禦雷射。<br><strong>策略：</strong>遠距離發射核彈並攔截威脅；便宜、容易上手，但核彈可被擊落，近戰及能量恢復較弱。</td>
-</tr>
-</tbody>
-</table>
-</td>
+<td colspan="10"><img src="docs/images/vessels/earthling-cruiser.png" width="140" align="left" hspace="8" alt="Earthling Cruiser"><strong>武器：</strong>長距離追蹤核彈。<br><strong>特殊能力：</strong>近距離點防禦雷射。<br><strong>策略：</strong>遠距離發射核彈並攔截威脅；便宜、容易上手，但核彈可被擊落，近戰及能量恢復較弱。</td>
 </tr>
 <tr>
 <td rowspan="2"><strong>伊爾拉斯・復仇艦</strong><br><em>Ilwrath Avenger</em></td>
@@ -497,25 +436,15 @@ Sa-Matra 與 Ur-Quan Security Drone 不是可選船艦，因此不列入圖鑑�
 <td>16</td>
 <td>10</td>
 <td>25</td>
-<td>每 1 個戰鬥幀增加 5 個速度單位</td>
-<td>0.21 秒</td>
-<td>2.00 秒</td>
-<td>每 5 個戰鬥幀恢復 4</td>
-<td>每次 1</td>
-<td>每次進入隱形消耗 3</td>
-<td>—</td>
+<td>5</td>
+<td>0.21</td>
+<td>2.00</td>
+<td>4（5）</td>
+<td>1</td>
+<td>3</td>
 </tr>
 <tr>
-<td colspan="11">
-<table>
-<tbody>
-<tr>
-<td><img src="docs/images/vessels/ilwrath-avenger.png" width="180" alt="Ilwrath Avenger"></td>
-<td><strong>武器：</strong>船首短距離火焰。<br><strong>特殊能力：</strong>隱形；隱形中開火會解除隱形並自動朝向敵艦。<br><strong>策略：</strong>隱形接近後貼身噴火，近距離輸出高；缺乏遠程手段，對手仍可從畫面與聲音推測位置。</td>
-</tr>
-</tbody>
-</table>
-</td>
+<td colspan="10"><img src="docs/images/vessels/ilwrath-avenger.png" width="140" align="left" hspace="8" alt="Ilwrath Avenger"><strong>武器：</strong>船首短距離火焰。<br><strong>特殊能力：</strong>隱形；隱形中開火會解除隱形並自動朝向敵艦。<br><strong>策略：</strong>隱形接近後貼身噴火，近距離輸出高；缺乏遠程手段，對手仍可從畫面與聲音推測位置。</td>
 </tr>
 <tr>
 <td rowspan="2"><strong>克爾阿・掠奪艦</strong><br><em>Kohr-Ah Marauder</em></td>
@@ -523,25 +452,15 @@ Sa-Matra 與 Ur-Quan Security Drone 不是可選船艦，因此不列入圖鑑�
 <td>42</td>
 <td>30</td>
 <td>30</td>
-<td>每 7 個戰鬥幀增加 6 個速度單位</td>
-<td>1.46 秒</td>
-<td>3.33 秒</td>
-<td>每 5 個戰鬥幀恢復 1</td>
-<td>每次 6</td>
-<td>每次環形火焰氣雲消耗 21</td>
-<td>—</td>
+<td>0.86</td>
+<td>1.46</td>
+<td>3.33</td>
+<td>1（5）</td>
+<td>6</td>
+<td>21</td>
 </tr>
 <tr>
-<td colspan="11">
-<table>
-<tbody>
-<tr>
-<td><img src="docs/images/vessels/kohr-ah-marauder.png" width="180" alt="Kohr-Ah Marauder"></td>
-<td><strong>武器：</strong>最多部署 8 枚耐久旋鋸；放開射擊後減速，接近敵艦時重新追蹤。<br><strong>特殊能力：</strong>向 16 個方向爆出火焰氣雲。<br><strong>策略：</strong>擅長布置雷區與近身清場；船體笨重，環形爆發會消耗一半能量。</td>
-</tr>
-</tbody>
-</table>
-</td>
+<td colspan="10"><img src="docs/images/vessels/kohr-ah-marauder.png" width="140" align="left" hspace="8" alt="Kohr-Ah Marauder"><strong>武器：</strong>最多部署 8 枚耐久旋鋸；放開射擊後減速，接近敵艦時重新追蹤。<br><strong>特殊能力：</strong>向 16 個方向爆出火焰氣雲。<br><strong>策略：</strong>擅長布置雷區與近身清場；船體笨重，環形爆發會消耗一半能量。</td>
 </tr>
 <tr>
 <td rowspan="2"><strong>梅爾諾姆・商旅艦</strong><br><em>Melnorme Trader</em></td>
@@ -549,25 +468,15 @@ Sa-Matra 與 Ur-Quan Security Drone 不是可選船艦，因此不列入圖鑑�
 <td>42</td>
 <td>18</td>
 <td>36</td>
-<td>每 5 個戰鬥幀增加 6 個速度單位</td>
-<td>1.25 秒</td>
-<td>3.33 秒</td>
-<td>每 5 個戰鬥幀恢復 1</td>
-<td>每次 5</td>
-<td>每次混亂射線消耗 20</td>
-<td>—</td>
+<td>1.2</td>
+<td>1.25</td>
+<td>3.33</td>
+<td>1（5）</td>
+<td>5</td>
+<td>20</td>
 </tr>
 <tr>
-<td colspan="11">
-<table>
-<tbody>
-<tr>
-<td><img src="docs/images/vessels/melnorme-trader.png" width="180" alt="Melnorme Trader"></td>
-<td><strong>武器：</strong>可蓄力四級的能量彈；四級傷害依序為 2、4、8、16。<br><strong>特殊能力：</strong>混亂射線迫使敵艦轉向並暫時封鎖特殊動作。<br><strong>策略：</strong>先以混亂射線控制，再用滿蓄力彈收尾；蓄力需要時間，射線亦會消耗 20 能量。</td>
-</tr>
-</tbody>
-</table>
-</td>
+<td colspan="10"><img src="docs/images/vessels/melnorme-trader.png" width="140" align="left" hspace="8" alt="Melnorme Trader"><strong>武器：</strong>可蓄力四級的能量彈；四級傷害依序為 2、4、8、16。<br><strong>特殊能力：</strong>混亂射線迫使敵艦轉向並暫時封鎖特殊動作。<br><strong>策略：</strong>先以混亂射線控制，再用滿蓄力彈收尾；蓄力需要時間，射線亦會消耗 20 能量。</td>
 </tr>
 <tr>
 <td rowspan="2"><strong>姆爾恩姆赫姆・變形艦</strong><br><em>Mmrnmhrm X-Form</em></td>
@@ -575,25 +484,15 @@ Sa-Matra 與 Ur-Quan Security Drone 不是可選船艦，因此不列入圖鑑�
 <td>10</td>
 <td>19</td>
 <td><strong>飛碟形態：</strong>20<br><strong>火箭形態：</strong>50</td>
-<td><strong>飛碟形態：</strong>每 2 個戰鬥幀增加 5 個速度單位<br><strong>火箭形態：</strong>每 1 個戰鬥幀增加 10 個速度單位</td>
-<td><strong>飛碟形態：</strong>0.33 秒<br><strong>火箭形態：</strong>0.21 秒</td>
-<td><strong>飛碟形態：</strong>2.00 秒<br><strong>火箭形態：</strong>10.00 秒</td>
-<td><strong>飛碟形態：</strong>每 7 個戰鬥幀恢復 2<br><strong>火箭形態：</strong>每 7 個戰鬥幀恢復 1</td>
-<td>每次 1</td>
-<td>每次變形消耗 10</td>
-<td>—</td>
+<td><strong>飛碟形態：</strong>2.5<br><strong>火箭形態：</strong>10</td>
+<td><strong>飛碟形態：</strong>0.33<br><strong>火箭形態：</strong>0.21</td>
+<td><strong>飛碟形態：</strong>2.00<br><strong>火箭形態：</strong>10.00</td>
+<td><strong>飛碟形態：</strong>2（7）<br><strong>火箭形態：</strong>1（7）</td>
+<td>1</td>
+<td>10</td>
 </tr>
 <tr>
-<td colspan="11">
-<table>
-<tbody>
-<tr>
-<td><img src="docs/images/vessels/mmrnmhrm-x-form.png" width="180" alt="Mmrnmhrm X-Form"></td>
-<td><strong>武器：</strong>飛碟形態使用雙雷射；火箭形態使用追蹤飛彈。<br><strong>特殊能力：</strong>在飛碟與高速火箭形態之間切換。<br><strong>策略：</strong>依對手在靈活近戰及高速遠攻之間切換；變形需要完整能量，兩種形態各有明顯短板。</td>
-</tr>
-</tbody>
-</table>
-</td>
+<td colspan="10"><img src="docs/images/vessels/mmrnmhrm-x-form.png" width="140" align="left" hspace="8" alt="Mmrnmhrm X-Form"><strong>武器：</strong>飛碟形態使用雙雷射；火箭形態使用追蹤飛彈。<br><strong>特殊能力：</strong>在飛碟與高速火箭形態之間切換。<br><strong>策略：</strong>依對手在靈活近戰及高速遠攻之間切換；變形需要完整能量，兩種形態各有明顯短板。</td>
 </tr>
 <tr>
 <td rowspan="2"><strong>邁康・孢子艦</strong><br><em>Mycon Podship</em></td>
@@ -601,25 +500,15 @@ Sa-Matra 與 Ur-Quan Security Drone 不是可選船艦，因此不列入圖鑑�
 <td>40</td>
 <td>21</td>
 <td>27</td>
-<td>每 7 個戰鬥幀增加 9 個速度單位</td>
-<td>0.88 秒</td>
-<td>4.67 秒</td>
-<td>每 5 個戰鬥幀恢復 1</td>
-<td>每次 20</td>
-<td>每次船員再生消耗 40</td>
-<td>—</td>
+<td>1.29</td>
+<td>0.88</td>
+<td>4.67</td>
+<td>1（5）</td>
+<td>20</td>
+<td>40</td>
 </tr>
 <tr>
-<td colspan="11">
-<table>
-<tbody>
-<tr>
-<td><img src="docs/images/vessels/mycon-podship.png" width="180" alt="Mycon Podship"></td>
-<td><strong>武器：</strong>追蹤等離子體，威力隨飛行時間衰減。<br><strong>特殊能力：</strong>耗盡 40 能量，恢復最多 4 名船員。<br><strong>策略：</strong>適合遠距消耗及長局續戰；船體遲鈍，等離子體可被攔截且遠距命中時傷害較低。</td>
-</tr>
-</tbody>
-</table>
-</td>
+<td colspan="10"><img src="docs/images/vessels/mycon-podship.png" width="140" align="left" hspace="8" alt="Mycon Podship"><strong>武器：</strong>追蹤等離子體，威力隨飛行時間衰減。<br><strong>特殊能力：</strong>耗盡 40 能量，恢復最多 4 名船員。<br><strong>策略：</strong>適合遠距消耗及長局續戰；船體遲鈍，等離子體可被攔截且遠距命中時傷害較低。</td>
 </tr>
 <tr>
 <td rowspan="2"><strong>奧茲・復仇女神艦</strong><br><em>Orz Nemesis</em></td>
@@ -627,25 +516,15 @@ Sa-Matra 與 Ur-Quan Security Drone 不是可選船艦，因此不列入圖鑑�
 <td>20</td>
 <td>23</td>
 <td>35</td>
-<td>每 1 個戰鬥幀增加 5 個速度單位</td>
-<td>0.29 秒</td>
-<td>1.33 秒</td>
-<td>每 7 個戰鬥幀恢復 1</td>
-<td>每次 6</td>
-<td><strong>炮塔控制：</strong>0</td>
-<td><strong>太空陸戰隊：</strong>每隊暫時占用 1 名本艦船員</td>
+<td>5</td>
+<td>0.29</td>
+<td>1.33</td>
+<td>1（7）</td>
+<td>6</td>
+<td>0</td>
 </tr>
 <tr>
-<td colspan="11">
-<table>
-<tbody>
-<tr>
-<td><img src="docs/images/vessels/orz-nemesis.png" width="180" alt="Orz Nemesis"></td>
-<td><strong>武器：</strong>可獨立旋轉的炮塔；按住特殊能力鍵再按左右方向鍵可轉動炮塔。<br><strong>特殊能力：</strong>按住特殊能力鍵再按射擊鍵可派出太空陸戰隊；每隊暫時占用 1 名船員。<br><strong>策略：</strong>可一邊航行一邊向不同方向射擊，陸戰隊直接削減敵船員；過度部署會掏空本艦船員。</td>
-</tr>
-</tbody>
-</table>
-</td>
+<td colspan="10"><img src="docs/images/vessels/orz-nemesis.png" width="140" align="left" hspace="8" alt="Orz Nemesis"><strong>武器：</strong>可獨立旋轉的炮塔；按住特殊能力鍵再按左右方向鍵可轉動炮塔。<br><strong>特殊能力：</strong>按住特殊能力鍵再按射擊鍵可派出太空陸戰隊；每隊暫時占用 1 名船員。<br><strong>資源規則：</strong><strong>太空陸戰隊：</strong>每隊暫時占用 1 名本艦船員<br><strong>策略：</strong>可一邊航行一邊向不同方向射擊，陸戰隊直接削減敵船員；過度部署會掏空本艦船員。</td>
 </tr>
 <tr>
 <td rowspan="2"><strong>普坎克・狂怒艦</strong><br><em>Pkunk Fury</em></td>
@@ -653,25 +532,15 @@ Sa-Matra 與 Ur-Quan Security Drone 不是可選船艦，因此不列入圖鑑�
 <td>12</td>
 <td>20</td>
 <td>64</td>
-<td>每 1 個戰鬥幀增加 16 個速度單位</td>
-<td>0.17 秒</td>
-<td>0.67 秒</td>
-<td>沒有</td>
-<td>每次 1</td>
-<td>每次辱罵回復 2</td>
-<td>—</td>
+<td>16</td>
+<td>0.17</td>
+<td>0.67</td>
+<td>0</td>
+<td>1</td>
+<td>−2</td>
 </tr>
 <tr>
-<td colspan="11">
-<table>
-<tbody>
-<tr>
-<td><img src="docs/images/vessels/pkunk-fury.png" width="180" alt="Pkunk Fury"></td>
-<td><strong>武器：</strong>同時向前、左、右三向射擊。<br><strong>特殊能力：</strong>辱罵可回復 2 能量；被摧毀時有 50% 機率以滿狀態復活。<br><strong>策略：</strong>速度與轉向極佳，容易繞側面；船員少、單發傷害低，復活完全依賴機率。</td>
-</tr>
-</tbody>
-</table>
-</td>
+<td colspan="10"><img src="docs/images/vessels/pkunk-fury.png" width="140" align="left" hspace="8" alt="Pkunk Fury"><strong>武器：</strong>同時向前、左、右三向射擊。<br><strong>特殊能力：</strong>辱罵可回復 2 能量；被摧毀時有 50% 機率以滿狀態復活。<br><strong>策略：</strong>速度與轉向極佳，容易繞側面；船員少、單發傷害低，復活完全依賴機率。</td>
 </tr>
 <tr>
 <td rowspan="2"><strong>索菲克斯提・偵察艦</strong><br><em>Shofixti Scout</em></td>
@@ -679,25 +548,15 @@ Sa-Matra 與 Ur-Quan Security Drone 不是可選船艦，因此不列入圖鑑�
 <td>4</td>
 <td>5</td>
 <td>35</td>
-<td>每 1 個戰鬥幀增加 5 個速度單位</td>
-<td>0.29 秒</td>
-<td>1.33 秒</td>
-<td>每 10 個戰鬥幀恢復 1</td>
-<td>每次 1</td>
-<td><strong>榮光自爆裝置：</strong>0</td>
-<td>—</td>
+<td>5</td>
+<td>0.29</td>
+<td>1.33</td>
+<td>1（10）</td>
+<td>1</td>
+<td>0</td>
 </tr>
 <tr>
-<td colspan="11">
-<table>
-<tbody>
-<tr>
-<td><img src="docs/images/vessels/shofixti-scout.png" width="180" alt="Shofixti Scout"></td>
-<td><strong>武器：</strong>威力較弱的正面炮。<br><strong>特殊能力：</strong>連續觸發可啟動 Glory Device（榮光自爆裝置），對近敵造成巨量傷害。<br><strong>策略：</strong>低費用交換型船艦，常用來重創昂貴大船；常規戰力弱，自爆成功仍會失去本艦。</td>
-</tr>
-</tbody>
-</table>
-</td>
+<td colspan="10"><img src="docs/images/vessels/shofixti-scout.png" width="140" align="left" hspace="8" alt="Shofixti Scout"><strong>武器：</strong>威力較弱的正面炮。<br><strong>特殊能力：</strong>連續觸發可啟動 Glory Device（榮光自爆裝置），對近敵造成巨量傷害。<br><strong>策略：</strong>低費用交換型船艦，常用來重創昂貴大船；常規戰力弱，自爆成功仍會失去本艦。</td>
 </tr>
 <tr>
 <td rowspan="2"><strong>斯萊蘭卓・探測器</strong><br><em>Slylandro Probe</em></td>
@@ -705,25 +564,15 @@ Sa-Matra 與 Ur-Quan Security Drone 不是可選船艦，因此不列入圖鑑�
 <td>20</td>
 <td>17</td>
 <td><strong>固定：</strong>60</td>
-<td>瞬時維持固定高速，無法停船</td>
-<td>不適用，因為船艦永遠維持固定高速</td>
-<td>0.67 秒</td>
-<td>沒有</td>
-<td>每次 2</td>
-<td><strong>立即反轉：</strong>0</td>
-<td><strong>小行星充能：</strong>吸收完整小行星後補滿能量</td>
+<td>不適用</td>
+<td>不適用</td>
+<td>0.67</td>
+<td>0</td>
+<td>2</td>
+<td>0</td>
 </tr>
 <tr>
-<td colspan="11">
-<table>
-<tbody>
-<tr>
-<td><img src="docs/images/vessels/slylandro-probe.png" width="180" alt="Slylandro Probe"></td>
-<td><strong>武器：</strong>近距離追蹤閃電。<br><strong>特殊能力：</strong>吸收附近完整小行星以補滿能量，但不能吸收有限壽命的戰鬥碎屑；推進鍵會立即反轉 180 度。<br><strong>策略：</strong>永遠以最高速移動且免疫 Syreen 類船員移除效果，但仍會受一般傷害。沒有被動能量恢復，也不能停船。</td>
-</tr>
-</tbody>
-</table>
-</td>
+<td colspan="10"><img src="docs/images/vessels/slylandro-probe.png" width="140" align="left" hspace="8" alt="Slylandro Probe"><strong>武器：</strong>近距離追蹤閃電。<br><strong>特殊能力：</strong>吸收附近完整小行星以補滿能量，但不能吸收有限壽命的戰鬥碎屑；推進鍵會立即反轉 180 度。<br><strong>資源規則：</strong><strong>小行星充能：</strong>吸收完整小行星後補滿能量<br><strong>策略：</strong>永遠以最高速移動且免疫 Syreen 類船員移除效果，但仍會受一般傷害。沒有被動能量恢復，也不能停船。</td>
 </tr>
 <tr>
 <td rowspan="2"><strong>斯帕西・逃逸艦</strong><br><em>Spathi Eluder</em></td>
@@ -731,25 +580,15 @@ Sa-Matra 與 Ur-Quan Security Drone 不是可選船艦，因此不列入圖鑑�
 <td>10</td>
 <td>18</td>
 <td>48</td>
-<td>每 2 個戰鬥幀增加 12 個速度單位</td>
-<td>0.33 秒</td>
-<td>1.33 秒</td>
-<td>每 11 個戰鬥幀恢復 1</td>
-<td>每次 2</td>
-<td>每枚 B.U.T.T.（船尾追蹤）飛彈消耗 3</td>
-<td>—</td>
+<td>6</td>
+<td>0.33</td>
+<td>1.33</td>
+<td>1（11）</td>
+<td>2</td>
+<td>3</td>
 </tr>
 <tr>
-<td colspan="11">
-<table>
-<tbody>
-<tr>
-<td><img src="docs/images/vessels/spathi-eluder.png" width="180" alt="Spathi Eluder"></td>
-<td><strong>武器：</strong>船首弱彈。<br><strong>特殊能力：</strong>從船尾發射追蹤 B.U.T.T. 飛彈。<br><strong>策略：</strong>一面逃跑一面從後方射擊；速度快、船員多，但傷害較低，必須控制敵人位於船尾。</td>
-</tr>
-</tbody>
-</table>
-</td>
+<td colspan="10"><img src="docs/images/vessels/spathi-eluder.png" width="140" align="left" hspace="8" alt="Spathi Eluder"><strong>武器：</strong>船首弱彈。<br><strong>特殊能力：</strong>從船尾發射追蹤 B.U.T.T. 飛彈。<br><strong>策略：</strong>一面逃跑一面從後方射擊；速度快、船員多，但傷害較低，必須控制敵人位於船尾。</td>
 </tr>
 <tr>
 <td rowspan="2"><strong>蘇波克斯・刀鋒艦</strong><br><em>Supox Blade</em></td>
@@ -757,25 +596,15 @@ Sa-Matra 與 Ur-Quan Security Drone 不是可選船艦，因此不列入圖鑑�
 <td>16</td>
 <td>16</td>
 <td>40</td>
-<td>每 1 個戰鬥幀增加 8 個速度單位</td>
-<td>0.21 秒</td>
-<td>1.33 秒</td>
-<td>每 5 個戰鬥幀恢復 1</td>
-<td>每次 1</td>
-<td><strong>特殊移動：</strong>0，本版本的側移、後退與斜移均不扣能量</td>
-<td>—</td>
+<td>8</td>
+<td>0.21</td>
+<td>1.33</td>
+<td>1（5）</td>
+<td>1</td>
+<td>0</td>
 </tr>
 <tr>
-<td colspan="11">
-<table>
-<tbody>
-<tr>
-<td><img src="docs/images/vessels/supox-blade.png" width="180" alt="Supox Blade"></td>
-<td><strong>武器：</strong>快速正面彈。<br><strong>特殊能力：</strong>按住特殊能力鍵再按向上可後退；配合向左或向右可側移；同時按三鍵可後斜移，艦首方向不變。<br><strong>策略：</strong>保持瞄準同時閃避，操作上限高；船員少、常規射擊威力低，控制負擔較大。</td>
-</tr>
-</tbody>
-</table>
-</td>
+<td colspan="10"><img src="docs/images/vessels/supox-blade.png" width="140" align="left" hspace="8" alt="Supox Blade"><strong>武器：</strong>快速正面彈。<br><strong>特殊能力：</strong>按住特殊能力鍵再按向上可後退；配合向左或向右可側移；同時按三鍵可後斜移，艦首方向不變。<br><strong>策略：</strong>保持瞄準同時閃避，操作上限高；船員少、常規射擊威力低，控制負擔較大。</td>
 </tr>
 <tr>
 <td rowspan="2"><strong>賽琳・穿透艦</strong><br><em>Syreen Penetrator</em></td>
@@ -783,25 +612,15 @@ Sa-Matra 與 Ur-Quan Security Drone 不是可選船艦，因此不列入圖鑑�
 <td>16</td>
 <td>13</td>
 <td>36</td>
-<td>每 2 個戰鬥幀增加 9 個速度單位</td>
-<td>0.33 秒</td>
-<td>1.33 秒</td>
-<td>每 7 個戰鬥幀恢復 1</td>
-<td>每次 1</td>
-<td>每次船員召喚消耗 5</td>
-<td>—</td>
+<td>4.5</td>
+<td>0.33</td>
+<td>1.33</td>
+<td>1（7）</td>
+<td>1</td>
+<td>5</td>
 </tr>
 <tr>
-<td colspan="11">
-<table>
-<tbody>
-<tr>
-<td><img src="docs/images/vessels/syreen-penetrator.png" width="180" alt="Syreen Penetrator"></td>
-<td><strong>武器：</strong>正面炮。<br><strong>特殊能力：</strong>歌聲使範圍內敵艦船員飄出太空；碰觸漂浮船員可收編，最多可增至 42 人。<br><strong>策略：</strong>初始只有 12 人，但貼近高船員目標可迅速反轉兵力差；接近過程危險，對無船員目標效果差。</td>
-</tr>
-</tbody>
-</table>
-</td>
+<td colspan="10"><img src="docs/images/vessels/syreen-penetrator.png" width="140" align="left" hspace="8" alt="Syreen Penetrator"><strong>武器：</strong>正面炮。<br><strong>特殊能力：</strong>歌聲使範圍內敵艦船員飄出太空；碰觸漂浮船員可收編，最多可增至 42 人。<br><strong>策略：</strong>初始只有 12 人，但貼近高船員目標可迅速反轉兵力差；接近過程危險，對無船員目標效果差。</td>
 </tr>
 <tr>
 <td rowspan="2"><strong>瑟拉達什・火炬艦</strong><br><em>Thraddash Torch</em></td>
@@ -809,25 +628,15 @@ Sa-Matra 與 Ur-Quan Security Drone 不是可選船艦，因此不列入圖鑑�
 <td>24</td>
 <td>10</td>
 <td><strong>一般：</strong>28<br><strong>後燃器：</strong>72</td>
-<td><strong>一般：</strong>每 1 個戰鬥幀增加 7 個速度單位<br><strong>後燃器：</strong>每 1 個戰鬥幀增加 12 個速度單位</td>
-<td><strong>一般：</strong>0.17 秒<br><strong>後燃器：</strong>隨脈衝動態變化</td>
-<td>1.33 秒</td>
-<td>每 7 個戰鬥幀恢復 1</td>
-<td>每次 2</td>
-<td>每次後燃器脈衝消耗 1</td>
-<td>—</td>
+<td><strong>一般：</strong>7<br><strong>後燃器：</strong>12</td>
+<td><strong>一般：</strong>0.17<br><strong>後燃器：</strong>隨脈衝動態變化</td>
+<td>1.33</td>
+<td>1（7）</td>
+<td>2</td>
+<td>1</td>
 </tr>
 <tr>
-<td colspan="11">
-<table>
-<tbody>
-<tr>
-<td><img src="docs/images/vessels/thraddash-torch.png" width="180" alt="Thraddash Torch"></td>
-<td><strong>武器：</strong>威力較低的常規炮。<br><strong>特殊能力：</strong>後燃器提供極高速並留下可傷敵的火焰軌跡。<br><strong>策略：</strong>以爆發速度突襲、脫離或引誘追兵撞進火焰；船員少，成果高度依賴路線與能量管理。</td>
-</tr>
-</tbody>
-</table>
-</td>
+<td colspan="10"><img src="docs/images/vessels/thraddash-torch.png" width="140" align="left" hspace="8" alt="Thraddash Torch"><strong>武器：</strong>威力較低的常規炮。<br><strong>特殊能力：</strong>後燃器提供極高速並留下可傷敵的火焰軌跡。<br><strong>策略：</strong>以爆發速度突襲、脫離或引誘追兵撞進火焰；船員少，成果高度依賴路線與能量管理。</td>
 </tr>
 <tr>
 <td rowspan="2"><strong>烏姆加・無人機</strong><br><em>Umgah Drone</em></td>
@@ -835,25 +644,15 @@ Sa-Matra 與 Ur-Quan Security Drone 不是可選船艦，因此不列入圖鑑�
 <td>30</td>
 <td>7</td>
 <td>18</td>
-<td>每 4 個戰鬥幀增加 6 個速度單位</td>
-<td>0.50 秒</td>
-<td>3.33 秒</td>
-<td>每 151 個戰鬥幀恢復 30</td>
+<td>1.5</td>
+<td>0.50</td>
+<td>3.33</td>
+<td>30（151）</td>
 <td>0</td>
-<td>每次倒衝消耗 1</td>
-<td>—</td>
+<td>1</td>
 </tr>
 <tr>
-<td colspan="11">
-<table>
-<tbody>
-<tr>
-<td><img src="docs/images/vessels/umgah-drone.png" width="180" alt="Umgah Drone"></td>
-<td><strong>武器：</strong>船首連續反物質錐，可摧毀近距離彈體。<br><strong>特殊能力：</strong>朝後方高速衝刺。<br><strong>策略：</strong>倒衝瞬間貼近或逃離，再以錐形武器磨碎敵人；射程極短、轉向慢，操作不直覺。</td>
-</tr>
-</tbody>
-</table>
-</td>
+<td colspan="10"><img src="docs/images/vessels/umgah-drone.png" width="140" align="left" hspace="8" alt="Umgah Drone"><strong>武器：</strong>船首連續反物質錐，可摧毀近距離彈體。<br><strong>特殊能力：</strong>朝後方高速衝刺。<br><strong>策略：</strong>倒衝瞬間貼近或逃離，再以錐形武器磨碎敵人；射程極短、轉向慢，操作不直覺。</td>
 </tr>
 <tr>
 <td rowspan="2"><strong>烏爾關・無畏艦</strong><br><em>Ur-Quan Dreadnought</em></td>
@@ -861,25 +660,15 @@ Sa-Matra 與 Ur-Quan Security Drone 不是可選船艦，因此不列入圖鑑�
 <td>42</td>
 <td>30</td>
 <td>30</td>
-<td>每 7 個戰鬥幀增加 6 個速度單位</td>
-<td>1.46 秒</td>
-<td>3.33 秒</td>
-<td>每 5 個戰鬥幀恢復 1</td>
-<td>每次 6</td>
-<td>每次啟動消耗 8 能量</td>
-<td>最多派出兩架戰鬥機；每架暫時占用 1 名船員</td>
+<td>0.86</td>
+<td>1.46</td>
+<td>3.33</td>
+<td>1（5）</td>
+<td>6</td>
+<td>8</td>
 </tr>
 <tr>
-<td colspan="11">
-<table>
-<tbody>
-<tr>
-<td><img src="docs/images/vessels/ur-quan-dreadnought.png" width="180" alt="Ur-Quan Dreadnought"></td>
-<td><strong>武器：</strong>正面重型融合彈。<br><strong>特殊能力：</strong>每次啟動最多派出兩架戰鬥機，每架暫時占用 1 名船員；返艦後歸隊，被毀則永久損失。<br><strong>策略：</strong>耐久、火力及持續騷擾俱佳；體型與轉向是主要弱點，戰鬥機也可能造成實質船員損失。</td>
-</tr>
-</tbody>
-</table>
-</td>
+<td colspan="10"><img src="docs/images/vessels/ur-quan-dreadnought.png" width="140" align="left" hspace="8" alt="Ur-Quan Dreadnought"><strong>武器：</strong>正面重型融合彈。<br><strong>特殊能力：</strong>每次啟動最多派出兩架戰鬥機，每架暫時占用 1 名船員；返艦後歸隊，被毀則永久損失。<br><strong>資源規則：</strong>最多派出兩架戰鬥機；每架暫時占用 1 名船員<br><strong>策略：</strong>耐久、火力及持續騷擾俱佳；體型與轉向是主要弱點，戰鬥機也可能造成實質船員損失。</td>
 </tr>
 <tr>
 <td rowspan="2"><strong>烏特維格・巨獸艦</strong><br><em>Utwig Jugger</em></td>
@@ -887,25 +676,15 @@ Sa-Matra 與 Ur-Quan Security Drone 不是可選船艦，因此不列入圖鑑�
 <td><strong>初始：</strong>10<br><strong>上限：</strong>20</td>
 <td>22</td>
 <td>36</td>
-<td>每 7 個戰鬥幀增加 6 個速度單位</td>
-<td>1.75 秒</td>
-<td>1.33 秒</td>
-<td>沒有</td>
+<td>0.86</td>
+<td>1.75</td>
+<td>1.33</td>
 <td>0</td>
-<td>每次護盾脈衝消耗 1；吸收武器傷害可回復能量</td>
-<td>—</td>
+<td>0</td>
+<td>1</td>
 </tr>
 <tr>
-<td colspan="11">
-<table>
-<tbody>
-<tr>
-<td><img src="docs/images/vessels/utwig-jugger.png" width="180" alt="Utwig Jugger"></td>
-<td><strong>武器：</strong>免費的多管正面齊射。<br><strong>特殊能力：</strong>護盾消耗能量，但把吸收的武器傷害轉成能量。<br><strong>策略：</strong>可反制高傷害彈體；沒有自然能量恢復，過早或空按護盾會耗乾電池，部分特殊攻擊也能繞過優勢。</td>
-</tr>
-</tbody>
-</table>
-</td>
+<td colspan="10"><img src="docs/images/vessels/utwig-jugger.png" width="140" align="left" hspace="8" alt="Utwig Jugger"><strong>武器：</strong>免費的多管正面齊射。<br><strong>特殊能力：</strong>護盾消耗能量，但把吸收的武器傷害轉成能量。<br><strong>策略：</strong>可反制高傷害彈體；沒有自然能量恢復，過早或空按護盾會耗乾電池，部分特殊攻擊也能繞過優勢。</td>
 </tr>
 <tr>
 <td rowspan="2"><strong>VUX・入侵艦</strong><br><em>VUX Intruder</em></td>
@@ -913,25 +692,15 @@ Sa-Matra 與 Ur-Quan Security Drone 不是可選船艦，因此不列入圖鑑�
 <td>40</td>
 <td>12</td>
 <td>21</td>
-<td>每 5 個戰鬥幀增加 7 個速度單位</td>
-<td>0.63 秒</td>
-<td>4.67 秒</td>
-<td>每 9 個戰鬥幀恢復 1</td>
-<td>每次 1</td>
-<td>每個寄生體消耗 2</td>
-<td>—</td>
+<td>1.4</td>
+<td>0.63</td>
+<td>4.67</td>
+<td>1（9）</td>
+<td>1</td>
+<td>2</td>
 </tr>
 <tr>
-<td colspan="11">
-<table>
-<tbody>
-<tr>
-<td><img src="docs/images/vessels/vux-intruder.png" width="180" alt="VUX Intruder"></td>
-<td><strong>武器：</strong>近距離連續雷射。<br><strong>特殊能力：</strong>追蹤寄生體命中後會永久降低敵艦極速、加速與轉向；開戰時常躍遷到接近敵艦的位置。<br><strong>策略：</strong>初始位置有利時可立即壓制；寄生體可拖垮對手，但本艦極慢，突擊失敗後容易被風箏。</td>
-</tr>
-</tbody>
-</table>
-</td>
+<td colspan="10"><img src="docs/images/vessels/vux-intruder.png" width="140" align="left" hspace="8" alt="VUX Intruder"><strong>武器：</strong>近距離連續雷射。<br><strong>特殊能力：</strong>追蹤寄生體命中後會永久降低敵艦極速、加速與轉向；開戰時常躍遷到接近敵艦的位置。<br><strong>策略：</strong>初始位置有利時可立即壓制；寄生體可拖垮對手，但本艦極慢，突擊失敗後容易被風箏。</td>
 </tr>
 <tr>
 <td rowspan="2"><strong>耶哈特・終結艦</strong><br><em>Yehat Terminator</em></td>
@@ -939,25 +708,15 @@ Sa-Matra 與 Ur-Quan Security Drone 不是可選船艦，因此不列入圖鑑�
 <td>10</td>
 <td>23</td>
 <td>30</td>
-<td>每 3 個戰鬥幀增加 6 個速度單位</td>
-<td>0.63 秒</td>
-<td>2.00 秒</td>
-<td>每 7 個戰鬥幀恢復 2</td>
-<td>每次 1</td>
-<td>每次護盾脈衝消耗 3</td>
-<td>—</td>
+<td>2</td>
+<td>0.63</td>
+<td>2.00</td>
+<td>2（7）</td>
+<td>1</td>
+<td>3</td>
 </tr>
 <tr>
-<td colspan="11">
-<table>
-<tbody>
-<tr>
-<td><img src="docs/images/vessels/yehat-terminator.png" width="180" alt="Yehat Terminator"></td>
-<td><strong>武器：</strong>快速雙炮。<br><strong>特殊能力：</strong>短暫全向護盾。<br><strong>策略：</strong>加速與轉向良好，可在護盾間隙換血；能量槽小，連續誤開會迅速失去防禦。</td>
-</tr>
-</tbody>
-</table>
-</td>
+<td colspan="10"><img src="docs/images/vessels/yehat-terminator.png" width="140" align="left" hspace="8" alt="Yehat Terminator"><strong>武器：</strong>快速雙炮。<br><strong>特殊能力：</strong>短暫全向護盾。<br><strong>策略：</strong>加速與轉向良好，可在護盾間隙換血；能量槽小，連續誤開會迅速失去防禦。</td>
 </tr>
 <tr>
 <td rowspan="2"><strong>佐克－福特－皮克・毒刺艦</strong><br><em>Zoq-Fot-Pik Stinger</em></td>
@@ -965,28 +724,20 @@ Sa-Matra 與 Ur-Quan Security Drone 不是可選船艦，因此不列入圖鑑�
 <td>10</td>
 <td>6</td>
 <td>40</td>
-<td>每 1 個戰鬥幀增加 10 個速度單位</td>
-<td>0.17 秒</td>
-<td>1.33 秒</td>
-<td>每 5 個戰鬥幀恢復 1</td>
-<td>每次 1</td>
-<td>每次舌擊消耗 7</td>
-<td>—</td>
+<td>10</td>
+<td>0.17</td>
+<td>1.33</td>
+<td>1（5）</td>
+<td>1</td>
+<td>7</td>
 </tr>
 <tr>
-<td colspan="11">
-<table>
-<tbody>
-<tr>
-<td><img src="docs/images/vessels/zoq-fot-pik-stinger.png" width="180" alt="Zoq-Fot-Pik Stinger"></td>
-<td><strong>武器：</strong>威力較弱的正面彈。<br><strong>特殊能力：</strong>極短距離舌擊，消耗 7 能量並造成 12 傷害。<br><strong>策略：</strong>低費用伏擊艦，貼身舌擊能意外擊殺昂貴目標；船員少，舌擊距離非常短。</td>
+<td colspan="10"><img src="docs/images/vessels/zoq-fot-pik-stinger.png" width="140" align="left" hspace="8" alt="Zoq-Fot-Pik Stinger"><strong>武器：</strong>威力較弱的正面彈。<br><strong>特殊能力：</strong>極短距離舌擊，消耗 7 能量並造成 12 傷害。<br><strong>策略：</strong>低費用伏擊艦，貼身舌擊能意外擊殺昂貴目標；船員少，舌擊距離非常短。</td>
 </tr>
 </tbody>
 </table>
-</td>
-</tr>
-</tbody>
-</table>
+
+<p><sup>1</sup> 船員人數；只有初始值與上限不同時才分列。<br><sup>2</sup> 能量單位；只有初始值與上限不同時才分列。<br><sup>3</sup> Super Melee 編隊點數。<br><sup>4</sup> 引擎內部速度單位。<br><sup>5</sup> 每 1 個戰鬥幀增加的速度單位；非整數四捨五入至小數點後兩位。<br><sup>6</sup> 由靜止加速至極速所需秒數。<br><sup>7</sup> 完成 360 度自轉所需秒數。<br><sup>8</sup> 每一回復週期增加的能量；括號內為週期所需戰鬥幀，0 表示沒有自然恢復。<br><sup>9</sup> 每次發射主武器消耗的能量。<br><sup>10</sup> 每次使用特殊能力消耗的能量；負數表示回復，括號內為持續消耗週期所需戰鬥幀，— 表示不以能量驅動。</p>
 
 ### 先驅者旗艦（戰役專用） / Precursor Flagship
 
