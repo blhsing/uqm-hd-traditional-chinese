@@ -744,6 +744,7 @@ foreach ($specification in $shortcutSpecifications) {
         Kind = $specification.Kind
         Path = Get-UqmFullPath -Path $specification.Path
         Target = Get-UqmFullPath -Path $specification.Target
+        IconLocation = $specification.IconLocation
         Arguments = $specification.Arguments
         WorkingDirectory = Get-UqmFullPath -Path $specification.WorkingDirectory
         ResolutionFactor = $specification.ResolutionFactor

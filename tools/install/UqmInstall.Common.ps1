@@ -343,6 +343,7 @@ function Get-UqmShortcutSpecifications {
     $install = Get-UqmFullPath -Path $InstallRoot
     $profile = Get-UqmFullPath -Path $ProfileDir
     $exe = Join-UqmContainedPath -Root $install -RelativePath 'uqm.exe'
+    $icon = Join-UqmContainedPath -Root $install -RelativePath 'icon.ico'
     $desktop = Get-UqmFullPath -Path ([Environment]::GetFolderPath([Environment+SpecialFolder]::DesktopDirectory))
     $programs = Get-UqmFullPath -Path ([Environment]::GetFolderPath([Environment+SpecialFolder]::Programs))
     if ([string]::IsNullOrWhiteSpace($desktop) -or [string]::IsNullOrWhiteSpace($programs)) {
@@ -361,6 +362,7 @@ function Get-UqmShortcutSpecifications {
             Kind = 'desktop-default'
             Path = Join-Path -Path $desktop -ChildPath $mainLeaf
             Target = $exe
+            IconLocation = $icon + ',0'
             Arguments = Get-UqmLaunchArguments -ResolutionFactor 2 -Addon 'hires4x-zh_TW' -ProfileDir $profile -Fullscreen
             WorkingDirectory = $install
             ResolutionFactor = 2
@@ -371,6 +373,7 @@ function Get-UqmShortcutSpecifications {
             Kind = 'start-menu-default'
             Path = Join-Path -Path $startFolder -ChildPath $mainLeaf
             Target = $exe
+            IconLocation = $icon + ',0'
             Arguments = Get-UqmLaunchArguments -ResolutionFactor 2 -Addon 'hires4x-zh_TW' -ProfileDir $profile -Fullscreen
             WorkingDirectory = $install
             ResolutionFactor = 2
@@ -381,6 +384,7 @@ function Get-UqmShortcutSpecifications {
             Kind = 'install-root-1x'
             Path = Join-Path -Path $install -ChildPath 'Launch UQM-HD zh-TW (1x).lnk'
             Target = $exe
+            IconLocation = $icon + ',0'
             Arguments = Get-UqmLaunchArguments -ResolutionFactor 0 -Addon 'zh_TW' -ProfileDir $profile
             WorkingDirectory = $install
             ResolutionFactor = 0
@@ -391,6 +395,7 @@ function Get-UqmShortcutSpecifications {
             Kind = 'install-root-2x'
             Path = Join-Path -Path $install -ChildPath 'Launch UQM-HD zh-TW (2x).lnk'
             Target = $exe
+            IconLocation = $icon + ',0'
             Arguments = Get-UqmLaunchArguments -ResolutionFactor 1 -Addon 'hires2x-zh_TW' -ProfileDir $profile
             WorkingDirectory = $install
             ResolutionFactor = 1
@@ -401,6 +406,7 @@ function Get-UqmShortcutSpecifications {
             Kind = 'install-root-4x'
             Path = Join-Path -Path $install -ChildPath 'Launch UQM-HD zh-TW (4x).lnk'
             Target = $exe
+            IconLocation = $icon + ',0'
             Arguments = Get-UqmLaunchArguments -ResolutionFactor 2 -Addon 'hires4x-zh_TW' -ProfileDir $profile
             WorkingDirectory = $install
             ResolutionFactor = 2
@@ -446,6 +452,7 @@ function Test-UqmShortcutMatches {
     if (-not (Test-UqmPathEqual -Left $Actual.Target -Right $Expected.Target)) { return $false }
     if (-not (Test-UqmPathEqual -Left $Actual.WorkingDirectory -Right $Expected.WorkingDirectory)) { return $false }
     if (-not [string]::Equals($Actual.Arguments, $Expected.Arguments, [StringComparison]::Ordinal)) { return $false }
+    if (-not [string]::Equals($Actual.IconLocation, $Expected.IconLocation, [StringComparison]::OrdinalIgnoreCase)) { return $false }
     return $true
 }
 
@@ -500,7 +507,7 @@ function Write-UqmShortcut {
             $shortcut.TargetPath = $Specification.Target
             $shortcut.Arguments = $Specification.Arguments
             $shortcut.WorkingDirectory = $Specification.WorkingDirectory
-            $shortcut.IconLocation = $Specification.Target + ',0'
+            $shortcut.IconLocation = $Specification.IconLocation
             $shortcut.Description = 'The Ur-Quan Masters HD - Traditional Chinese'
             $shortcut.Save()
         }
@@ -515,7 +522,7 @@ function Write-UqmShortcut {
     try {
         $written = Get-UqmShortcutDetails -Path $temporary
         if (-not (Test-UqmShortcutMatches -Actual $written -Expected $Specification)) {
-            throw "The staged shortcut did not retain its exact target and arguments: $path"
+            throw "The staged shortcut did not retain its exact target, arguments, working directory, and icon: $path"
         }
         Move-UqmStagedFileIntoPlace -StagedPath $temporary -DestinationPath $path
     }

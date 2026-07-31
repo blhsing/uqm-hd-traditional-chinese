@@ -41,6 +41,44 @@ def _run_powershell(script: str, *, prefer_windows_51: bool = False) -> str:
 
 
 class InstallerLifecycleTests(unittest.TestCase):
+    def test_shortcuts_use_the_installed_icon_file(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            install = root / "install"
+            profile = root / "profile"
+            install.mkdir()
+            profile.mkdir()
+            (install / "uqm.exe").write_bytes(b"not-a-real-executable")
+            (install / "icon.ico").write_bytes(b"not-a-real-icon")
+            shortcut = root / "test.lnk"
+            script = f"""
+. '{_quote(COMMON)}'
+$specifications = @(Get-UqmShortcutSpecifications `
+  -InstallRoot '{_quote(install)}' -ProfileDir '{_quote(profile)}')
+$expectedIcon = (Get-UqmFullPath -Path '{_quote(install / "icon.ico")}') + ',0'
+if (@($specifications | Where-Object {{
+  -not [string]::Equals($_.IconLocation, $expectedIcon, [StringComparison]::OrdinalIgnoreCase)
+}}).Count -ne 0) {{ throw 'A shortcut specification does not use icon.ico.' }}
+$specification = $specifications[0]
+$specification.Path = '{_quote(shortcut)}'
+$specification.AllowedRoot = '{_quote(root)}'
+[void](Write-UqmShortcut -Specification $specification)
+$actual = Get-UqmShortcutDetails -Path '{_quote(shortcut)}'
+[pscustomobject]@{{
+  Count = $specifications.Count
+  IconLocation = $actual.IconLocation
+  Matches = Test-UqmShortcutMatches -Actual $actual -Expected $specification
+}} | ConvertTo-Json -Compress
+"""
+            result = json.loads(_run_powershell(script))
+
+        self.assertEqual(result["Count"], 5)
+        self.assertEqual(
+            result["IconLocation"].lower(),
+            f"{install / 'icon.ico'},0".lower(),
+        )
+        self.assertTrue(result["Matches"])
+
     def test_stale_file_plan_is_read_only_and_removal_is_hash_gated(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             install = Path(temporary) / "install"

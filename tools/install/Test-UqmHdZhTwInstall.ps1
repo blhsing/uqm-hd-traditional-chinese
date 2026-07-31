@@ -335,7 +335,7 @@ try {
             }
             $actual = Get-UqmShortcutDetails -Path $shortcutPath
             if (-not (Test-UqmShortcutMatches -Actual $actual -Expected $expected)) {
-                throw "Shortcut target, arguments, or working directory differs: $shortcutPath"
+                throw "Shortcut target, arguments, working directory, or icon differs: $shortcutPath"
             }
 
             $markerShortcut = $null
@@ -348,6 +348,7 @@ try {
                 throw "Marker does not list the expected shortcut: $shortcutPath"
             }
             if (-not (Test-UqmPathEqual -Left ([string]$markerShortcut.Target) -Right $expected.Target) -or
+                -not [string]::Equals([string]$markerShortcut.IconLocation, [string]$expected.IconLocation, [StringComparison]::OrdinalIgnoreCase) -or
                 -not (Test-UqmPathEqual -Left ([string]$markerShortcut.WorkingDirectory) -Right $expected.WorkingDirectory) -or
                 -not [string]::Equals([string]$markerShortcut.Arguments, [string]$expected.Arguments, [StringComparison]::Ordinal) -or
                 [int]$markerShortcut.ResolutionFactor -ne [int]$expected.ResolutionFactor -or
