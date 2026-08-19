@@ -23,6 +23,6 @@ define act_objcc
 endef
 
 define act_link
-	$(LINK) -o "$@" $^ $(LDFLAGS)
+	$(file >$@.rsp,$^ $(LDFLAGS))
+	$(LINK) -o "$@" @"$@.rsp"
 endef
-

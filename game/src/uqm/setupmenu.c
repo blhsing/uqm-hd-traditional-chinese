@@ -1170,8 +1170,8 @@ GetGlobalOptions (GLOBALOPTS *opts)
 	opts->loresBlowup = res_GetInteger ("config.loresBlowupScale");
 	opts->driver = OPTVAL_PURE_IF_POSSIBLE;
 	
-	// JMS_GFX: 1280x960
-	if (resolutionFactor == 2)
+	// Native fullscreen supersampling uses the existing high-resolution menu slot.
+	if (resolutionFactor >= 2)
 	{
 		opts->res = OPTVAL_REAL_1280_960;
 		opts->loresBlowup = NO_BLOWUP;	
@@ -1283,15 +1283,15 @@ SetGlobalOptions (GLOBALOPTS *opts)
 			forceAspectRatio = FALSE;
 			break;
 		case OPTVAL_REAL_1280_960:
-			NewWidth = 1280;
-			NewHeight = 960;
+			NewWidth = 1920;
+			NewHeight = 1080;
 #ifdef HAVE_OPENGL	       
 			NewDriver = TFB_GFXDRIVER_SDL_OPENGL;
 #else
 			NewDriver = TFB_GFXDRIVER_SDL_PURE;
 #endif
-			resolutionFactor = 2;
-			forceAspectRatio = FALSE;
+			resolutionFactor = 3;
+			forceAspectRatio = TRUE;
 			break;
 		default:
 			/* Don't mess with the custom value */
@@ -1435,8 +1435,8 @@ SetGlobalOptions (GLOBALOPTS *opts)
 	{
 		NewGfxFlags |= TFB_GFXFLAGS_FULLSCREEN;
 		
-		// JMS: Force the usage of bilinear scaler in 1280x960 and 640x480 fullscreen.
-		if ((NewWidth == 1280 || NewWidth == 640) && resolutionFactor > 0)
+		// Smoothly downsample the high-resolution logical canvas in fullscreen.
+		if (resolutionFactor > 0)
 		{
 			NewGfxFlags |= TFB_GFXFLAGS_SCALE_BILINEAR;
 			res_PutString ("config.scaler", "bilinear");
@@ -1450,7 +1450,7 @@ SetGlobalOptions (GLOBALOPTS *opts)
 		// When running in windowed mode, the image isn't stretched,
 		// thus using a scaler would yield no benefits.
 		// Not using a scaler should make the performance a little better.
-		if (NewWidth == 1280 || NewWidth == 640)
+		if (resolutionFactor < 3 && (NewWidth == 1280 || NewWidth == 640))
 		{
 			NewGfxFlags &= ~TFB_GFXFLAGS_SCALE_BILINEAR;
 			res_PutString ("config.scaler", "bilinear");

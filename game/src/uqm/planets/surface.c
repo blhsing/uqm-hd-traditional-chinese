@@ -283,7 +283,7 @@ GenerateRandomLocation (SYSTEM_INFO *SysInfoPtr)
 	SysInfoPtr->PlanetInfo.CurPt.y += 8 << RESOLUTION_FACTOR; // JMS_GFX
 	
 	// JMS_GFX: Compensate for 1280x960's different aspect ratio
-	if (RESOLUTION_FACTOR == 2)
+	if (RESOLUTION_FACTOR >= 2)
 	{
 		DWORD xx = (DWORD)SysInfoPtr->PlanetInfo.CurPt.x;
 		xx *= 111;

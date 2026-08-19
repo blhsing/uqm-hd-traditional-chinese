@@ -7,7 +7,7 @@ These scripts install the extracted UQM-HD Beta 1 tree as a managed portable cop
 The installer always requires:
 
 - `SourceRoot`: extracted upstream Windows tree containing `content/addons` (normally `staging/UQM-HD`)
-- `PacksDir`: build-output directory containing `hires4x-zh_TW.uqm`
+- `PacksDir`: build-output directory containing `native1080-zh_TW.uqm`
 - `InstallRoot`: portable destination (default `C:\Games\UQM-HD-TW`)
 - `ProfileDir`: isolated user configuration/save directory (default `%APPDATA%\UQM-HD-zh_TW`)
 
@@ -18,15 +18,10 @@ exact length and SHA-256. The manifest maps its source executable (normally
 must also contain a non-empty `LICENSES` directory. This path does not require
 Python and never applies legacy binary patches.
 
-The v0.4.1 release reuses the runtime first shipped in v0.3.2. It was built
-from the clean 1,043-file `game/` tree at
-source commit `7981479c611b60af041d05ec01a40791eb993f51`. Its manifest records
-20 PE32 payloads, 27 license files, and zero unresolved non-system imports:
-
-| Artifact | Bytes | SHA-256 |
-| --- | ---: | --- |
-| `uqm-hd.exe` | 3,022,388 | `6f33a1b73a38ce5e4a7045a67a5f520eaaa15a8c16eaa8f169d0cff5ecc2364f` |
-| `runtime-manifest.json` | 27,388 | `478bfc840a080977ca65fa366502b04d57d4e473405a93504e7c4c0a5bd58f5c` |
+The v0.5.0 runtime is built from this repository's clean `game/` tree. Its
+manifest records every PE32 payload and license file, the complete import graph,
+and zero unresolved non-system imports. Exact release hashes are published in
+the archive's `SHA256SUMS` file and in the v0.5.0 release notes.
 
 The release archive includes this GPL source-built runtime and its dependency
 licenses, but not the upstream game's original content. `SourceRoot` must
@@ -80,7 +75,7 @@ upstream `uqm.exe`, and Python 3.10 or newer must be available on `PATH`. That
 fallback copies the upstream executable and applies the audited, hash-gated PE
 patch pipeline only to the destination copy.
 
-Run a validation-only rehearsal first. `-PlanOnly` reads and validates the source and the self-contained 4x pack, but does not create the destination, profile, marker, or shortcuts:
+Run a validation-only rehearsal first. `-PlanOnly` reads and validates the source and the self-contained native-1080p pack, but does not create the destination, profile, marker, or shortcuts:
 
 ```powershell
 powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\tools\install\Install-UqmHdZhTw.ps1 `
@@ -108,18 +103,16 @@ The installer creates a top-level Start Menu shortcut named
 at the primary display's detected native resolution. On this host it is:
 
 ```text
-uqm.exe -o -r 1920x1080 -f -k -c none --resfactor=2 -C "%APPDATA%\UQM-HD-zh_TW" --addon hires4x-zh_TW
+uqm.exe -o -r 1920x1080 -f -k -c bilinear --resfactor=3 -C "%APPDATA%\UQM-HD-zh_TW" --addon native1080-zh_TW
 ```
 
-This is the legible 4x profile for this host. The installer detects the native
-surface instead of assuming 1920x1080. The engine's logical canvas remains
-4:3 (1280x960); OpenGL scales it to 1440x1080 and centers it on the 1920x1080
-display with pillarboxes. Nearest-neighbor scaling (`-c none`) keeps the Chinese
-bitmap glyphs crisp.
-
-One local shortcut in the install root provides a native-size 1280x960 windowed
-4x mode. The installer removes its own obsolete 1x/2x packs and shortcuts during
-an upgrade; those tiers are no longer supported by the Traditional-Chinese build.
+This is the legible native-1080p profile for this host. The installer detects
+the primary display surface instead of assuming 1920x1080. The engine renders a
+4:3 2560x1920 supersampled logical canvas; OpenGL uses bilinear filtering to
+downsample it to 1440x1080 and centers it on the 1920x1080 display with
+pillarboxes. The installer removes its own obsolete 1x/2x/4x packs and
+shortcuts during an upgrade; those tiers are no longer supported by the
+Traditional-Chinese release.
 
 During an active Super Melee bout, `Escape` ends that bout by clearing only the
 `IN_BATTLE` state and returns to the Super Melee setup screen. This behavior is
@@ -154,14 +147,12 @@ dialogue, menus, and localized add-on data remain Traditional Chinese.
 ## Verification
 
 The default verification is intentionally thorough: it checks every managed
-file's length and SHA-256 against the install manifest, validates the 4x
+file's length and SHA-256 against the install manifest, validates the native-1080p
 ZIP-compatible UQM archives, compares packs with the build output when it is
 available, independently checks all shortcut targets/arguments/working
-directories, and runs a hidden 12-second 4x fullscreen smoke test. The smoke
-log must confirm the `hires4x-zh_TW` add-on and the primary display's detected
-native rendering surface. The finalized v0.4.1 installation contains 11,532
-managed files and passes all 13 verifier checks; the repository's automated
-suite passes all 60 tests.
+directories, and runs a hidden 12-second fullscreen smoke test. The smoke log
+must confirm the `native1080-zh_TW` add-on, resolution factor 3, bilinear
+filtering, and the primary display's detected native rendering surface.
 
 ```powershell
 powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\tools\install\Test-UqmHdZhTwInstall.ps1 `

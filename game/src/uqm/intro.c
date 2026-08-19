@@ -478,7 +478,7 @@ DoPresentation (void *pIS)
 			if (!pPIS->Batched)
 				UnlockMutex (GraphicsLock);
 		}
-		else if (strcmp (Opcode, "FONT4X") == 0 && RESOLUTION_FACTOR == 2)
+		else if (strcmp (Opcode, "FONT4X") == 0 && RESOLUTION_FACTOR >= 2)
 		{	/* set and/or load a font */
 			int index;
 			FONT *pFont;
@@ -528,7 +528,7 @@ DoPresentation (void *pIS)
 				DestroyDrawable (ReleaseDrawable (pPIS->Frame));
 			pPIS->Frame = CaptureDrawable (LoadGraphicFile (pPIS->Buffer));
 		}
-		else if (strcmp (Opcode, "ANI4X") == 0 && RESOLUTION_FACTOR == 2)
+		else if (strcmp (Opcode, "ANI4X") == 0 && RESOLUTION_FACTOR >= 2)
 		{	/* set ani */
 			utf8StringCopy (pPIS->Buffer, sizeof (pPIS->Buffer), pStr);
 			if (pPIS->Frame)

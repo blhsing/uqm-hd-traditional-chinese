@@ -273,7 +273,7 @@ main (int argc, char *argv[])
 		INIT_CONFIG_OPTION(  sfxVolumeScale,    1.0f ),
 		INIT_CONFIG_OPTION(  speechVolumeScale, 0.3f ),
 		INIT_CONFIG_OPTION(  safeMode,          false ),
-		INIT_CONFIG_OPTION(  resolutionFactor,  2 ),
+		INIT_CONFIG_OPTION(  resolutionFactor,  3 ),
 		INIT_CONFIG_OPTION(  forceAspectRatio,  false ),
 		INIT_CONFIG_OPTION(  loresBlowupScale,  0 ),
 		INIT_CONFIG_OPTION(  mainmenuMusic,     true ),
@@ -1123,9 +1123,9 @@ parseOptions (int argc, char *argv[], struct options_struct *options)
 				}
 				options->resolutionFactor.value = temp;
 
-				if (options->resolutionFactor.value > 2)
+				if (options->resolutionFactor.value > 3)
 				{
-					saveError ("Resolution factor has to be 0, 1 or 2.");
+					saveError ("Resolution factor has to be 0, 1, 2 or 3.");
 					badArg = true;
 				}
 				options->resolutionFactor.set = true;

@@ -13,13 +13,13 @@ import zipfile
 
 
 PACKS = {
-    "hires4x-zh_TW.uqm": (
-        91_567_383,
-        "b535d19283cf4afdb4482fc517eeef247c53ab6f5bb53b78996470ad035bd7e2",
+    "native1080-zh_TW.uqm": (
+        189_687_374,
+        "f24d1f55e326fe20bb577c53eb12836ecff71af7a8b34ea2520537ec4ef1aef2",
     ),
 }
 
-DEFAULT_VERSION = "0.4.1"
+DEFAULT_VERSION = "0.5.0"
 VERSION_PATTERN = re.compile(r"[0-9A-Za-z][0-9A-Za-z._+\-]{0,127}\Z")
 
 SOURCE_FILES = (
@@ -87,10 +87,11 @@ INSTALL_TEXT = """UQM-HD 繁體中文版 v{version} — Windows 安裝說明
 
 3. 確認演練結果後，以相同命令移除最後的 -PlanOnly 正式安裝。
 4. 從開始選單開啟
-   "The Ur-Quan Masters HD - Traditional Chinese (Fullscreen)"；預設是 4x、
-   全螢幕，並自動採用主螢幕的原生解析度。F11 可切換全螢幕。
+   "The Ur-Quan Masters HD - Traditional Chinese (Fullscreen)"；預設以
+   2560x1920 超取樣畫布、雙線性縮放及主螢幕原生解析度全螢幕啟動。
+   F11 可切換全螢幕。
 
-安裝器只讀取 SourceRoot，另建受管理的目的地副本。它會驗證單一 4x 套件。
+安裝器只讀取 SourceRoot，另建受管理的目的地副本。它會驗證單一原生 1080p 套件。
 {runtime_behavior}
 它不會覆寫原版目錄中的任何檔案。
 

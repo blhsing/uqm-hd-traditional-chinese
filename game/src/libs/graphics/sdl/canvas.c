@@ -1592,11 +1592,12 @@ TFB_DrawCanvas_Rescale_Bilinear (TFB_Canvas src_canvas, TFB_Canvas dst_canvas,
 {
 	SDL_Surface *src = src_canvas;
 	SDL_Surface *dst = dst_canvas;
+	SDL_Surface *converted_src = NULL;
 	SDL_PixelFormat *srcfmt = src->format;
 	SDL_PixelFormat *dstfmt = dst->format;
-	SDL_Color *srcpal = srcfmt->palette? srcfmt->palette->colors : 0;
-	const int sbpp = srcfmt->BytesPerPixel;
-	const int slen = src->pitch;
+	SDL_Color *srcpal;
+	int sbpp;
+	int slen;
 	const int dst_has_alpha = (dstfmt->Amask != 0);
 	const int transparent = (dst->flags & SDL_SRCCOLORKEY) ?
 			dstfmt->colorkey : 0;
@@ -1648,12 +1649,46 @@ TFB_DrawCanvas_Rescale_Bilinear (TFB_Canvas src_canvas, TFB_Canvas dst_canvas,
 		return;
 	}
 
+	/* SDL_image commonly loads opaque RGB PNGs as 24-bit surfaces.  The
+	 * scaler's optimized pixel reader operates on indexed or 32-bit pixels,
+	 * so normalize other true-color inputs before sampling them. */
+	if (srcfmt->BytesPerPixel != 1 && srcfmt->BytesPerPixel != 4)
+	{
+		const BOOLEAN had_colorkey = (src->flags & SDL_SRCCOLORKEY) != 0;
+		Uint8 key_r = 0, key_g = 0, key_b = 0;
+
+		if (had_colorkey)
+			SDL_GetRGB (srcfmt->colorkey, srcfmt, &key_r, &key_g, &key_b);
+		converted_src = SDL_ConvertSurface (src, format_conv_surf->format,
+				SDL_SWSURFACE);
+		if (!converted_src)
+		{
+			log_add (log_Warning, "TFB_DrawCanvas_Rescale_Bilinear: "
+					"Could not convert %d-bit source: %s",
+					srcfmt->BitsPerPixel, SDL_GetError ());
+			return;
+		}
+		if (had_colorkey)
+		{
+			SDL_SetColorKey (converted_src, SDL_SRCCOLORKEY,
+					SDL_MapRGB (converted_src->format, key_r, key_g, key_b));
+		}
+		src = converted_src;
+		srcfmt = src->format;
+	}
+
+	srcpal = srcfmt->palette ? srcfmt->palette->colors : 0;
+	sbpp = srcfmt->BytesPerPixel;
+	slen = src->pitch;
+
 	if ((srcfmt->BytesPerPixel != 1 && srcfmt->BytesPerPixel != 4) ||
 		(dst->format->BytesPerPixel != 4))
 	{
 		log_add (log_Warning, "TFB_DrawCanvas_Rescale_Bilinear: "
 				"Tried to deal with unknown BPP: %d -> %d",
 				srcfmt->BitsPerPixel, dst->format->BitsPerPixel);
+		if (converted_src)
+			SDL_FreeSurface (converted_src);
 		return;
 	}
 
@@ -1773,6 +1808,8 @@ TFB_DrawCanvas_Rescale_Bilinear (TFB_Canvas src_canvas, TFB_Canvas dst_canvas,
 
 	SDL_UnlockSurface(dst);
 	SDL_UnlockSurface(src);
+	if (converted_src)
+		SDL_FreeSurface (converted_src);
 }
 
 void

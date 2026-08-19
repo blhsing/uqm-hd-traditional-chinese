@@ -805,7 +805,7 @@ samatra_preprocess (ELEMENT *ElementPtr)
 		POINT *offs;
 		
 		// JMS_GFX
-		if (RESOLUTION_FACTOR == 2)
+		if (RESOLUTION_FACTOR >= 2)
 			offs = offs_4x;
 		else if (RESOLUTION_FACTOR == 1)
 			offs = offs_2x;
@@ -951,4 +951,3 @@ init_samatra (void)
 
 	return (RaceDescPtr);
 }
-

@@ -11,12 +11,12 @@
 
 | 項目 | 值 |
 |---|---|
-| 檔名 | `msys2-base-x86_64-latest.sfx.exe` |
+| 檔名 | `msys2-base-x86_64-20260611.sfx.exe` |
 | 大小 | `52,898,952` bytes |
 | SHA-256 | `c105946e64e08f099ac0e4647461ce762b95333ad211777666476a9a41451d65` |
-| 驗證日期 | 2026-07-28 |
+| 驗證日期 | 2026-08-19 |
 
-`latest` 是會變動的上游檔名，不能當成版本鎖。真正的環境鎖是：
+bootstrap 使用固定日期檔名與 SHA-256；完整環境另由以下檔案鎖定：
 
 - `tools/build/windows-x86/msys2-packages.lock`：完整 `pacman -Q` 套件與版本。
 - `tools/build/windows-x86/msys2-explicit-packages.lock`：完整 `pacman -Qqe` 明確安裝集合。
@@ -38,7 +38,7 @@ release；鎖檔能偵測差異，但無法保證舊套件永遠留在公開鏡�
 make pkgconf mingw-w64-i686-gcc mingw-w64-i686-pkgconf
 mingw-w64-i686-SDL mingw-w64-i686-SDL_image
 mingw-w64-i686-libogg mingw-w64-i686-libvorbis
-mingw-w64-i686-zlib mingw-w64-i686-openal mingw-w64-i686-ntldd
+mingw-w64-i686-zlib mingw-w64-i686-ntldd
 ```
 
 請以鎖檔中的完整版本為準，而不是直接在新的 rolling 鏡像執行上述名稱清單。
@@ -51,7 +51,7 @@ mingw-w64-i686-zlib mingw-w64-i686-openal mingw-w64-i686-ntldd
 ```powershell
 powershell.exe -NoProfile -ExecutionPolicy Bypass `
   -File .\tools\build\Build-WindowsX86Runtime.ps1 `
-  -Msys2Root C:\toolchains\msys64 `
+  -Msys2Root C:\Tools\msys64 `
   -WorkDir C:\build\uqm-hd-win32 `
   -OutputDir C:\build\uqm-hd-win32-runtime `
   -RequireCleanSource
@@ -133,8 +133,8 @@ manifest 會保存完整 import graph、每個 payload 的大小與 SHA-256，�
 C:\path\to\python.exe .\scripts\build_release.py `
   --packs-dir C:\build\localized-packs `
   --runtime-dir C:\build\uqm-hd-win32-runtime `
-  --output C:\build\uqm-hd-zh-tw-v0.3.2.zip `
-  --version 0.3.2
+  --output C:\build\uqm-hd-zh-tw-v0.5.0.zip `
+  --version 0.5.0
 ```
 
 `scripts/build_release.py` 會再次驗證 manifest schema、每個 EXE/DLL 的大小與 hash、
@@ -144,7 +144,7 @@ C:\path\to\python.exe .\scripts\build_release.py `
 
 ```powershell
 .\tools\build\Build-WindowsX86Runtime.ps1 `
-  -Msys2Root C:\toolchains\msys64 `
+  -Msys2Root C:\Tools\msys64 `
   -ExecutablePath C:\build\existing\uqm-hd.exe `
   -OutputDir C:\build\audit-runtime
 ```

@@ -31,8 +31,9 @@ extern unsigned int resolutionFactor; // JMS_GFX
 #define SCREEN_WIDTH ScreenWidth
 #define SCREEN_HEIGHT ScreenHeight
 #define RESOLUTION_FACTOR resolutionFactor														// JMS_GFX
-#define RES_CASE(a,b,c) (RESOLUTION_FACTOR == 0 ? (a) : (RESOLUTION_FACTOR == 1 ? (b) : (c)))	// JMS_GFX
-#define RES_STAT_SCALE(a) (RESOLUTION_FACTOR < 2 ? ((a) << RESOLUTION_FACTOR) : ((a) * 3))		// JMS_GFX
+#define RES_NATIVE_SCALE(a) ((a) << (RESOLUTION_FACTOR - 2))
+#define RES_CASE(a,b,c) (RESOLUTION_FACTOR == 0 ? (a) : (RESOLUTION_FACTOR == 1 ? (b) : RES_NATIVE_SCALE (c)))	// JMS_GFX
+#define RES_STAT_SCALE(a) (RESOLUTION_FACTOR < 2 ? ((a) << RESOLUTION_FACTOR) : RES_NATIVE_SCALE ((a) * 3))		// JMS_GFX
 
 		/* Margins. */
 #define SAFE_X 0

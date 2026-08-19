@@ -753,15 +753,16 @@ foreach ($specification in $shortcutSpecifications) {
     })
 }
 
-# Version 0.4 retires the low-resolution entry points, while 0.4.1 promotes
-# the fullscreen launcher from a Start Menu subfolder to an explicit top-level
-# entry. Remove only shortcuts positively owned by the preceding marker.
+# Version 0.5 replaces every prior resolution-specific entry point with the
+# native-1080p supersampled fullscreen launcher. Remove only shortcuts
+# positively owned by the preceding marker.
 $programsRoot = Get-UqmFullPath -Path ([Environment]::GetFolderPath([Environment+SpecialFolder]::Programs))
 $legacyStartFolder = Join-Path -Path $programsRoot -ChildPath 'The Ur-Quan Masters HD - Traditional Chinese'
 $legacyStartPath = Join-Path -Path $legacyStartFolder -ChildPath 'The Ur-Quan Masters HD - Traditional Chinese.lnk'
 $legacyShortcutPaths = @(
     (Join-UqmContainedPath -Root $install -RelativePath 'Launch UQM-HD zh-TW (1x).lnk'),
     (Join-UqmContainedPath -Root $install -RelativePath 'Launch UQM-HD zh-TW (2x).lnk'),
+    (Join-UqmContainedPath -Root $install -RelativePath 'Launch UQM-HD zh-TW (4x).lnk'),
     $legacyStartPath
 )
 $removedLegacyStartShortcut = $false
@@ -821,7 +822,7 @@ $finalMarker = [ordered]@{
     InstallRoot = $install
     ProfileDir = $profile
     Executable = 'uqm.exe'
-    DefaultArguments = Get-UqmLaunchArguments -ResolutionFactor 2 -Addon 'hires4x-zh_TW' -ProfileDir $profile -Fullscreen
+    DefaultArguments = Get-UqmLaunchArguments -ResolutionFactor 3 -Addon 'native1080-zh_TW' -ProfileDir $profile -Fullscreen
     Files = @($manifest)
     Packs = @($packRecords)
     Shortcuts = @($shortcutRecords)

@@ -6,6 +6,7 @@ from collections import Counter
 from dataclasses import dataclass
 from pathlib import Path, PurePosixPath
 
+from .ani import native_resolution_manifest
 from .core import ContentResolver, LocError
 
 
@@ -40,6 +41,7 @@ _STATUS_LABEL_ANI_RE = re.compile(
 class MenuVariant:
     addon: str
     stem: str
+    native_scale: int
 
 
 @dataclass(frozen=True)
@@ -52,7 +54,7 @@ class MenuFrame:
 
 
 MENU_VARIANTS = (
-    MenuVariant("hires4x-zh_TW", "newgame4x"),
+    MenuVariant("native1080-zh_TW", "newgame4x", 2),
 )
 
 
@@ -61,13 +63,15 @@ class KeyHelpVariant:
     addon: str
     source_path: str
     output_path: str
+    native_scale: int
 
 
 KEY_HELP_VARIANTS = (
     KeyHelpVariant(
-        "hires4x-zh_TW",
+        "native1080-zh_TW",
         "addons/hires4x/ui/submenustarmapkeys-000.png",
         "addons/hires4x/ui/submenustarmapkeys-000.png",
+        2,
     ),
 )
 
@@ -87,15 +91,15 @@ class StatusLabelVariant:
 
 STATUS_LABEL_VARIANTS = (
     StatusLabelVariant(
-        "hires4x-zh_TW",
+        "native1080-zh_TW",
         "addons/hires4x/ui",
         "addons/hires4x/ui",
         (44, 9),
         (44, 9),
-        (44, 18),
-        (44, 18),
+        (88, 36),
+        (88, 36),
         350,
-        16,
+        32,
     ),
 )
 
@@ -110,7 +114,7 @@ class SuperMeleeVariant:
 
 SUPER_MELEE_VARIANTS = (
     SuperMeleeVariant(
-        "hires4x-zh_TW", "addons/hires4x/ui", "addons/hires4x/ui", 4
+        "native1080-zh_TW", "addons/hires4x/ui", "addons/hires4x/ui", 8
     ),
 )
 
@@ -331,7 +335,7 @@ def build_localized_key_help(
     shadow_trees_root: Path,
     font_path: Path,
 ) -> dict[str, dict[str, object]]:
-    """Localize the native 4x starmap key-help panel."""
+    """Localize the supersampled native-resolution starmap key-help panel."""
 
     Image, ImageDraw, ImageFont = _load_pillow()
     report: dict[str, dict[str, object]] = {}
@@ -342,7 +346,16 @@ def build_localized_key_help(
             raise LocError(f"Cannot load key-help image {variant.source_path}: {exc}") from exc
 
         if image.size != (186, 307):
-            raise LocError(f"Unexpected 4x key-help size: {image.size}")
+            raise LocError(f"Unexpected source key-help size: {image.size}")
+        scale = variant.native_scale
+        image = image.resize(
+            (image.width * scale, image.height * scale),
+            resample=Image.Resampling.LANCZOS,
+        )
+
+        def scaled_box(box):
+            return tuple(value * scale for value in box)
+
         for box in (
             (45, 4, 150, 36),
             (47, 40, 185, 92),
@@ -350,17 +363,17 @@ def build_localized_key_help(
             (47, 178, 185, 218),
             (47, 240, 185, 279),
         ):
-            _clear_text_region(image, box)
+            _clear_text_region(image, scaled_box(box))
         draw = ImageDraw.Draw(image)
         title = "按鍵說明"
-        title_font = _menu_font(ImageFont, font_path, 22, weight=550)
+        title_font = _menu_font(ImageFont, font_path, 22 * scale, weight=550)
         title_box = draw.textbbox((0, 0), title, font=title_font)
         title_x = round((image.width - (title_box[2] - title_box[0])) / 2)
-        draw.text((title_x, 5), title, font=title_font, fill=(181, 90, 255))
-        _draw_text_at(draw, ImageFont, font_path, "舊式星圖／\n顯示星座", (54, 45), 14, (181, 90, 255))
-        _draw_text_at(draw, ImageFont, font_path, "放大", (60, 119), 17, (181, 90, 255))
-        _draw_text_at(draw, ImageFont, font_path, "縮小", (60, 186), 17, (181, 90, 255))
-        _draw_text_at(draw, ImageFont, font_path, "搜尋星體", (54, 248), 16, (181, 90, 255))
+        draw.text((title_x, 5 * scale), title, font=title_font, fill=(181, 90, 255))
+        _draw_text_at(draw, ImageFont, font_path, "舊式星圖／\n顯示星座", (54 * scale, 45 * scale), 14 * scale, (181, 90, 255))
+        _draw_text_at(draw, ImageFont, font_path, "放大", (60 * scale, 119 * scale), 17 * scale, (181, 90, 255))
+        _draw_text_at(draw, ImageFont, font_path, "縮小", (60 * scale, 186 * scale), 17 * scale, (181, 90, 255))
+        _draw_text_at(draw, ImageFont, font_path, "搜尋星體", (54 * scale, 248 * scale), 16 * scale, (181, 90, 255))
 
         destination = shadow_trees_root / variant.addon
         destination = destination.joinpath(*PurePosixPath(variant.output_path).parts)
@@ -375,10 +388,27 @@ def build_localized_key_help(
         )
         encoded.save(destination, format="PNG", optimize=True)
         encoded.close()
+
+        source_ani_path = variant.source_path.rsplit("-", 1)[0] + ".ani"
+        output_ani_path = variant.output_path.rsplit("-", 1)[0] + ".ani"
+        ani_destination = shadow_trees_root / variant.addon
+        ani_destination = ani_destination.joinpath(
+            *PurePosixPath(output_ani_path).parts
+        )
+        ani_destination.parent.mkdir(parents=True, exist_ok=True)
+        ani_destination.write_bytes(
+            native_resolution_manifest(
+                resolver.read_bytes(source_ani_path),
+                source_ani_path,
+                scale=scale,
+                native_frames={PurePosixPath(variant.output_path).name},
+            )
+        )
         report[variant.addon] = {
             "resource": variant.output_path,
             "canvas": list(image.size),
             "labels": ["舊式星圖／顯示星座", "放大", "縮小", "搜尋星體"],
+            "animation": output_ani_path,
         }
         image.close()
     return report
@@ -577,9 +607,16 @@ def build_localized_status_labels(
         destination = shadow_trees_root / variant.addon
         destination = destination.joinpath(*PurePosixPath(output_ani_path).parts)
         destination.parent.mkdir(parents=True, exist_ok=True)
+        status_raw = _status_ani_with_rgb_color_key(
+            resolver.read_bytes(source_ani_path), source_ani_path
+        )
+        native_scale = variant.crew_output_size[0] // variant.crew_size[0]
         destination.write_bytes(
-            _status_ani_with_rgb_color_key(
-                resolver.read_bytes(source_ani_path), source_ani_path
+            native_resolution_manifest(
+                status_raw,
+                source_ani_path,
+                scale=native_scale,
+                native_frames={"status-004.png", "status-005.png"},
             )
         )
         files.append(output_ani_path)
@@ -633,6 +670,19 @@ def _parse_super_melee_frames(
         finally:
             image.close()
         frames.append(MenuFrame(filename, width, height, -hotspot_x, -hotspot_y))
+    native_scale = variant.scale // 4
+    if native_scale < 1 or variant.scale % 4:
+        raise LocError(f"{ani_path}: invalid native Super Melee scale {variant.scale}")
+    frames = [
+        MenuFrame(
+            frame.filename,
+            frame.width * native_scale,
+            frame.height * native_scale,
+            frame.x * native_scale,
+            frame.y * native_scale,
+        )
+        for frame in frames
+    ]
     return raw, frames
 
 
@@ -886,7 +936,9 @@ def build_localized_super_melee_assets(
             for index in (25, 26):
                 frame = frames[index]
                 selected = index == 26
-                image = clean_battle.copy()
+                image = _resized_melee_template(
+                    Image, clean_battle, (frame.width, frame.height)
+                )
                 box = _battle_label_box(image.size)
                 label = "開戰！"
                 _draw_melee_lines(
@@ -954,7 +1006,18 @@ def build_localized_super_melee_assets(
                 image.close()
                 files.add(filename)
 
-            (output_dir / "meleemenu.ani").write_bytes(ani_raw)
+            native_scale = variant.scale // 4
+            (output_dir / "meleemenu.ani").write_bytes(
+                native_resolution_manifest(
+                    ani_raw,
+                    f"{variant.source_prefix}/meleemenu.ani",
+                    scale=native_scale,
+                    # Frame 27 is generated by shipinfoassets immediately
+                    # after this function. Frame 28 remains stock and is
+                    # enlarged by the runtime.
+                    native_frames={*files, "meleemenu-027.png"},
+                )
+            )
             files.add("meleemenu.ani")
             report[variant.addon] = {
                 "resource": f"{variant.output_prefix}/meleemenu.ani",
@@ -1000,6 +1063,16 @@ def build_localized_main_menus(
     try:
         for variant in MENU_VARIANTS:
             ani_raw, frames = _parse_frames(resolver, variant.stem, Image)
+            frames = [
+                MenuFrame(
+                    frame.filename,
+                    frame.width * variant.native_scale,
+                    frame.height * variant.native_scale,
+                    frame.x * variant.native_scale,
+                    frame.y * variant.native_scale,
+                )
+                for frame in frames
+            ]
             background_frame = frames[0]
             output_dir = shadow_trees_root / variant.addon / "base" / "ui"
             output_dir.mkdir(parents=True, exist_ok=True)
@@ -1029,7 +1102,14 @@ def build_localized_main_menus(
             background.convert("RGB").save(
                 output_dir / background_frame.filename, format="PNG", optimize=True
             )
-            (output_dir / f"{variant.stem}.ani").write_bytes(ani_raw)
+            ani_path = f"base/ui/{variant.stem}.ani"
+            (output_dir / f"{variant.stem}.ani").write_bytes(
+                native_resolution_manifest(
+                    ani_raw,
+                    ani_path,
+                    scale=variant.native_scale,
+                )
+            )
             report[variant.addon] = {
                 "resource": f"base/ui/{variant.stem}.ani",
                 "labels": list(MENU_LABELS),

@@ -146,7 +146,7 @@ LoadKernel (int argc, char *argv[])
 		hires2xPackPresent = TRUE;
 		log_add (log_Debug, "loading addon hires2x");
 	}
-	else if (resolutionFactor == 2 && loadAddon ("hires4x"))
+	else if (resolutionFactor >= 2 && loadAddon ("hires4x"))
 	{
 		hires4xPackPresent = TRUE;
 		log_add (log_Debug, "loading addon hires4x");
@@ -366,4 +366,3 @@ uninitIO (void)
 	uio_closeRepository (repository);
 	uio_unInit ();
 }
-

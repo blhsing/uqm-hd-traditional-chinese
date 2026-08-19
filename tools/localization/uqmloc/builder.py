@@ -28,18 +28,19 @@ from .shipinfoassets import build_localized_ship_info_assets
 from .validation import validate_documents
 
 
-BASE_ADDON = "hires4x-zh_TW"
+BASE_ADDON = "native1080-zh_TW"
 VARIANTS = ((BASE_ADDON, "hires4x", 614),)
 FONT_WEIGHT = 500
 FONT_SUPERSAMPLE = 4
-# The HD mod's 4x shared starcon/tiny canvases are only about 2x-sized. UQM
+# The native tier uses an 8x logical canvas. Its shared UI fonts are authored
+# at twice the 4x dimensions so the final 1080p downsample retains fine strokes.
 # derives each glyph's hotspot and leading from the PNG canvas, while several
 # SIS HUD fields retain fixed 20-pixel ink bands. Keep the medium Han ink large
 # enough to read without moving its top rows beyond those gradient effects.
 UI_FONT_METRICS: dict[tuple[str, str], tuple[int, int]] = {
-    ("hires4x-zh_TW", "starcon.fon"): (20, 19),
-    ("hires4x-zh_TW", "tiny.fon"): (20, 20),
-    ("hires4x-zh_TW", "micro.fon"): (24, 30),
+    ("native1080-zh_TW", "starcon.fon"): (40, 38),
+    ("native1080-zh_TW", "tiny.fon"): (40, 40),
+    ("native1080-zh_TW", "micro.fon"): (48, 60),
 }
 FALLBACK_RESOURCE_TARGETS = {
     "font.fallbackto1x": (BASE_ADDON, "fonts/starcon.fon"),
@@ -341,6 +342,7 @@ def _generate_fonts(
                 renderer,
                 copy_original=True,
                 metric_override=metric_override,
+                source_scale=2,
             )
             variant_report["mapped_fonts"][font_build.mapped_path] = {
                 "source": font_build.source_path,
@@ -363,6 +365,7 @@ def _generate_fonts(
                 # Traditional-Chinese glyphs so presentations can render and
                 # advance normally.
                 copy_original=True,
+                source_scale=2,
             )
             variant_report["shadow_fonts"][source_path] = {
                 "metrics": {"width": metrics.width, "height": metrics.height},

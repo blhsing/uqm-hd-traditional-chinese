@@ -78,7 +78,7 @@ $actual = Get-UqmShortcutDetails -Path '{_quote(shortcut)}'
 """
             result = json.loads(_run_powershell(script))
 
-        self.assertEqual(result["Count"], 3)
+        self.assertEqual(result["Count"], 2)
         self.assertEqual(
             result["IconLocation"].lower(),
             f"{install / 'icon.ico'},0".lower(),

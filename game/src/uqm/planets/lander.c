@@ -919,7 +919,7 @@ CheckObjectCollision (COUNT index)
 							case EARTHQUAKE_DISASTER:
 							case LAVASPOT_DISASTER:
 								if (scan == LAVASPOT_DISASTER 
-									&& RESOLUTION_FACTOR == 2 
+									&& RESOLUTION_FACTOR >= 2 
 									&& TFB_Random () % 100 < 9)
 									DeltaLanderCrew (-1, scan);
 								else if (TFB_Random () % 100 < 25)
@@ -2045,7 +2045,7 @@ LandingTakeoffSequence (LanderInputState *inputState, BOOLEAN landing)
 	
 	// JMS_GFX: At 4x resolution we run out of default offsets. -> Use larger offset value.
 	max_offsets = MAX_OFFSETS;
-	if (RESOLUTION_FACTOR == 2) 
+	if (RESOLUTION_FACTOR >= 2) 
 		max_offsets = MAX_OFFSETS_4X;
 	
 	for (index = 0; index < max_offsets && delta < DISTANCE_COVERED; ++index)
@@ -2053,7 +2053,7 @@ LandingTakeoffSequence (LanderInputState *inputState, BOOLEAN landing)
 		delta += index + 1;
 		
 		// JMS_GFX
-		if (RESOLUTION_FACTOR == 2)
+		if (RESOLUTION_FACTOR >= 2)
 			landingOfs4x[index] = -delta;
 		else
 			landingOfs[index] = -delta;
@@ -2080,7 +2080,7 @@ LandingTakeoffSequence (LanderInputState *inputState, BOOLEAN landing)
 	for (index = start; index != end; index += delta)
 	{
 		// JMS_GFX
-		if (RESOLUTION_FACTOR == 2)
+		if (RESOLUTION_FACTOR >= 2)
 			ScrollPlanetSide (0, 0, landingOfs4x[index]);
 		else
 			ScrollPlanetSide (0, 0, landingOfs[index]);

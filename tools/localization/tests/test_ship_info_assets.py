@@ -32,15 +32,22 @@ class ShipInfoAssetTests(unittest.TestCase):
         self.assertTrue(all(page.name and page.weapon and page.special for page in SHIP_INFO_PAGES))
         self.assertEqual(
             [
-                (variant.addon, variant.ui_prefix, variant.spin_prefix, variant.canvas)
+                (
+                    variant.addon,
+                    variant.ui_prefix,
+                    variant.spin_prefix,
+                    variant.canvas,
+                    variant.native_scale,
+                )
                 for variant in SHIP_INFO_VARIANTS
             ],
             [
                 (
-                    "hires4x-zh_TW",
+                    "native1080-zh_TW",
                     "addons/hires4x/ui",
                     "addons/hires4x/cutscene/spins",
-                    (1280, 960),
+                    (2560, 1920),
+                    2,
                 ),
             ],
         )
@@ -124,32 +131,32 @@ class ShipInfoAssetTests(unittest.TestCase):
                 "addons/hires4x/cutscene/spins/androsynth-ovl.png",
             )
             for relative in expected:
-                first_file = first / "hires4x-zh_TW" / Path(relative)
-                second_file = second / "hires4x-zh_TW" / Path(relative)
+                first_file = first / "native1080-zh_TW" / Path(relative)
+                second_file = second / "native1080-zh_TW" / Path(relative)
                 with self.subTest(resource=relative):
                     self.assertTrue(first_file.is_file())
                     self.assertEqual(first_file.read_bytes(), second_file.read_bytes())
 
-            report = first_report["hires4x-zh_TW"]
+            report = first_report["native1080-zh_TW"]
             self.assertEqual(report["ship_info"]["pages"], 1)
             self.assertTrue(report["ship_info"]["native_resolution"])
             self.assertEqual(len(report["files"]), 4)
             with Image.open(
-                first / "hires4x-zh_TW/addons/hires4x/cutscene/spins/androsynth.png"
+                first / "native1080-zh_TW/addons/hires4x/cutscene/spins/androsynth.png"
             ) as rendered_base:
-                self.assertEqual(rendered_base.size, (1280, 960))
+                self.assertEqual(rendered_base.size, (2560, 1920))
                 # A long English tagline may extend left of the nominal header;
                 # the complete stock wording must be removed.
                 self.assertEqual(
-                    rendered_base.convert("RGB").getpixel((328, 208)),
+                    rendered_base.convert("RGB").getpixel((656, 416)),
                     (80, 80, 80),
                 )
                 # An untouched corner of the battle artwork remains intact.
-                self.assertEqual(rendered_base.convert("RGB").getpixel((8, 600)), (9, 11, 23))
+                self.assertEqual(rendered_base.convert("RGB").getpixel((16, 1200)), (9, 11, 23))
             with Image.open(
-                first / "hires4x-zh_TW/addons/hires4x/cutscene/spins/androsynth-ovl.png"
+                first / "native1080-zh_TW/addons/hires4x/cutscene/spins/androsynth-ovl.png"
             ) as rendered_overlay:
-                self.assertEqual(rendered_overlay.size, (1280, 960))
+                self.assertEqual(rendered_overlay.size, (2560, 1920))
                 self.assertIsNotNone(rendered_overlay.convert("RGBA").getchannel("A").getbbox())
 
     @unittest.skipUnless(

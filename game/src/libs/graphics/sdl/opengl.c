@@ -36,6 +36,8 @@ typedef struct _gl_screeninfo {
 static TFB_GL_SCREENINFO GL_Screens[TFB_GFX_NUMSCREENS];
 
 static int ScreenFilterMode;
+static int ScreenTextureWidth;
+static int ScreenTextureHeight;
 
 static TFB_ScaleFunc scaler = NULL;
 static BOOLEAN first_init = TRUE;
@@ -287,10 +289,13 @@ TFB_GL_ConfigureVideo (int driver, int flags, int width, int height, int togglef
 			texture_height = 512;
 			graphics_backend = &opengl_unscaled_backend_2x;
 		}
-		else if (resolutionFactor == 2)
+		else
 		{
-			texture_width = 2048;
-			texture_height = 1024;
+			/* The 4x and native-supersampled tiers both use the direct
+			 * upload backend.  Their backing textures grow with the logical
+			 * canvas: 2048x1024 at 4x and 4096x2048 at native 1080p. */
+			texture_width = 512 << resolutionFactor;
+			texture_height = 256 << resolutionFactor;
 			graphics_backend = &opengl_unscaled_backend_4x;
 		}
 
@@ -302,6 +307,21 @@ TFB_GL_ConfigureVideo (int driver, int flags, int width, int height, int togglef
 		ScreenFilterMode = GL_LINEAR;
 	else
 		ScreenFilterMode = GL_NEAREST;
+	ScreenTextureWidth = texture_width;
+	ScreenTextureHeight = texture_height;
+
+	{
+		GLint max_texture_size = 0;
+		glGetIntegerv (GL_MAX_TEXTURE_SIZE, &max_texture_size);
+		if (max_texture_size < texture_width ||
+				max_texture_size < texture_height)
+		{
+			log_add (log_Error, "OpenGL maximum texture size %d is too small "
+					"for the %dx%d native-resolution screen texture.",
+					max_texture_size, texture_width, texture_height);
+			return -1;
+		}
+	}
 	
 	glViewport (0, 0, ScreenWidthActual, ScreenHeightActual);
 	glClearColor (0,0,0,0);
@@ -628,11 +648,12 @@ TFB_GL_DrawQuad_4x (SDL_Rect *r)
 	glBegin (GL_TRIANGLE_FAN);
 	glTexCoord2f (0, 0);
 	glVertex2i (x1, y1);
-	glTexCoord2f (ScreenWidth / 2048.0f, 0);
+	glTexCoord2f (ScreenWidth / (float)ScreenTextureWidth, 0);
 	glVertex2i (x2, y1);	
-	glTexCoord2f (ScreenWidth / 2048.0f, ScreenHeight / 1024.0f);
+	glTexCoord2f (ScreenWidth / (float)ScreenTextureWidth,
+			ScreenHeight / (float)ScreenTextureHeight);
 	glVertex2i (x2, y2);
-	glTexCoord2f (0, ScreenHeight / 1024.0f);
+	glTexCoord2f (0, ScreenHeight / (float)ScreenTextureHeight);
 	glVertex2i (x1, y2);
 	glEnd ();
 	if (r != NULL)
@@ -889,8 +910,35 @@ TFB_GL_ColorLayer (Uint8 r, Uint8 g, Uint8 b, Uint8 a, SDL_Rect *rect)
 static void
 TFB_GL_Postprocess (void)
 {
+	static unsigned int qa_capture_frame = 0;
+	const char *qa_capture_path = getenv ("UQM_QA_CAPTURE");
+
 	if (GfxFlags & TFB_GFXFLAGS_SCANLINES)
 		TFB_GL_ScanLines ();
+
+	/* Optional framebuffer capture for automated visual smoke tests.  Reading
+	 * from OpenGL directly also works with exclusive fullscreen drivers that
+	 * Windows.Graphics.Capture and GDI cannot observe. */
+	if (qa_capture_path && *qa_capture_path &&
+			qa_capture_frame++ >= 30 && qa_capture_frame % 300 == 0)
+	{
+		SDL_Surface *capture = SDL_CreateRGBSurface (SDL_SWSURFACE,
+				ScreenWidthActual, ScreenHeightActual, 32,
+				R_MASK, G_MASK, B_MASK, A_MASK);
+		if (capture)
+		{
+			glReadBuffer (GL_BACK);
+			glReadPixels (0, 0, ScreenWidthActual, ScreenHeightActual,
+					GL_RGBA, GL_UNSIGNED_BYTE, capture->pixels);
+			if (SDL_SaveBMP (capture, qa_capture_path) == 0)
+				log_add (log_Info, "Saved QA framebuffer capture to '%s'",
+						qa_capture_path);
+			else
+				log_add (log_Warning, "Could not save QA framebuffer capture: %s",
+						SDL_GetError ());
+			SDL_FreeSurface (capture);
+		}
+	}
 
 	SDL_GL_SwapBuffers ();
 }	

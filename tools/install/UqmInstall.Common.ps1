@@ -4,7 +4,7 @@ $script:UqmProductId = 'uqm-hd-zh-tw'
 $script:UqmMarkerName = '.uqm-hd-zh-tw-install.json'
 $script:UqmInstallingMarkerName = '.uqm-hd-zh-tw-installing.json'
 $script:UqmPlayerOneRightAltBinding = '1.special.3 = STRING:key RightAlt'
-$script:UqmPackNames = @('hires4x-zh_TW.uqm')
+$script:UqmPackNames = @('native1080-zh_TW.uqm')
 
 function Get-UqmFullPath {
     param(
@@ -326,19 +326,20 @@ function Get-UqmNativeResolution {
 
 function Get-UqmLaunchArguments {
     param(
-        [Parameter(Mandatory = $true)][ValidateSet(2)][int]$ResolutionFactor,
-        [Parameter(Mandatory = $true)][ValidateSet('hires4x-zh_TW')][string]$Addon,
+        [Parameter(Mandatory = $true)][ValidateSet(3)][int]$ResolutionFactor,
+        [Parameter(Mandatory = $true)][ValidateSet('native1080-zh_TW')][string]$Addon,
         [Parameter(Mandatory = $true)][string]$ProfileDir,
         [switch]$Fullscreen
     )
     $profile = Get-UqmFullPath -Path $ProfileDir
     if ($Fullscreen) {
         $nativeResolution = Get-UqmNativeResolution
-        return ('-o -r {0} -f -k -c none --resfactor=2 -C {1} --addon hires4x-zh_TW' -f
+        return ('-o -r {0} -f -k -c bilinear --resfactor=3 -C {1} --addon native1080-zh_TW' -f
             $nativeResolution, (Quote-UqmArgument -Value $profile))
     }
-    return ('-x -r 1280x960 -w -c none --resfactor=2 -C {0} --addon hires4x-zh_TW' -f
-        (Quote-UqmArgument -Value $profile))
+    $nativeResolution = Get-UqmNativeResolution
+    return ('-o -r {0} -w -k -c bilinear --resfactor=3 -C {1} --addon native1080-zh_TW' -f
+        $nativeResolution, (Quote-UqmArgument -Value $profile))
 }
 
 function Get-UqmShortcutSpecifications {
@@ -370,10 +371,10 @@ function Get-UqmShortcutSpecifications {
             Path = Join-Path -Path $desktop -ChildPath $desktopLeaf
             Target = $exe
             IconLocation = $icon + ',0'
-            Arguments = Get-UqmLaunchArguments -ResolutionFactor 2 -Addon 'hires4x-zh_TW' -ProfileDir $profile -Fullscreen
+            Arguments = Get-UqmLaunchArguments -ResolutionFactor 3 -Addon 'native1080-zh_TW' -ProfileDir $profile -Fullscreen
             WorkingDirectory = $install
-            ResolutionFactor = 2
-            Addon = 'hires4x-zh_TW'
+            ResolutionFactor = 3
+            Addon = 'native1080-zh_TW'
             AllowedRoot = $desktop
         },
         [pscustomobject][ordered]@{
@@ -381,22 +382,11 @@ function Get-UqmShortcutSpecifications {
             Path = Join-Path -Path $programs -ChildPath $startLeaf
             Target = $exe
             IconLocation = $icon + ',0'
-            Arguments = Get-UqmLaunchArguments -ResolutionFactor 2 -Addon 'hires4x-zh_TW' -ProfileDir $profile -Fullscreen
+            Arguments = Get-UqmLaunchArguments -ResolutionFactor 3 -Addon 'native1080-zh_TW' -ProfileDir $profile -Fullscreen
             WorkingDirectory = $install
-            ResolutionFactor = 2
-            Addon = 'hires4x-zh_TW'
+            ResolutionFactor = 3
+            Addon = 'native1080-zh_TW'
             AllowedRoot = $programs
-        },
-        [pscustomobject][ordered]@{
-            Kind = 'install-root-4x'
-            Path = Join-Path -Path $install -ChildPath 'Launch UQM-HD zh-TW (4x).lnk'
-            Target = $exe
-            IconLocation = $icon + ',0'
-            Arguments = Get-UqmLaunchArguments -ResolutionFactor 2 -Addon 'hires4x-zh_TW' -ProfileDir $profile
-            WorkingDirectory = $install
-            ResolutionFactor = 2
-            Addon = 'hires4x-zh_TW'
-            AllowedRoot = $install
         }
     )
 }

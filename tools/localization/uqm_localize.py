@@ -90,7 +90,7 @@ def build_parser() -> argparse.ArgumentParser:
     )
 
     build = subparsers.add_parser(
-        "build", help="build the validated 4x-only hires4x-zh_TW .uqm package"
+        "build", help="build the native-1080p supersampled Traditional Chinese .uqm package"
     )
     build.add_argument("--content-root", type=_path, required=True)
     build.add_argument("--workspace", type=_path, required=True)

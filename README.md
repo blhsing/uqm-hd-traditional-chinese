@@ -11,43 +11,44 @@
 - 超級對戰隊伍設定畫面的標題、玩家／電腦難度、連線、儲存、載入、
   開戰及離開按鈕均已本地化；控制框保留原版角色與選取光效。
 - 選取項目使用持續可辨識的黃色脈衝，不再與未選取項目或原版暗紅色混淆。
-- 以 Noto Sans TC TrueType 可變字型重新產生所有繁中文字形；遊戲點陣字採
-  Medium/500 並以 4 倍超採樣後縮小，保留細緻反鋸齒與字腔，戰鬥狀態圖像採
-  較輕的 350 字重。
+- 以 Noto Sans TC TrueType 可變字型重新產生所有繁中文字形；遊戲字形與含字圖像
+  直接針對 2560×1920 邏輯畫布產生，再以 GPU 雙線性超取樣輸出，保留細緻反鋸齒
+  與字腔；戰鬥狀態圖像採較輕的 350 字重。
 - 太陽、日期／月份、船長、船名、燃料及船員等 SIS 欄位使用符合固定 HUD
   高度的字格，不再裁掉中文字形的頂部或與相鄰欄位重疊。
 - `船員`、`能量`（原 CREW、BATT）及星圖快捷鍵說明均已本地化；戰鬥
-  狀態字使用 4x 專用光學尺寸與較輕字重，並保留原版灰色狀態面板，
+  狀態字使用原生 1080p 專用光學尺寸與較輕字重，並保留原版灰色狀態面板，
   不再糊成厚重色塊或出現黑底。
 - 超級對戰編組時的「選擇船艦／船艦資料」面板及 Project 6014 提示已繁中化；
   英文縮寫欄位會重用完整中文船名，不再把名稱末字顯示成句點。
-- 25 艘超級對戰船艦均有完整繁中資料頁，以 4x 原生 1280×960 重新產生；
+- 25 艘超級對戰船艦均有完整繁中資料頁，以 2560×1920 重新產生；
   內容涵蓋船員、能量、費用、機動數值、武器、特殊能力及戰法。
 - 修正 HD Beta 1 開始新遊戲後可能停在黑畫面的資源封裝問題。
 - 本機超級對戰中按 `Esc` 可結束目前一局並返回隊伍設定；玩家的特殊能力鍵不會誤觸此功能。
 - 玩家一的特殊能力除了右 `Shift` 與數字鍵盤 `0`，亦可使用右 `Alt`；原有按鍵仍然保留。
 - 主選單、超級對戰隊伍設定、船艦編組與開戰前選船均支援滑鼠；游標停在船艦上會更新目前船艦資料。移動滑鼠會顯示游標，按鍵或按下滑鼠鍵會隱藏游標。
 - 超級對戰開戰前的選船畫面會顯示目前船艦的船員、能量、費用、極速、加速、轉向、回能與動作消耗；`Esc` 與紅色 `X` 共用確認返回流程。
-- 只支援 4x 高解析度資產；安裝器會在開始選單最上層加入名稱明確標示
-  `Fullscreen` 的捷徑，偵測主螢幕原生解析度並以全螢幕啟動。
+- 發行版只提供原生 1080p 超取樣模式，不再提供 1x、2x 或 4x 選項；安裝器會在
+  開始選單最上層加入名稱明確標示 `Fullscreen` 的捷徑，並以主螢幕 1920×1080
+  全螢幕啟動。
 
 <p align="center">
-  <img src="localization/qa/installed-runtime-final-yellow-3.png" width="760" alt="繁體中文主選單，選取的新遊戲以黃色顯示">
+  <img src="localization/qa/native1080-main-menu.png" width="760" alt="原生 1080p 繁體中文介面實機畫面">
 </p>
 
-<p align="center"><em>4x 主選單實機畫面；黃色項目是目前選取項目。</em></p>
+<p align="center"><em>1920×1080 全螢幕實機擷取；2560×1920 邏輯畫布平滑縮放至 1440×1080，左右保留黑邊。</em></p>
 
 <p align="center">
-  <img src="localization/qa/installed-super-melee-menu-4x.png" width="760" alt="已完整本地化的繁體中文超級對戰隊伍設定畫面">
+  <img src="localization/qa/native1080-super-melee.png" width="760" alt="原生 1080p 的繁體中文超級對戰隊伍設定畫面">
 </p>
 
-<p align="center"><em>4x 超級對戰實機畫面；標題與右側控制、儲存、載入、開戰及離開項目均為繁中。</em></p>
+<p align="center"><em>原生 1080p 超級對戰實機畫面；標題與右側控制、儲存、載入、開戰及離開項目均為繁中。</em></p>
 
 <p align="center">
   <img src="localization/qa/installed-super-melee-combat-demo-4x.png" width="760" alt="超級對戰實戰中的繁中船員與能量標籤">
 </p>
 
-<p align="center"><em>4x 超級對戰實戰畫面；斯萊蘭卓與普坎克對戰，雙方 HUD 均顯示繁中的「船員／能量」。</em></p>
+<p align="center"><em>超級對戰實戰畫面；斯萊蘭卓與普坎克對戰，雙方 HUD 均顯示繁中的「船員／能量」。</em></p>
 
 ## 下載、建置與安裝
 
@@ -55,29 +56,19 @@
 
 大型 `.uqm` 套件與 Windows 執行環境不放入 Git 歷史；請前往
 [GitHub Releases](https://github.com/blhsing/uqm-hd-traditional-chinese/releases/latest)。
-v0.4.1 壓縮檔包含單一自足的 4x 繁中套件、管理式安裝器、驗證工具、
+v0.5.0 壓縮檔包含單一自足的原生 1080p 繁中套件、管理式安裝器、驗證工具、
 `runtime/windows-x86`（EXE、DLL、manifest 與授權文件），但**不包含原版遊戲的
 `content`／音樂／語音／圖像**；安裝時仍須提供合法取得的 UQM-HD Beta 1 內容。
 
-完整發行壓縮檔 `uqm-hd-zh-tw-v0.4.1.zip` 為 104,466,906 位元組，
-SHA-256 為 `294274f26b8265aa462b7ef290b79243cd7345c75c86ace686703aa65158f86f`。
-
-本版本只需安裝一個套件；1x 與 2x 繁中套件已停止支援：
+本版本只需安裝一個套件；1x、2x 與 4x 繁中套件均已停止支援：
 
 | 檔案 | 位元組 | SHA-256 |
 |---|---:|---|
-| `hires4x-zh_TW.uqm` | 91,567,383 | `b535d19283cf4afdb4482fc517eeef247c53ab6f5bb53b78996470ad035bd7e2` |
+| `native1080-zh_TW.uqm` | 189,687,374 | `f24d1f55e326fe20bb577c53eb12836ecff71af7a8b34ea2520537ec4ef1aef2` |
 
-v0.4.1 沿用由本儲存庫原始碼建置的 Windows x86 執行環境：
-
-| 檔案 | 位元組 | SHA-256 |
-|---|---:|---|
-| `runtime/windows-x86/uqm-hd.exe` | 3,022,388 | `6f33a1b73a38ce5e4a7045a67a5f520eaaa15a8c16eaa8f169d0cff5ecc2364f` |
-| `runtime/windows-x86/runtime-manifest.json` | 27,388 | `478bfc840a080977ca65fa366502b04d57d4e473405a93504e7c4c0a5bd58f5c` |
-
-manifest 驗證 20 個 PE32/i386 payload、27 份授權檔及完整 import graph，未解析的
-非系統相依項為 0。執行檔來自乾淨的 `game/` 樹（1,043 個檔案），來源 commit 為
-`7981479c611b60af041d05ec01a40791eb993f51`。舊版官方 EXE 的四階段雜湊鎖定
+發行包內的 Windows x86 執行環境由本儲存庫的乾淨 `game/` 原始碼樹建置；
+`runtime-manifest.json` 逐一鎖定所有 PE32/i386 payload、授權檔及完整 import graph，
+未解析的非系統相依項為 0。舊版官方 EXE 的四階段雜湊鎖定
 PE 修補器仍保留作相容性備援；它會驗證完整輸入雜湊、唯一指令特徵、固定檔案位移及
 PE checksum，遇到未知版本即拒絕修改。
 
@@ -127,8 +118,8 @@ powershell.exe -NoProfile -ExecutionPolicy Bypass `
 
 使用自訂 runtime 時，`SourceRoot` 只需提供原版 `content` 與 `content\addons`；
 來源根目錄的 EXE／DLL 不會複製進安裝。安裝器會建立隔離的設定／存檔目錄、
-桌面與開始選單原生解析度全螢幕捷徑，以及 1280×960 的 4x 視窗模式捷徑。更新時
-會移除舊版受管理的 1x／2x 套件及捷徑；其他舊檔只會在其長度與 SHA-256 與上一次
+桌面與開始選單原生解析度全螢幕捷徑。更新時會移除舊版受管理的
+1x／2x／4x 套件及捷徑；其他舊檔只會在其長度與 SHA-256 與上一次
 安裝記錄仍完全相符時移除；使用者修改過的管理檔會令
 安裝停止，無關檔案不會被鏡像刪除。進行中的交易使用獨立 `.installing` marker，
 直到新安裝完整成功才取代上一份 complete marker。
@@ -138,14 +129,14 @@ powershell.exe -NoProfile -ExecutionPolicy Bypass `
 此主機的原生 1920×1080 範例：
 
 ```powershell
-uqm.exe -o -r 1920x1080 -f -k -c none --resfactor=2 `
-  -C "$env:APPDATA\UQM-HD-zh_TW" --addon hires4x-zh_TW
+uqm.exe -o -r 1920x1080 -f -k -c bilinear --resfactor=3 `
+  -C "$env:APPDATA\UQM-HD-zh_TW" --addon native1080-zh_TW
 ```
 
-安裝器會自動把 `-r` 設為主螢幕原生解析度；必須保留 `--resfactor=2`、
-`--addon hires4x-zh_TW` 與最近鄰縮放 `-c none`。遊戲邏輯畫面是 4:3；
-在 1920×1080 上會以 1440×1080 顯示並保留左右黑邊，避免拉伸。遊戲中亦可按
-`F11` 切換全螢幕。
+安裝器會自動把 `-r` 設為主螢幕原生解析度；`--resfactor=3` 會建立
+2560×1920 的 4:3 邏輯畫布，`-c bilinear` 再由 GPU 平滑縮小至 1440×1080，
+並在 1920×1080 螢幕左右保留黑邊，避免拉伸與像素化。必須保留
+`--addon native1080-zh_TW`。遊戲中亦可按 `F11` 切換全螢幕。
 
 ## 完整玩法指南
 
@@ -781,13 +772,13 @@ powershell.exe -NoProfile -ExecutionPolicy Bypass `
   -SmokeTimeoutSeconds 12
 ```
 
-v0.4.1 本機驗收涵蓋 Python 回歸測試及 Windows PowerShell 5.1 驗證器，包括
-管理檔案的長度及 SHA-256、單一自足 4x UQM 套件、三個捷徑、
+v0.5.0 本機驗收涵蓋 Python 回歸測試及 Windows PowerShell 5.1 驗證器，包括
+管理檔案的長度及 SHA-256、單一自足原生 1080p UQM 套件、兩個全螢幕捷徑、
 自訂 runtime manifest、未列入 manifest 的 EXE／DLL、玩家一右 `Alt` 綁定，以及
-12 秒 4x 1920×1080 全螢幕煙霧測試。實機超級對戰流程另確認繁中隊伍設定、
+12 秒 1920×1080 超取樣全螢幕煙霧測試。實機超級對戰流程另確認繁中隊伍設定、
 較輕的 `船員／能量` 狀態字、船艦資料卡、`Esc` 返回確認及右 `Alt` 特殊能力；
 選船／資料按鈕與資料頁滑鼠返回另由來源與資產回歸測試覆蓋。
-完整發行紀錄見 [v0.4.1 發行說明](docs/releases/v0.4.1.md)。
+完整發行紀錄見 [v0.5.0 發行說明](docs/releases/v0.5.0.md)。
 
 ## 專案結構
 
@@ -810,7 +801,7 @@ v0.4.1 本機驗收涵蓋 Python 回歸測試及 Windows PowerShell 5.1 驗證�
 - `SCRAP`、`QuasiSpace` 等少數執行檔硬編碼文字仍為英文。
 - 英文原聲沒有重新配音；繁中以字幕呈現。
 - LLM 初譯尚未完成逐句母語人工校訂及完整劇情通關。
-- 繁中版本只提供 4x 資產；320×240 與 640×480 模式不再支援。
+- 繁中版本只提供原生 1080p 超取樣資產；1x、2x 與 4x 模式不再支援。
 - 推薦使用發行包內由原始碼建置的 runtime；備援 PE 修補器只支援它明確列出的 Windows HD Beta 1 執行檔雜湊。
 - 本機超級對戰的 `Esc` 中止已實作；網路超級對戰未驗證。
 

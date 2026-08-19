@@ -169,9 +169,9 @@ class FontTests(unittest.TestCase):
         self.assertEqual(
             UI_FONT_METRICS,
             {
-                ("hires4x-zh_TW", "starcon.fon"): (20, 19),
-                ("hires4x-zh_TW", "tiny.fon"): (20, 20),
-                ("hires4x-zh_TW", "micro.fon"): (24, 30),
+                ("native1080-zh_TW", "starcon.fon"): (40, 38),
+                ("native1080-zh_TW", "tiny.fon"): (40, 40),
+                ("native1080-zh_TW", "micro.fon"): (48, 60),
             },
         )
 
@@ -339,10 +339,10 @@ class MenuAssetTests(unittest.TestCase):
                     "addons/hires4x/ui",
                     (44, 9),
                     (44, 9),
-                    (44, 18),
-                    (44, 18),
+                    (88, 36),
+                    (88, 36),
                     350,
-                    16,
+                    32,
                 ),
             ],
         )
@@ -351,7 +351,7 @@ class MenuAssetTests(unittest.TestCase):
                 (variant.addon, variant.output_prefix, variant.scale)
                 for variant in SUPER_MELEE_VARIANTS
             ],
-            [("hires4x-zh_TW", "addons/hires4x/ui", 4)],
+            [("native1080-zh_TW", "addons/hires4x/ui", 8)],
         )
 
     def test_status_output_canvases_materially_enlarge_every_label(self):
@@ -490,8 +490,8 @@ class MenuAssetTests(unittest.TestCase):
         expected = {
             ("zh_TW", "船員"): ((5, 0, 18, 7), (22, 8), 9223),
             ("zh_TW", "能量"): ((4, 1, 16, 7), (21, 8), 8651),
-            ("hires4x-zh_TW", "船員"): ((6, 1, 38, 17), (44, 18), 40767),
-            ("hires4x-zh_TW", "能量"): ((6, 2, 38, 17), (44, 18), 45510),
+            ("native1080-zh_TW", "船員"): ((12, 2, 75, 33), (88, 36), 159262),
+            ("native1080-zh_TW", "能量"): ((13, 3, 75, 33), (88, 36), 168262),
         }
         for variant in STATUS_LABEL_VARIANTS:
             for label, size in (
@@ -518,10 +518,10 @@ class MenuAssetTests(unittest.TestCase):
                     )
                     coverage_sum = sum(mask.get_flattened_data())
                     self.assertEqual(coverage_sum, expected_coverage)
-                    if variant.addon == "hires4x-zh_TW":
+                    if variant.addon == "native1080-zh_TW":
                         coverage = coverage_sum / 255
-                        self.assertGreater(coverage, 150)
-                        self.assertLess(coverage, 200)
+                        self.assertGreater(coverage, 600)
+                        self.assertLess(coverage, 800)
 
     def test_clean_super_melee_templates_and_labels_are_complete(self):
         from PIL import Image

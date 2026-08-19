@@ -278,7 +278,9 @@ DrawCaptainsWindow (STARSHIP *StarShipPtr)
 		t.align = ALIGN_CENTER;
 		t.pStr = GLOBAL_SIS (CommanderName);
 		t.CharCount = (COUNT)~0;
-		SetContextForeGroundColor (RES_CASE(BUILD_COLOR (MAKE_RGB15 (0x00, 0x14, 0x00), 0x02), BLACK_COLOR, BLACK_COLOR));
+		SetContextForeGroundColor (RESOLUTION_FACTOR == 0
+				? BUILD_COLOR (MAKE_RGB15 (0x00, 0x14, 0x00), 0x02)
+				: BLACK_COLOR);
 		SetContextFont (TinyFont);
 		font_DrawText (&t);
 	}
@@ -593,4 +595,3 @@ PostProcessStatus (ELEMENT *ShipPtr)
 		StarShipPtr->old_status_flags = cur_status_flags;
 	}
 }
-

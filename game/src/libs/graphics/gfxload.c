@@ -37,6 +37,10 @@ typedef struct anidata
 	int colormap_index;
 	int hotspot_x;
 	int hotspot_y;
+	/* Optional sixth ANI field.  Native-resolution localization frames are
+	 * authored at the final logical size; stock 4x frames are enlarged by the
+	 * loader when the 8x supersampled tier is active. */
+	int native_resolution;
 } AniData;
 
 extern uio_Repository *repository;
@@ -72,6 +76,24 @@ process_image (FRAME FramePtr, TFB_Canvas img[], AniData *ani, int cel_ct)
 	{	// enforce -1 to mean 'no transparency'
 		TFB_DrawCanvas_SetTransparentIndex (img[cel_ct], -1, FALSE);
 		// set transparent_color == -2 to use PNG tRNS transparency
+	}
+
+	if (resolutionFactor > 2 && !ani[cel_ct].native_resolution)
+	{
+		EXTENT source_extent;
+		TFB_Canvas enlarged;
+		const int native_scale = 1 << (resolutionFactor - 2);
+
+		TFB_DrawCanvas_GetExtent (img[cel_ct], &source_extent);
+		enlarged = TFB_DrawCanvas_New_TrueColor (
+				source_extent.width * native_scale,
+				source_extent.height * native_scale, TRUE);
+		TFB_DrawCanvas_Rescale_Bilinear (img[cel_ct], enlarged, -1,
+				NULL, NULL, NULL);
+		TFB_DrawCanvas_Delete (img[cel_ct]);
+		img[cel_ct] = enlarged;
+		ani[cel_ct].hotspot_x *= native_scale;
+		ani[cel_ct].hotspot_y *= native_scale;
 	}
 	
 	hx = ani[cel_ct].hotspot_x;
@@ -247,9 +269,11 @@ _GetCelData (uio_Stream *fp, DWORD length)
 	uio_fseek (aniFile, opos, SEEK_SET);
 	while (uio_fgets (CurrentLine, sizeof (CurrentLine), aniFile) && cel_index < cel_total)
 	{
-		sscanf (CurrentLine, "%s %d %d %d %d", &filename[n], 
+		ani[cel_index].native_resolution = 0;
+		sscanf (CurrentLine, "%s %d %d %d %d %d", &filename[n], 
 			&ani[cel_index].transparent_color, &ani[cel_index].colormap_index, 
-			&ani[cel_index].hotspot_x, &ani[cel_index].hotspot_y);
+			&ani[cel_index].hotspot_x, &ani[cel_index].hotspot_y,
+			&ani[cel_index].native_resolution);
 	
 		img[cel_index] = TFB_DrawCanvas_LoadFromFile (aniDir, filename);
 		if (img[cel_index] == NULL)

@@ -245,7 +245,7 @@ DrawShipPiece (FRAME ModuleFrame, COUNT which_piece, COUNT which_slot,
 			r.corner.y += RES_CASE(0,0,8);
 			r.corner.x += ship_piece_offset_scaled;
 			DrawFilledRectangle (&r);
-			if (RESOLUTION_FACTOR == 2)
+			if (RESOLUTION_FACTOR >= 2)
 			{
 				r.corner.x += ship_piece_offset_scaled - r.extent.width;
 				DrawFilledRectangle (&r);
@@ -287,7 +287,7 @@ DrawShipPiece (FRAME ModuleFrame, COUNT which_piece, COUNT which_slot,
 			{
 				r.corner = Top.origin;
 				DrawFilledRectangle (&r);
-				if (RESOLUTION_FACTOR == 2)
+				if (RESOLUTION_FACTOR >= 2)
 				{
 					r.corner.x += ship_piece_offset_scaled - r.extent.width;
 					DrawFilledRectangle (&r);
@@ -295,7 +295,7 @@ DrawShipPiece (FRAME ModuleFrame, COUNT which_piece, COUNT which_slot,
 				}
 				r.corner.y += 20 << RESOLUTION_FACTOR; // JMS_GFX
 				DrawFilledRectangle (&r);
-				if (RESOLUTION_FACTOR == 2)
+				if (RESOLUTION_FACTOR >= 2)
 				{
 					r.corner.x += ship_piece_offset_scaled - r.extent.width;
 					DrawFilledRectangle (&r);
@@ -776,4 +776,3 @@ WrapText (const UNICODE *pStr, COUNT len, TEXT *tarray, SIZE field_width)
 
 	return (num_lines);
 }
-

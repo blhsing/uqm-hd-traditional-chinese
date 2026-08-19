@@ -10,7 +10,7 @@ from pathlib import Path, PurePosixPath
 from uqmloc.core import ContentResolver, LocError
 
 
-ADDONS = ("hires4x-zh_TW",)
+ADDONS = ("native1080-zh_TW",)
 ASCII_PROBES = ("00020.png", "00030.png", "00041.png", "00061.png")
 CJK_PROBE = "04e00.png"
 

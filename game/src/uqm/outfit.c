@@ -628,7 +628,7 @@ ChangeFuelQuantity (void)
 				DrawFilledRectangle (&r);
 				
 				// JMS_GFX: Crude fix to remove intermittent residual fuel lines left hanging mid-tank.
-				if (RESOLUTION_FACTOR == 2)
+				if (RESOLUTION_FACTOR >= 2)
 				{
 					r.corner.y -= 1;
 					DrawFilledRectangle (&r);
@@ -858,4 +858,3 @@ ExitOutfit:
 
 	return (TRUE);
 }
-

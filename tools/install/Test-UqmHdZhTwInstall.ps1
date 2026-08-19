@@ -315,13 +315,13 @@ foreach ($packName in $script:UqmPackNames) {
 try {
     $expectedShortcuts = Get-UqmShortcutSpecifications -InstallRoot $install -ProfileDir $profile
     $expectedDefaultArguments = Get-UqmLaunchArguments `
-        -ResolutionFactor 2 -Addon 'hires4x-zh_TW' -ProfileDir $profile -Fullscreen
+        -ResolutionFactor 3 -Addon 'native1080-zh_TW' -ProfileDir $profile -Fullscreen
     if ($null -eq $marker.PSObject.Properties['DefaultArguments'] -or
         -not [string]::Equals(
             [string]$marker.DefaultArguments,
             $expectedDefaultArguments,
             [StringComparison]::Ordinal)) {
-        throw 'Marker default launch arguments differ from the 4x fullscreen specification.'
+        throw 'Marker default launch arguments differ from the native 1080p fullscreen specification.'
     }
     Add-VerificationPass -Message 'Marker default launch arguments are exact.'
     foreach ($expected in $expectedShortcuts) {
@@ -388,7 +388,7 @@ if (-not $SkipSmokeTest) {
         Remove-Item -LiteralPath $smokeLog -Force
     }
 
-    $defaultArguments = Get-UqmLaunchArguments -ResolutionFactor 2 -Addon 'hires4x-zh_TW' -ProfileDir $profile -Fullscreen
+    $defaultArguments = Get-UqmLaunchArguments -ResolutionFactor 3 -Addon 'native1080-zh_TW' -ProfileDir $profile -Fullscreen
     $smokeArguments = $defaultArguments + ' -l ' + (Quote-UqmArgument -Value $smokeLog)
     Write-Host "Starting hidden $SmokeTimeoutSeconds-second smoke test..."
     try {
@@ -427,15 +427,21 @@ if (-not $SkipSmokeTest) {
         $logText -match '(?im)^\s*(Assertion failed|Aborted)\b') {
         throw "UQM-HD smoke log contains a fatal diagnostic: $smokeLog"
     }
-    if ($logText -notmatch "Loading addon 'hires4x-zh_TW'") {
-        throw "UQM-HD smoke test did not load the 4x Traditional Chinese add-on: $smokeLog"
+    if ($logText -match 'TFB_DrawCanvas_Rescale_Bilinear:\s*(Tried to deal with unknown BPP|Could not convert)') {
+        throw "UQM-HD smoke log contains a failed image-conversion diagnostic: $smokeLog"
+    }
+    if ($logText -notmatch "Loading addon 'native1080-zh_TW'") {
+        throw "UQM-HD smoke test did not load the native 1080p Traditional Chinese add-on: $smokeLog"
     }
     $nativeResolution = Get-UqmNativeResolution
     $nativeResolutionPattern = 'Set the resolution to:\s*' + [regex]::Escape($nativeResolution) + 'x32'
     if ($logText -notmatch $nativeResolutionPattern) {
         throw "UQM-HD smoke test did not initialize the expected $nativeResolution fullscreen surface: $smokeLog"
     }
-    $smokeStatus = "Passed: process stayed alive for $SmokeTimeoutSeconds seconds, loaded hires4x-zh_TW at $nativeResolution, and logged no fatal diagnostic"
+    if ($logText -notmatch '\(res_cat 3\)') {
+        throw "UQM-HD smoke test did not initialize the native supersampling tier (res_cat 3): $smokeLog"
+    }
+    $smokeStatus = "Passed: process stayed alive for $SmokeTimeoutSeconds seconds, loaded native1080-zh_TW at $nativeResolution with res_cat 3, and logged no fatal diagnostic"
     Add-VerificationPass -Message $smokeStatus
 }
 

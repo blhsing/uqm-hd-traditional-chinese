@@ -5,6 +5,7 @@ from collections import Counter
 from dataclasses import dataclass
 from pathlib import Path, PurePosixPath
 
+from .ani import native_resolution_manifest
 from .core import ContentResolver, LocError
 
 
@@ -14,6 +15,7 @@ class ShipInfoVariant:
     ui_prefix: str
     spin_prefix: str
     canvas: tuple[int, int]
+    native_scale: int
 
 
 @dataclass(frozen=True)
@@ -33,10 +35,11 @@ class ShipInfoPage:
 
 SHIP_INFO_VARIANTS = (
     ShipInfoVariant(
-        "hires4x-zh_TW",
+        "native1080-zh_TW",
         "addons/hires4x/ui",
         "addons/hires4x/cutscene/spins",
-        (1280, 960),
+        (2560, 1920),
+        2,
     ),
 )
 
@@ -949,7 +952,7 @@ def build_localized_ship_info_assets(
     shadow_trees_root: Path,
     font_path: Path,
 ) -> dict[str, dict[str, object]]:
-    """Build the 4x ship picker and all 25 native ship-info pages."""
+    """Build the supersampled ship picker and all 25 native ship-info pages."""
 
     Image, ImageDraw, ImageFont = _load_pillow()
     report: dict[str, dict[str, object]] = {}
@@ -962,6 +965,13 @@ def build_localized_ship_info_assets(
             picker_source = Image.open(io.BytesIO(resolver.read_bytes(picker_path)))
         except OSError as exc:
             raise LocError(f"Cannot load ship-picker image {picker_path}: {exc}") from exc
+        picker_source = picker_source.resize(
+            (
+                picker_source.width * variant.native_scale,
+                picker_source.height * variant.native_scale,
+            ),
+            resample=Image.Resampling.LANCZOS,
+        )
         picker = _render_ship_picker_panel(
             Image, ImageDraw, ImageFont, picker_source, font_path
         )
@@ -974,19 +984,30 @@ def build_localized_ship_info_assets(
 
         for page in SHIP_INFO_PAGES:
             animation_path = f"{variant.spin_prefix}/ship{page.index:02d}.ani"
-            animation = _parse_ship_animation(resolver, animation_path, page)
+            animation = native_resolution_manifest(
+                _parse_ship_animation(resolver, animation_path, page),
+                animation_path,
+                scale=variant.native_scale,
+            )
             source_path = f"{variant.spin_prefix}/{page.stem}.png"
             try:
                 source = Image.open(io.BytesIO(resolver.read_bytes(source_path)))
             except OSError as exc:
                 raise LocError(f"Cannot load ship-info image {source_path}: {exc}") from exc
-            if source.size != variant.canvas:
+            expected_source = (
+                variant.canvas[0] // variant.native_scale,
+                variant.canvas[1] // variant.native_scale,
+            )
+            if source.size != expected_source:
                 found = source.size
                 source.close()
                 raise LocError(
                     f"Unexpected {variant.addon} ship-info canvas for {source_path}: "
-                    f"expected {variant.canvas}, found {found}"
+                    f"expected {expected_source}, found {found}"
                 )
+            source = source.resize(
+                variant.canvas, resample=Image.Resampling.LANCZOS
+            )
             base, overlay = _render_ship_info_frames(
                 Image, ImageDraw, ImageFont, source, page, font_path
             )

@@ -206,7 +206,10 @@ def build_font_directory(
     *,
     copy_original: bool,
     metric_override: tuple[int, int] | None = None,
+    source_scale: int = 1,
 ) -> tuple[FontMetrics, int]:
+    if source_scale < 1:
+        raise LocError(f"Invalid source bitmap-font scale: {source_scale}")
     files = resolver.list_files(source_path)
     metrics = observe_font_metrics(files)
     if metric_override is not None:
@@ -214,11 +217,38 @@ def build_font_directory(
         if width < 1 or height < 1:
             raise LocError(f"Invalid bitmap-font metric override: {metric_override}")
         metrics = FontMetrics(width=width, height=height, sample_count=metrics.sample_count)
+    elif source_scale != 1:
+        metrics = FontMetrics(
+            width=metrics.width * source_scale,
+            height=metrics.height * source_scale,
+            sample_count=metrics.sample_count,
+        )
     destination.mkdir(parents=True, exist_ok=True)
     if copy_original:
         for name, raw in sorted(files.items()):
             if "/" in name or "\\" in name:
                 raise LocError(f"Unsafe filename in source font {source_path}: {name!r}")
+            if source_scale != 1 and _PNG_NAME_RE.fullmatch(name):
+                try:
+                    original = renderer.Image.open(io.BytesIO(raw)).convert("RGBA")
+                except OSError as exc:
+                    raise LocError(
+                        f"Cannot enlarge source glyph {source_path}/{name}: {exc}"
+                    ) from exc
+                enlarged = original.resize(
+                    (
+                        original.width * source_scale,
+                        original.height * source_scale,
+                    ),
+                    resample=renderer.Image.Resampling.LANCZOS,
+                )
+                buffer = io.BytesIO()
+                enlarged.save(
+                    buffer, format="PNG", optimize=False, compress_level=1
+                )
+                raw = buffer.getvalue()
+                enlarged.close()
+                original.close()
             (destination / name).write_bytes(raw)
     count = 0
     for character in sorted(characters, key=ord):
