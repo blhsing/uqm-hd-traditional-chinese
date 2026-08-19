@@ -759,11 +759,13 @@ foreach ($specification in $shortcutSpecifications) {
 $programsRoot = Get-UqmFullPath -Path ([Environment]::GetFolderPath([Environment+SpecialFolder]::Programs))
 $legacyStartFolder = Join-Path -Path $programsRoot -ChildPath 'The Ur-Quan Masters HD - Traditional Chinese'
 $legacyStartPath = Join-Path -Path $legacyStartFolder -ChildPath 'The Ur-Quan Masters HD - Traditional Chinese.lnk'
+$legacyFullscreenStartPath = Join-Path -Path $programsRoot -ChildPath 'The Ur-Quan Masters HD - Traditional Chinese (Fullscreen).lnk'
 $legacyShortcutPaths = @(
     (Join-UqmContainedPath -Root $install -RelativePath 'Launch UQM-HD zh-TW (1x).lnk'),
     (Join-UqmContainedPath -Root $install -RelativePath 'Launch UQM-HD zh-TW (2x).lnk'),
     (Join-UqmContainedPath -Root $install -RelativePath 'Launch UQM-HD zh-TW (4x).lnk'),
-    $legacyStartPath
+    $legacyStartPath,
+    $legacyFullscreenStartPath
 )
 $removedLegacyStartShortcut = $false
 foreach ($legacyPath in $legacyShortcutPaths) {

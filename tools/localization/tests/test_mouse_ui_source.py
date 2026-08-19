@@ -25,6 +25,30 @@ class MousePressSnapshotTests(unittest.TestCase):
             source[button_down:generation],
         )
 
+    def test_mouse_click_does_not_hide_or_recenter_the_cursor(self):
+        source = (REPO_ROOT / "game/src/libs/input/sdl/input.c").read_text(
+            encoding="utf-8"
+        )
+        button_down = source.index("case SDL_MOUSEBUTTONDOWN:")
+        button_up = source.index("case SDL_MOUSEBUTTONUP:", button_down)
+        click_handler = source[button_down:button_up]
+        self.assertIn("setMouseCursorVisible (TRUE);", click_handler)
+        self.assertNotIn("setMouseCursorVisible (FALSE);", click_handler)
+        self.assertNotIn("SDL_WarpMouse", source)
+
+    def test_print_screen_requests_an_opengl_framebuffer_capture(self):
+        input_source = (REPO_ROOT / "game/src/libs/input/sdl/input.c").read_text(
+            encoding="utf-8"
+        )
+        renderer = (
+            REPO_ROOT / "game/src/libs/graphics/sdl/opengl.c"
+        ).read_text(encoding="utf-8")
+        self.assertIn("Event->key.keysym.sym == SDLK_PRINT", input_source)
+        self.assertIn("TFB_GL_RequestScreenshot ();", input_source)
+        self.assertIn("TFB_GL_CaptureFramebuffer", renderer)
+        self.assertIn("TFB_GL_CopyCaptureToClipboard", renderer)
+        self.assertIn('"%s/screenshots"', renderer)
+
     def test_every_clickable_surface_targets_press_coordinates(self):
         sources = {
             "restart": REPO_ROOT / "game/src/uqm/restart.c",

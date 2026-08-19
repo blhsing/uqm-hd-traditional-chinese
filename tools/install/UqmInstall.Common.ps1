@@ -363,7 +363,7 @@ function Get-UqmShortcutSpecifications {
     # ASCII so creation remains reliable regardless of the system code page;
     # the localized game data and UI remain Traditional Chinese.
     $desktopLeaf = 'The Ur-Quan Masters HD - Traditional Chinese.lnk'
-    $startLeaf = 'The Ur-Quan Masters HD - Traditional Chinese (Fullscreen).lnk'
+    $startLeaf = 'The Ur-Quan Masters HD - Traditional Chinese.lnk'
 
     return @(
         [pscustomobject][ordered]@{

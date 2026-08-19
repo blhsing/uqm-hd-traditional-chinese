@@ -20,10 +20,16 @@
 
 #ifdef HAVE_OPENGL
 
+#ifdef WIN32
+#include <windows.h>
+#endif
+#include <time.h>
+
 #include "libs/graphics/sdl/opengl.h"
 #include "libs/graphics/bbox.h"
 #include "scalers.h"
 #include "options.h"
+#include "libs/file.h"
 #include "libs/log.h"
 
 typedef struct _gl_screeninfo {
@@ -41,6 +47,7 @@ static int ScreenTextureHeight;
 
 static TFB_ScaleFunc scaler = NULL;
 static BOOLEAN first_init = TRUE;
+static volatile BOOLEAN ScreenshotRequested = FALSE;
 
 #if SDL_BYTEORDER == SDL_BIG_ENDIAN
 #define R_MASK 0xff000000
@@ -61,6 +68,12 @@ static void TFB_GL_Unscaled_ScreenLayer (SCREEN screen, Uint8 a, SDL_Rect *rect)
 static void TFB_GL_Unscaled_ScreenLayer_2x (SCREEN screen, Uint8 a, SDL_Rect *rect);
 static void TFB_GL_Unscaled_ScreenLayer_4x (SCREEN screen, Uint8 a, SDL_Rect *rect);
 static void TFB_GL_ColorLayer (Uint8 r, Uint8 g, Uint8 b, Uint8 a, SDL_Rect *rect);
+
+void
+TFB_GL_RequestScreenshot (void)
+{
+	ScreenshotRequested = TRUE;
+}
 
 static TFB_GRAPHICS_BACKEND opengl_scaled_backend = {
 	TFB_GL_Preprocess,
@@ -907,11 +920,171 @@ TFB_GL_ColorLayer (Uint8 r, Uint8 g, Uint8 b, Uint8 a, SDL_Rect *rect)
 	TFB_GL_DrawQuad (rect);
 }
 
+static SDL_Surface *
+TFB_GL_CaptureFramebuffer (void)
+{
+	SDL_Surface *capture;
+	Uint8 *temporary_row;
+	Uint8 *top_row;
+	Uint8 *bottom_row;
+	int y;
+
+	capture = SDL_CreateRGBSurface (SDL_SWSURFACE,
+			ScreenWidthActual, ScreenHeightActual, 32,
+			R_MASK, G_MASK, B_MASK, A_MASK);
+	if (capture == NULL)
+		return NULL;
+
+	glReadBuffer (GL_BACK);
+	glReadPixels (0, 0, ScreenWidthActual, ScreenHeightActual,
+			GL_RGBA, GL_UNSIGNED_BYTE, capture->pixels);
+
+	/* OpenGL's origin is at the lower left, while SDL bitmap rows start at
+	 * the upper left.  Flip the captured frame before saving or copying it. */
+	temporary_row = (Uint8 *) SDL_malloc (capture->pitch);
+	if (temporary_row == NULL)
+	{
+		SDL_FreeSurface (capture);
+		return NULL;
+	}
+	for (y = 0; y < capture->h / 2; ++y)
+	{
+		top_row = (Uint8 *) capture->pixels + y * capture->pitch;
+		bottom_row = (Uint8 *) capture->pixels +
+				(capture->h - y - 1) * capture->pitch;
+		memcpy (temporary_row, top_row, capture->pitch);
+		memcpy (top_row, bottom_row, capture->pitch);
+		memcpy (bottom_row, temporary_row, capture->pitch);
+	}
+	SDL_free (temporary_row);
+	return capture;
+}
+
+#ifdef WIN32
+static BOOLEAN
+TFB_GL_CopyCaptureToClipboard (const SDL_Surface *capture)
+{
+	BITMAPINFOHEADER *header;
+	HGLOBAL memory;
+	DWORD image_size;
+	DWORD allocation_size;
+	Uint8 *destination;
+	const Uint8 *source_row;
+	Uint8 *destination_row;
+	int x;
+	int y;
+
+	image_size = (DWORD) capture->w * (DWORD) capture->h * 4;
+	allocation_size = sizeof (*header) + image_size;
+	memory = GlobalAlloc (GMEM_MOVEABLE, allocation_size);
+	if (memory == NULL)
+		return FALSE;
+
+	header = (BITMAPINFOHEADER *) GlobalLock (memory);
+	if (header == NULL)
+	{
+		GlobalFree (memory);
+		return FALSE;
+	}
+	memset (header, 0, sizeof (*header));
+	header->biSize = sizeof (*header);
+	header->biWidth = capture->w;
+	header->biHeight = capture->h;
+	header->biPlanes = 1;
+	header->biBitCount = 32;
+	header->biCompression = BI_RGB;
+	header->biSizeImage = image_size;
+	destination = (Uint8 *) (header + 1);
+	for (y = 0; y < capture->h; ++y)
+	{
+		/* A positive-height DIB is bottom-up. */
+		source_row = (const Uint8 *) capture->pixels +
+				(capture->h - y - 1) * capture->pitch;
+		destination_row = destination + y * capture->w * 4;
+		for (x = 0; x < capture->w; ++x)
+		{
+			destination_row[x * 4 + 0] = source_row[x * 4 + 2];
+			destination_row[x * 4 + 1] = source_row[x * 4 + 1];
+			destination_row[x * 4 + 2] = source_row[x * 4 + 0];
+			destination_row[x * 4 + 3] = 0;
+		}
+	}
+	GlobalUnlock (memory);
+
+	if (!OpenClipboard (NULL))
+	{
+		GlobalFree (memory);
+		return FALSE;
+	}
+	EmptyClipboard ();
+	if (SetClipboardData (CF_DIB, memory) == NULL)
+	{
+		CloseClipboard ();
+		GlobalFree (memory);
+		return FALSE;
+	}
+	CloseClipboard ();
+	/* Windows owns memory after SetClipboardData succeeds. */
+	return TRUE;
+}
+#endif
+
+static void
+TFB_GL_SaveUserScreenshot (SDL_Surface *capture)
+{
+	const char *config_path;
+	char screenshot_dir[PATH_MAX];
+	char screenshot_path[PATH_MAX];
+	time_t now;
+	struct tm *local_now;
+	char timestamp[32];
+	int result;
+	BOOLEAN copied = FALSE;
+
+	config_path = getenv ("UQM_CONFIG_DIR");
+	if (config_path == NULL || *config_path == '\0')
+		config_path = ".";
+	result = snprintf (screenshot_dir, sizeof (screenshot_dir),
+			"%s/screenshots", config_path);
+	if (result < 0 || result >= (int) sizeof (screenshot_dir) ||
+			mkdirhier (screenshot_dir) == -1)
+	{
+		log_add (log_Warning, "Could not create the screenshot directory");
+		return;
+	}
+
+	now = time (NULL);
+	local_now = localtime (&now);
+	if (local_now == NULL ||
+			strftime (timestamp, sizeof (timestamp), "%Y%m%d-%H%M%S",
+					local_now) == 0)
+		strcpy (timestamp, "unknown-time");
+	result = snprintf (screenshot_path, sizeof (screenshot_path),
+			"%s/uqm-%s-%03u.bmp", screenshot_dir, timestamp,
+			(unsigned int) (SDL_GetTicks () % 1000));
+	if (result < 0 || result >= (int) sizeof (screenshot_path))
+	{
+		log_add (log_Warning, "The screenshot path is too long");
+		return;
+	}
+
+#ifdef WIN32
+	copied = TFB_GL_CopyCaptureToClipboard (capture);
+#endif
+	if (SDL_SaveBMP (capture, screenshot_path) == 0)
+		log_add (log_Info, "Saved screenshot to '%s'%s", screenshot_path,
+				copied ? " and copied it to the clipboard" : "");
+	else
+		log_add (log_Warning, "Could not save screenshot: %s",
+				SDL_GetError ());
+}
+
 static void
 TFB_GL_Postprocess (void)
 {
 	static unsigned int qa_capture_frame = 0;
 	const char *qa_capture_path = getenv ("UQM_QA_CAPTURE");
+	SDL_Surface *capture;
 
 	if (GfxFlags & TFB_GFXFLAGS_SCANLINES)
 		TFB_GL_ScanLines ();
@@ -922,14 +1095,9 @@ TFB_GL_Postprocess (void)
 	if (qa_capture_path && *qa_capture_path &&
 			qa_capture_frame++ >= 30 && qa_capture_frame % 300 == 0)
 	{
-		SDL_Surface *capture = SDL_CreateRGBSurface (SDL_SWSURFACE,
-				ScreenWidthActual, ScreenHeightActual, 32,
-				R_MASK, G_MASK, B_MASK, A_MASK);
+		capture = TFB_GL_CaptureFramebuffer ();
 		if (capture)
 		{
-			glReadBuffer (GL_BACK);
-			glReadPixels (0, 0, ScreenWidthActual, ScreenHeightActual,
-					GL_RGBA, GL_UNSIGNED_BYTE, capture->pixels);
 			if (SDL_SaveBMP (capture, qa_capture_path) == 0)
 				log_add (log_Info, "Saved QA framebuffer capture to '%s'",
 						qa_capture_path);
@@ -938,6 +1106,19 @@ TFB_GL_Postprocess (void)
 						SDL_GetError ());
 			SDL_FreeSurface (capture);
 		}
+	}
+
+	if (ScreenshotRequested)
+	{
+		ScreenshotRequested = FALSE;
+		capture = TFB_GL_CaptureFramebuffer ();
+		if (capture != NULL)
+		{
+			TFB_GL_SaveUserScreenshot (capture);
+			SDL_FreeSurface (capture);
+		}
+		else
+			log_add (log_Warning, "Could not capture the OpenGL framebuffer");
 	}
 
 	SDL_GL_SwapBuffers ();

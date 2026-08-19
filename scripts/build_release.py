@@ -19,7 +19,7 @@ PACKS = {
     ),
 }
 
-DEFAULT_VERSION = "0.5.0"
+DEFAULT_VERSION = "0.5.1"
 VERSION_PATTERN = re.compile(r"[0-9A-Za-z][0-9A-Za-z._+\-]{0,127}\Z")
 
 SOURCE_FILES = (
@@ -87,7 +87,7 @@ INSTALL_TEXT = """UQM-HD 繁體中文版 v{version} — Windows 安裝說明
 
 3. 確認演練結果後，以相同命令移除最後的 -PlanOnly 正式安裝。
 4. 從開始選單開啟
-   "The Ur-Quan Masters HD - Traditional Chinese (Fullscreen)"；預設以
+   "The Ur-Quan Masters HD - Traditional Chinese"；預設以
    2560x1920 超取樣畫布、雙線性縮放及主螢幕原生解析度全螢幕啟動。
    F11 可切換全螢幕。
 

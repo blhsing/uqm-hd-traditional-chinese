@@ -18,8 +18,8 @@ def _sha256(data: bytes) -> str:
 
 
 class RuntimeReleaseTests(unittest.TestCase):
-    def test_release_metadata_matches_v050_payloads(self) -> None:
-        self.assertEqual(release.DEFAULT_VERSION, "0.5.0")
+    def test_release_metadata_matches_v051_payloads(self) -> None:
+        self.assertEqual(release.DEFAULT_VERSION, "0.5.1")
         self.assertEqual(
             release.PACKS,
             {

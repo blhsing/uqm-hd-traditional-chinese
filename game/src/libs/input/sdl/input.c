@@ -20,6 +20,7 @@
 #include <errno.h>
 #include "../inpintrn.h"
 #include "libs/graphics/sdl/sdl_common.h"
+#include "libs/graphics/sdl/opengl.h"
 #include "libs/input/sdl/vcontrol.h"
 #include "libs/input/sdl/keynames.h"
 #include "libs/memlib.h"
@@ -499,7 +500,11 @@ ProcessMouseEvent (const SDL_Event *e)
 		++MouseState.press_generation;
 		MouseButtonDown = MouseState.button_mask != 0;
 		SDL_UnlockMutex (MouseMutex);
-		setMouseCursorVisible (FALSE);
+		/* Keep the hardware pointer at the click position.  Hiding it here in
+		 * exclusive fullscreen makes some SDL/Windows drivers restore it at the
+		 * center of the display.  Keyboard input still hides the pointer, and
+		 * actual mouse motion still reveals it. */
+		setMouseCursorVisible (TRUE);
 		break;
 	case SDL_MOUSEBUTTONUP:
 		if (SDL_LockMutex (MouseMutex) != 0)
@@ -532,6 +537,13 @@ ProcessInputEvent (const SDL_Event *Event)
 {
 	if (!InputInitialized)
 		return;
+
+	if (Event->type == SDL_KEYDOWN && Event->key.keysym.sym == SDLK_PRINT)
+	{
+#ifdef HAVE_OPENGL
+		TFB_GL_RequestScreenshot ();
+#endif
+	}
 
 	if (Event->type == SDL_KEYDOWN)
 		setMouseCursorVisible (FALSE);

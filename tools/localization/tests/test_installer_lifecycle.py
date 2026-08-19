@@ -86,7 +86,7 @@ $actual = Get-UqmShortcutDetails -Path '{_quote(shortcut)}'
         self.assertTrue(result["Matches"])
         self.assertEqual(
             result["StartLeaf"],
-            "The Ur-Quan Masters HD - Traditional Chinese (Fullscreen).lnk",
+            "The Ur-Quan Masters HD - Traditional Chinese.lnk",
         )
         self.assertEqual(result["StartParent"].lower(), result["Programs"].lower())
         self.assertTrue(result["StartIsFullscreen"])
