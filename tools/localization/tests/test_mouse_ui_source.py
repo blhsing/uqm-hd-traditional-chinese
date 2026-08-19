@@ -46,7 +46,7 @@ class MousePressSnapshotTests(unittest.TestCase):
         self.assertIn("Event->key.keysym.sym == SDLK_PRINT", input_source)
         self.assertIn("TFB_GL_RequestScreenshot ();", input_source)
         self.assertIn("TFB_GL_CaptureFramebuffer", renderer)
-        self.assertIn("TFB_GL_CopyCaptureToClipboard", renderer)
+        self.assertIn("TFB_Win32_CopyRGBAToClipboard", renderer)
         self.assertIn('"%s/screenshots"', renderer)
 
     def test_every_clickable_surface_targets_press_coordinates(self):

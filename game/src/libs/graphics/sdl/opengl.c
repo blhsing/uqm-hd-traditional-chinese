@@ -20,9 +20,6 @@
 
 #ifdef HAVE_OPENGL
 
-#ifdef WIN32
-#include <windows.h>
-#endif
 #include <time.h>
 
 #include "libs/graphics/sdl/opengl.h"
@@ -31,6 +28,9 @@
 #include "options.h"
 #include "libs/file.h"
 #include "libs/log.h"
+#ifdef WIN32
+#include "clipboard_win.h"
+#endif
 
 typedef struct _gl_screeninfo {
 	SDL_Surface *scaled;
@@ -960,75 +960,6 @@ TFB_GL_CaptureFramebuffer (void)
 	return capture;
 }
 
-#ifdef WIN32
-static BOOLEAN
-TFB_GL_CopyCaptureToClipboard (const SDL_Surface *capture)
-{
-	BITMAPINFOHEADER *header;
-	HGLOBAL memory;
-	DWORD image_size;
-	DWORD allocation_size;
-	Uint8 *destination;
-	const Uint8 *source_row;
-	Uint8 *destination_row;
-	int x;
-	int y;
-
-	image_size = (DWORD) capture->w * (DWORD) capture->h * 4;
-	allocation_size = sizeof (*header) + image_size;
-	memory = GlobalAlloc (GMEM_MOVEABLE, allocation_size);
-	if (memory == NULL)
-		return FALSE;
-
-	header = (BITMAPINFOHEADER *) GlobalLock (memory);
-	if (header == NULL)
-	{
-		GlobalFree (memory);
-		return FALSE;
-	}
-	memset (header, 0, sizeof (*header));
-	header->biSize = sizeof (*header);
-	header->biWidth = capture->w;
-	header->biHeight = capture->h;
-	header->biPlanes = 1;
-	header->biBitCount = 32;
-	header->biCompression = BI_RGB;
-	header->biSizeImage = image_size;
-	destination = (Uint8 *) (header + 1);
-	for (y = 0; y < capture->h; ++y)
-	{
-		/* A positive-height DIB is bottom-up. */
-		source_row = (const Uint8 *) capture->pixels +
-				(capture->h - y - 1) * capture->pitch;
-		destination_row = destination + y * capture->w * 4;
-		for (x = 0; x < capture->w; ++x)
-		{
-			destination_row[x * 4 + 0] = source_row[x * 4 + 2];
-			destination_row[x * 4 + 1] = source_row[x * 4 + 1];
-			destination_row[x * 4 + 2] = source_row[x * 4 + 0];
-			destination_row[x * 4 + 3] = 0;
-		}
-	}
-	GlobalUnlock (memory);
-
-	if (!OpenClipboard (NULL))
-	{
-		GlobalFree (memory);
-		return FALSE;
-	}
-	EmptyClipboard ();
-	if (SetClipboardData (CF_DIB, memory) == NULL)
-	{
-		CloseClipboard ();
-		GlobalFree (memory);
-		return FALSE;
-	}
-	CloseClipboard ();
-	/* Windows owns memory after SetClipboardData succeeds. */
-	return TRUE;
-}
-#endif
-
 static void
 TFB_GL_SaveUserScreenshot (SDL_Surface *capture)
 {
@@ -1069,7 +1000,9 @@ TFB_GL_SaveUserScreenshot (SDL_Surface *capture)
 	}
 
 #ifdef WIN32
-	copied = TFB_GL_CopyCaptureToClipboard (capture);
+	copied = TFB_Win32_CopyRGBAToClipboard (
+			(const unsigned char *) capture->pixels, capture->w, capture->h,
+			capture->pitch) != 0;
 #endif
 	if (SDL_SaveBMP (capture, screenshot_path) == 0)
 		log_add (log_Info, "Saved screenshot to '%s'%s", screenshot_path,
