@@ -135,6 +135,11 @@ closes over every PE32 payload, stages the corresponding license files, and reco
 zero unresolved non-system imports. See `../docs/BUILD-WINDOWS.md` for the
 pinned MSYS2 recipe and provenance checks.
 
+| Runtime artifact | Bytes | SHA-256 |
+| --- | ---: | --- |
+| `uqm-hd.exe` | 3,013,822 | `7b80cd4c741371b98776784e91a0971920e28382443a459174d88cbf69596c5c` |
+| `runtime-manifest.json` | 27,388 | `737c044b8b4d82f5a563833e9152b027792e06145eb58804ed2bc9f3cc18dcac` |
+
 Shortcut filenames use ASCII because this host's legacy Windows shortcut API
 cannot reliably create Unicode paths. This does not affect the Traditional
 Chinese game UI or content.

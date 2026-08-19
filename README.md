@@ -60,6 +60,9 @@ v0.5.0 壓縮檔包含單一自足的原生 1080p 繁中套件、管理式安裝
 `runtime/windows-x86`（EXE、DLL、manifest 與授權文件），但**不包含原版遊戲的
 `content`／音樂／語音／圖像**；安裝時仍須提供合法取得的 UQM-HD Beta 1 內容。
 
+完整發行壓縮檔 `uqm-hd-zh-tw-v0.5.0.zip` 為 202,574,206 位元組，
+SHA-256 為 `34dd40559175a3d9c1031c1a8d1d23b333f6e4b1b9a5fd88839f9be76c919a19`。
+
 本版本只需安裝一個套件；1x、2x 與 4x 繁中套件均已停止支援：
 
 | 檔案 | 位元組 | SHA-256 |
@@ -68,7 +71,15 @@ v0.5.0 壓縮檔包含單一自足的原生 1080p 繁中套件、管理式安裝
 
 發行包內的 Windows x86 執行環境由本儲存庫的乾淨 `game/` 原始碼樹建置；
 `runtime-manifest.json` 逐一鎖定所有 PE32/i386 payload、授權檔及完整 import graph，
-未解析的非系統相依項為 0。舊版官方 EXE 的四階段雜湊鎖定
+未解析的非系統相依項為 0：
+
+| 檔案 | 位元組 | SHA-256 |
+|---|---:|---|
+| `runtime/windows-x86/uqm-hd.exe` | 3,013,822 | `7b80cd4c741371b98776784e91a0971920e28382443a459174d88cbf69596c5c` |
+| `runtime/windows-x86/runtime-manifest.json` | 27,388 | `737c044b8b4d82f5a563833e9152b027792e06145eb58804ed2bc9f3cc18dcac` |
+
+執行檔來自 commit `bf0202bb9e10d876b504169030a783cf8f2ea9e8` 的乾淨
+1,043 檔案 `game/` 樹。舊版官方 EXE 的四階段雜湊鎖定
 PE 修補器仍保留作相容性備援；它會驗證完整輸入雜湊、唯一指令特徵、固定檔案位移及
 PE checksum，遇到未知版本即拒絕修改。
 

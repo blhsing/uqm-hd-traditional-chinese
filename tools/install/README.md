@@ -23,6 +23,11 @@ manifest records every PE32 payload and license file, the complete import graph,
 and zero unresolved non-system imports. Exact release hashes are published in
 the archive's `SHA256SUMS` file and in the v0.5.0 release notes.
 
+| Artifact | Bytes | SHA-256 |
+| --- | ---: | --- |
+| `uqm-hd.exe` | 3,013,822 | `7b80cd4c741371b98776784e91a0971920e28382443a459174d88cbf69596c5c` |
+| `runtime-manifest.json` | 27,388 | `737c044b8b4d82f5a563833e9152b027792e06145eb58804ed2bc9f3cc18dcac` |
+
 The release archive includes this GPL source-built runtime and its dependency
 licenses, but not the upstream game's original content. `SourceRoot` must
 therefore still point at an extracted official Beta 1 tree containing
