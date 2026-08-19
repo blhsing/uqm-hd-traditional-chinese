@@ -753,17 +753,31 @@ foreach ($specification in $shortcutSpecifications) {
     })
 }
 
-# Version 0.4 retires the low-resolution entry points. Remove only shortcuts
-# positively owned by the preceding managed-install marker.
-foreach ($legacyLeaf in @(
-    'Launch UQM-HD zh-TW (1x).lnk',
-    'Launch UQM-HD zh-TW (2x).lnk'
-)) {
-    $legacyPath = Join-UqmContainedPath -Root $install -RelativePath $legacyLeaf
+# Version 0.4 retires the low-resolution entry points, while 0.4.1 promotes
+# the fullscreen launcher from a Start Menu subfolder to an explicit top-level
+# entry. Remove only shortcuts positively owned by the preceding marker.
+$programsRoot = Get-UqmFullPath -Path ([Environment]::GetFolderPath([Environment+SpecialFolder]::Programs))
+$legacyStartFolder = Join-Path -Path $programsRoot -ChildPath 'The Ur-Quan Masters HD - Traditional Chinese'
+$legacyStartPath = Join-Path -Path $legacyStartFolder -ChildPath 'The Ur-Quan Masters HD - Traditional Chinese.lnk'
+$legacyShortcutPaths = @(
+    (Join-UqmContainedPath -Root $install -RelativePath 'Launch UQM-HD zh-TW (1x).lnk'),
+    (Join-UqmContainedPath -Root $install -RelativePath 'Launch UQM-HD zh-TW (2x).lnk'),
+    $legacyStartPath
+)
+$removedLegacyStartShortcut = $false
+foreach ($legacyPath in $legacyShortcutPaths) {
     if ((Test-Path -LiteralPath $legacyPath -PathType Leaf) -and
         (Test-MarkerListsShortcut -Marker $previousMarker -Path $legacyPath)) {
         Remove-Item -LiteralPath $legacyPath -Force
+        if (Test-UqmPathEqual -Left $legacyPath -Right $legacyStartPath) {
+            $removedLegacyStartShortcut = $true
+        }
     }
+}
+if ($removedLegacyStartShortcut -and
+    (Test-Path -LiteralPath $legacyStartFolder -PathType Container) -and
+    @((Get-ChildItem -LiteralPath $legacyStartFolder -Force)).Count -eq 0) {
+    Remove-Item -LiteralPath $legacyStartFolder -Force
 }
 
 $removedCount = 0

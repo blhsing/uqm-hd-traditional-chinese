@@ -28,7 +28,8 @@
 - 玩家一的特殊能力除了右 `Shift` 與數字鍵盤 `0`，亦可使用右 `Alt`；原有按鍵仍然保留。
 - 主選單、超級對戰隊伍設定、船艦編組與開戰前選船均支援滑鼠；游標停在船艦上會更新目前船艦資料。移動滑鼠會顯示游標，按鍵或按下滑鼠鍵會隱藏游標。
 - 超級對戰開戰前的選船畫面會顯示目前船艦的船員、能量、費用、極速、加速、轉向、回能與動作消耗；`Esc` 與紅色 `X` 共用確認返回流程。
-- 只支援 4x 高解析度資產；安裝捷徑會偵測主螢幕原生解析度並以全螢幕啟動。
+- 只支援 4x 高解析度資產；安裝器會在開始選單最上層加入名稱明確標示
+  `Fullscreen` 的捷徑，偵測主螢幕原生解析度並以全螢幕啟動。
 
 <p align="center">
   <img src="localization/qa/installed-runtime-final-yellow-3.png" width="760" alt="繁體中文主選單，選取的新遊戲以黃色顯示">
@@ -54,12 +55,12 @@
 
 大型 `.uqm` 套件與 Windows 執行環境不放入 Git 歷史；請前往
 [GitHub Releases](https://github.com/blhsing/uqm-hd-traditional-chinese/releases/latest)。
-v0.4.0 壓縮檔包含單一自足的 4x 繁中套件、管理式安裝器、驗證工具、
+v0.4.1 壓縮檔包含單一自足的 4x 繁中套件、管理式安裝器、驗證工具、
 `runtime/windows-x86`（EXE、DLL、manifest 與授權文件），但**不包含原版遊戲的
 `content`／音樂／語音／圖像**；安裝時仍須提供合法取得的 UQM-HD Beta 1 內容。
 
-完整發行壓縮檔 `uqm-hd-zh-tw-v0.4.0.zip` 為 104,465,968 位元組，
-SHA-256 為 `7a972fd6a69aad0e1ff831cc8071c3b311884b9c595b9ab2aa55d110a1e382fb`。
+完整發行壓縮檔 `uqm-hd-zh-tw-v0.4.1.zip` 為 104,466,906 位元組，
+SHA-256 為 `294274f26b8265aa462b7ef290b79243cd7345c75c86ace686703aa65158f86f`。
 
 本版本只需安裝一個套件；1x 與 2x 繁中套件已停止支援：
 
@@ -67,7 +68,7 @@ SHA-256 為 `7a972fd6a69aad0e1ff831cc8071c3b311884b9c595b9ab2aa55d110a1e382fb`�
 |---|---:|---|
 | `hires4x-zh_TW.uqm` | 91,567,383 | `b535d19283cf4afdb4482fc517eeef247c53ab6f5bb53b78996470ad035bd7e2` |
 
-v0.4.0 沿用由本儲存庫原始碼建置的 Windows x86 執行環境：
+v0.4.1 沿用由本儲存庫原始碼建置的 Windows x86 執行環境：
 
 | 檔案 | 位元組 | SHA-256 |
 |---|---:|---|
@@ -780,13 +781,13 @@ powershell.exe -NoProfile -ExecutionPolicy Bypass `
   -SmokeTimeoutSeconds 12
 ```
 
-v0.4.0 本機驗收涵蓋 Python 回歸測試及 Windows PowerShell 5.1 驗證器，包括
+v0.4.1 本機驗收涵蓋 Python 回歸測試及 Windows PowerShell 5.1 驗證器，包括
 管理檔案的長度及 SHA-256、單一自足 4x UQM 套件、三個捷徑、
 自訂 runtime manifest、未列入 manifest 的 EXE／DLL、玩家一右 `Alt` 綁定，以及
 12 秒 4x 1920×1080 全螢幕煙霧測試。實機超級對戰流程另確認繁中隊伍設定、
 較輕的 `船員／能量` 狀態字、船艦資料卡、`Esc` 返回確認及右 `Alt` 特殊能力；
 選船／資料按鈕與資料頁滑鼠返回另由來源與資產回歸測試覆蓋。
-完整發行紀錄見 [v0.4.0 發行說明](docs/releases/v0.4.0.md)。
+完整發行紀錄見 [v0.4.1 發行說明](docs/releases/v0.4.1.md)。
 
 ## 專案結構
 

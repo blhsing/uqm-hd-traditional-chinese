@@ -60,6 +60,8 @@ if (@($specifications | Where-Object {{
   -not [string]::Equals($_.IconLocation, $expectedIcon, [StringComparison]::OrdinalIgnoreCase)
 }}).Count -ne 0) {{ throw 'A shortcut specification does not use icon.ico.' }}
 $specification = $specifications[0]
+$startMenu = @($specifications | Where-Object {{ $_.Kind -eq 'start-menu-fullscreen' }})
+if ($startMenu.Count -ne 1) {{ throw 'Expected one explicit Start Menu fullscreen shortcut.' }}
 $specification.Path = '{_quote(shortcut)}'
 $specification.AllowedRoot = '{_quote(root)}'
 [void](Write-UqmShortcut -Specification $specification)
@@ -68,6 +70,10 @@ $actual = Get-UqmShortcutDetails -Path '{_quote(shortcut)}'
   Count = $specifications.Count
   IconLocation = $actual.IconLocation
   Matches = Test-UqmShortcutMatches -Actual $actual -Expected $specification
+  StartLeaf = Split-Path -Path $startMenu[0].Path -Leaf
+  StartParent = Split-Path -Path $startMenu[0].Path -Parent
+  Programs = Get-UqmFullPath -Path ([Environment]::GetFolderPath([Environment+SpecialFolder]::Programs))
+  StartIsFullscreen = $startMenu[0].Arguments -match '(?:^|\\s)-f(?:\\s|$)'
 }} | ConvertTo-Json -Compress
 """
             result = json.loads(_run_powershell(script))
@@ -78,6 +84,12 @@ $actual = Get-UqmShortcutDetails -Path '{_quote(shortcut)}'
             f"{install / 'icon.ico'},0".lower(),
         )
         self.assertTrue(result["Matches"])
+        self.assertEqual(
+            result["StartLeaf"],
+            "The Ur-Quan Masters HD - Traditional Chinese (Fullscreen).lnk",
+        )
+        self.assertEqual(result["StartParent"].lower(), result["Programs"].lower())
+        self.assertTrue(result["StartIsFullscreen"])
 
     def test_stale_file_plan_is_read_only_and_removal_is_hash_gated(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
@@ -191,6 +203,9 @@ Invoke-Expression $definition.Extent.Text
             installer.index("Remove-UqmStaleManagedFiles"),
             installer.index("Write-UqmUtf8JsonAtomic -Path $markerPath -Value $finalMarker"),
         )
+        self.assertIn("$removedLegacyStartShortcut = $false", installer)
+        self.assertIn("Test-MarkerListsShortcut -Marker $previousMarker", installer)
+        self.assertIn("if ($removedLegacyStartShortcut -and", installer)
         self.assertIn("absent from the managed manifest", verifier)
 
     def test_hex_conversion_works_in_windows_powershell_51(self) -> None:

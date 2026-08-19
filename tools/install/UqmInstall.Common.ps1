@@ -361,13 +361,13 @@ function Get-UqmShortcutSpecifications {
     # otherwise Unicode-capable Windows installations.  Keep shortcut paths in
     # ASCII so creation remains reliable regardless of the system code page;
     # the localized game data and UI remain Traditional Chinese.
-    $mainLeaf = 'The Ur-Quan Masters HD - Traditional Chinese.lnk'
-    $startFolder = Join-Path -Path $programs -ChildPath 'The Ur-Quan Masters HD - Traditional Chinese'
+    $desktopLeaf = 'The Ur-Quan Masters HD - Traditional Chinese.lnk'
+    $startLeaf = 'The Ur-Quan Masters HD - Traditional Chinese (Fullscreen).lnk'
 
     return @(
         [pscustomobject][ordered]@{
             Kind = 'desktop-default'
-            Path = Join-Path -Path $desktop -ChildPath $mainLeaf
+            Path = Join-Path -Path $desktop -ChildPath $desktopLeaf
             Target = $exe
             IconLocation = $icon + ',0'
             Arguments = Get-UqmLaunchArguments -ResolutionFactor 2 -Addon 'hires4x-zh_TW' -ProfileDir $profile -Fullscreen
@@ -377,8 +377,8 @@ function Get-UqmShortcutSpecifications {
             AllowedRoot = $desktop
         },
         [pscustomobject][ordered]@{
-            Kind = 'start-menu-default'
-            Path = Join-Path -Path $startFolder -ChildPath $mainLeaf
+            Kind = 'start-menu-fullscreen'
+            Path = Join-Path -Path $programs -ChildPath $startLeaf
             Target = $exe
             IconLocation = $icon + ',0'
             Arguments = Get-UqmLaunchArguments -ResolutionFactor 2 -Addon 'hires4x-zh_TW' -ProfileDir $profile -Fullscreen

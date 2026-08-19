@@ -1,7 +1,7 @@
 # UQM HD Traditional-Chinese localization pipeline
 
 This directory contains the content-only localization pipeline used for the
-**The Ur-Quan Masters HD Beta 1** v0.4.0 Traditional-Chinese release. It does not
+**The Ur-Quan Masters HD Beta 1** v0.4.1 Traditional-Chinese release. It does not
 call a translation API and does not modify the game installation. It exports
 protected JSON, merges translated `{id,text}` records, handles the engine's
 unusual text formats, generates bitmap glyphs from Noto Sans TC, and builds
@@ -138,13 +138,13 @@ The result is:
 localized-build/packages/hires4x-zh_TW.uqm
 ```
 
-The finalized v0.4.0 artifact is:
+The finalized v0.4.1 content artifact is unchanged from v0.4.0:
 
 | Pack | Bytes | SHA-256 |
 | --- | ---: | --- |
 | `hires4x-zh_TW.uqm` | 91,567,383 | `b535d19283cf4afdb4482fc517eeef247c53ab6f5bb53b78996470ad035bd7e2` |
 
-The v0.4.0 release reuses the audited Windows runtime first shipped in v0.3.2:
+The v0.4.1 release reuses the audited Windows runtime first shipped in v0.3.2:
 
 | Runtime file | Bytes | SHA-256 |
 | --- | ---: | --- |
@@ -234,7 +234,7 @@ main-menu choices, the visible Super Melee setup controls, ship picker, all 25
 ship-information pages, and combat status labels. The repository's preferred source-built runtime separately implements
 the yellow menu selection, main-menu and Super Melee mouse controls, cursor
 visibility switching, detailed vessel-stat cards, picker and in-bout Escape
-handling, and Player 1's additional RightAlt special-ability binding. The v0.4.0
+handling, and Player 1's additional RightAlt special-ability binding. The v0.4.1
 release bundles that GPL runtime and its dependency licenses, but does not
 bundle the upstream game's original content. A polished localization still
 benefits from a full playthrough. In particular, visually check the intro/final
@@ -250,4 +250,4 @@ python -m unittest discover `
   -v
 ```
 
-The finalized v0.4.0 tree passes all 60 automated tests.
+The finalized v0.4.1 tree passes all 60 automated tests.

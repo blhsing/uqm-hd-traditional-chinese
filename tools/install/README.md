@@ -18,7 +18,7 @@ exact length and SHA-256. The manifest maps its source executable (normally
 must also contain a non-empty `LICENSES` directory. This path does not require
 Python and never applies legacy binary patches.
 
-The v0.4.0 release reuses the runtime first shipped in v0.3.2. It was built
+The v0.4.1 release reuses the runtime first shipped in v0.3.2. It was built
 from the clean 1,043-file `game/` tree at
 source commit `7981479c611b60af041d05ec01a40791eb993f51`. Its manifest records
 20 PE32 payloads, 27 license files, and zero unresolved non-system imports:
@@ -103,7 +103,9 @@ powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\tools\install\Install-
   -ProfileDir "$env:APPDATA\UQM-HD-zh_TW"
 ```
 
-The default Desktop and Start Menu shortcut is named `The Ur-Quan Masters HD - Traditional Chinese.lnk` and launches at the primary display's detected native resolution. On this host it is:
+The installer creates a top-level Start Menu shortcut named
+`The Ur-Quan Masters HD - Traditional Chinese (Fullscreen).lnk`. It launches
+at the primary display's detected native resolution. On this host it is:
 
 ```text
 uqm.exe -o -r 1920x1080 -f -k -c none --resfactor=2 -C "%APPDATA%\UQM-HD-zh_TW" --addon hires4x-zh_TW
@@ -157,7 +159,7 @@ ZIP-compatible UQM archives, compares packs with the build output when it is
 available, independently checks all shortcut targets/arguments/working
 directories, and runs a hidden 12-second 4x fullscreen smoke test. The smoke
 log must confirm the `hires4x-zh_TW` add-on and the primary display's detected
-native rendering surface. The finalized v0.4.0 installation contains 11,532
+native rendering surface. The finalized v0.4.1 installation contains 11,532
 managed files and passes all 13 verifier checks; the repository's automated
 suite passes all 60 tests.
 
