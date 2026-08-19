@@ -36,13 +36,6 @@ class ShipInfoAssetTests(unittest.TestCase):
                 for variant in SHIP_INFO_VARIANTS
             ],
             [
-                ("zh_TW", "base/ui", "base/cutscene/spins", (320, 240)),
-                (
-                    "hires2x-zh_TW",
-                    "addons/hires2x/ui",
-                    "addons/hires2x/cutscene/spins",
-                    (640, 480),
-                ),
                 (
                     "hires4x-zh_TW",
                     "addons/hires4x/ui",
@@ -79,16 +72,16 @@ class ShipInfoAssetTests(unittest.TestCase):
     def test_one_page_build_is_deterministic_and_uses_shadow_paths(self):
         from PIL import Image, ImageDraw
 
-        base = Image.new("RGB", (320, 240), (9, 11, 23))
+        base = Image.new("RGB", (1280, 960), (9, 11, 23))
         draw = ImageDraw.Draw(base)
-        draw.rectangle((0, 23, 319, 92), fill=(88, 88, 88))
-        draw.rectangle((80, 49, 84, 55), fill=(230, 230, 230))
-        draw.rectangle((258, 62, 315, 89), fill=(4, 5, 91))
+        draw.rectangle((0, 92, 1279, 368), fill=(88, 88, 88))
+        draw.rectangle((320, 196, 336, 220), fill=(230, 230, 230))
+        draw.rectangle((1032, 248, 1260, 356), fill=(4, 5, 91))
         base_buffer = io.BytesIO()
         base.save(base_buffer, format="PNG")
         base.close()
 
-        picker = Image.new("RGB", (128, 98), (128, 128, 124))
+        picker = Image.new("RGB", (512, 392), (128, 128, 124))
         picker_buffer = io.BytesIO()
         picker.save(picker_buffer, format="PNG")
         picker.close()
@@ -96,14 +89,14 @@ class ShipInfoAssetTests(unittest.TestCase):
         class Resolver:
             @staticmethod
             def read_bytes(path: str) -> bytes:
-                if path == "base/ui/meleemenu-027.png":
+                if path == "addons/hires4x/ui/meleemenu-027.png":
                     return picker_buffer.getvalue()
-                if path == "base/cutscene/spins/ship00.ani":
+                if path == "addons/hires4x/cutscene/spins/ship00.ani":
                     return (
                         b"androsynth.png -2 -1 0 0\n"
                         b"androsynth-ovl.png -2 -1 0 0\n"
                     )
-                if path == "base/cutscene/spins/androsynth.png":
+                if path == "addons/hires4x/cutscene/spins/androsynth.png":
                     return base_buffer.getvalue()
                 raise AssertionError(f"unexpected resource: {path}")
 
@@ -125,38 +118,38 @@ class ShipInfoAssetTests(unittest.TestCase):
                 )
 
             expected = (
-                "base/ui/meleemenu-027.png",
-                "base/cutscene/spins/ship00.ani",
-                "base/cutscene/spins/androsynth.png",
-                "base/cutscene/spins/androsynth-ovl.png",
+                "addons/hires4x/ui/meleemenu-027.png",
+                "addons/hires4x/cutscene/spins/ship00.ani",
+                "addons/hires4x/cutscene/spins/androsynth.png",
+                "addons/hires4x/cutscene/spins/androsynth-ovl.png",
             )
             for relative in expected:
-                first_file = first / "zh_TW" / Path(relative)
-                second_file = second / "zh_TW" / Path(relative)
+                first_file = first / "hires4x-zh_TW" / Path(relative)
+                second_file = second / "hires4x-zh_TW" / Path(relative)
                 with self.subTest(resource=relative):
                     self.assertTrue(first_file.is_file())
                     self.assertEqual(first_file.read_bytes(), second_file.read_bytes())
 
-            report = first_report["zh_TW"]
+            report = first_report["hires4x-zh_TW"]
             self.assertEqual(report["ship_info"]["pages"], 1)
             self.assertTrue(report["ship_info"]["native_resolution"])
             self.assertEqual(len(report["files"]), 4)
             with Image.open(
-                first / "zh_TW/base/cutscene/spins/androsynth.png"
+                first / "hires4x-zh_TW/addons/hires4x/cutscene/spins/androsynth.png"
             ) as rendered_base:
-                self.assertEqual(rendered_base.size, (320, 240))
+                self.assertEqual(rendered_base.size, (1280, 960))
                 # A long English tagline may extend left of the nominal header;
                 # the complete stock wording must be removed.
                 self.assertEqual(
-                    rendered_base.convert("RGB").getpixel((82, 52)),
+                    rendered_base.convert("RGB").getpixel((328, 208)),
                     (80, 80, 80),
                 )
                 # An untouched corner of the battle artwork remains intact.
-                self.assertEqual(rendered_base.convert("RGB").getpixel((2, 150)), (9, 11, 23))
+                self.assertEqual(rendered_base.convert("RGB").getpixel((8, 600)), (9, 11, 23))
             with Image.open(
-                first / "zh_TW/base/cutscene/spins/androsynth-ovl.png"
+                first / "hires4x-zh_TW/addons/hires4x/cutscene/spins/androsynth-ovl.png"
             ) as rendered_overlay:
-                self.assertEqual(rendered_overlay.size, (320, 240))
+                self.assertEqual(rendered_overlay.size, (1280, 960))
                 self.assertIsNotNone(rendered_overlay.convert("RGBA").getchannel("A").getbbox())
 
     @unittest.skipUnless(

@@ -32,13 +32,6 @@ class ShipInfoPage:
 
 
 SHIP_INFO_VARIANTS = (
-    ShipInfoVariant("zh_TW", "base/ui", "base/cutscene/spins", (320, 240)),
-    ShipInfoVariant(
-        "hires2x-zh_TW",
-        "addons/hires2x/ui",
-        "addons/hires2x/cutscene/spins",
-        (640, 480),
-    ),
     ShipInfoVariant(
         "hires4x-zh_TW",
         "addons/hires4x/ui",
@@ -485,7 +478,7 @@ def _fill_scaled_box(draw, canvas, box, *, fill) -> None:
         return
     # ImageDraw.rectangle includes both endpoints.  Treating our layout boxes
     # as half-open keeps the stock x=276 divider and y=352 separator intact at
-    # every native tier, including their rounded 1x positions x=69/y=88.
+    # the native 4x tier.
     draw.rectangle((x0, y0, x1 - 1, y1 - 1), fill=fill)
 
 
@@ -956,7 +949,7 @@ def build_localized_ship_info_assets(
     shadow_trees_root: Path,
     font_path: Path,
 ) -> dict[str, dict[str, object]]:
-    """Build the ship picker and all 25 native-resolution ship-info pages."""
+    """Build the 4x ship picker and all 25 native ship-info pages."""
 
     Image, ImageDraw, ImageFont = _load_pillow()
     report: dict[str, dict[str, object]] = {}

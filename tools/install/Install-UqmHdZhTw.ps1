@@ -753,6 +753,19 @@ foreach ($specification in $shortcutSpecifications) {
     })
 }
 
+# Version 0.4 retires the low-resolution entry points. Remove only shortcuts
+# positively owned by the preceding managed-install marker.
+foreach ($legacyLeaf in @(
+    'Launch UQM-HD zh-TW (1x).lnk',
+    'Launch UQM-HD zh-TW (2x).lnk'
+)) {
+    $legacyPath = Join-UqmContainedPath -Root $install -RelativePath $legacyLeaf
+    if ((Test-Path -LiteralPath $legacyPath -PathType Leaf) -and
+        (Test-MarkerListsShortcut -Marker $previousMarker -Path $legacyPath)) {
+        Remove-Item -LiteralPath $legacyPath -Force
+    }
+}
+
 $removedCount = 0
 if ($staleFilePlan.Count -gt 0) {
     $removedCount = Remove-UqmStaleManagedFiles -Files $staleFilePlan -InstallRoot $install

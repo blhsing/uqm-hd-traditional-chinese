@@ -90,7 +90,7 @@ def build_parser() -> argparse.ArgumentParser:
     )
 
     build = subparsers.add_parser(
-        "build", help="build validated zh_TW, hires2x-zh_TW, and hires4x-zh_TW .uqm packages"
+        "build", help="build the validated 4x-only hires4x-zh_TW .uqm package"
     )
     build.add_argument("--content-root", type=_path, required=True)
     build.add_argument("--workspace", type=_path, required=True)
@@ -99,7 +99,7 @@ def build_parser() -> argparse.ArgumentParser:
         "--font",
         type=_path,
         default=_path(r"C:\Windows\Fonts\NotoSansTC-VF.ttf"),
-        help="Noto Sans TC TTF/variable-TTF used for generated BMP glyphs",
+        help="Noto Sans TC TrueType/variable-TrueType font used for supersampled glyphs",
     )
     build.add_argument(
         "--menu-background",

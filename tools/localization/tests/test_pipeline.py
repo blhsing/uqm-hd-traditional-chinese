@@ -169,9 +169,6 @@ class FontTests(unittest.TestCase):
         self.assertEqual(
             UI_FONT_METRICS,
             {
-                ("hires2x-zh_TW", "starcon.fon"): (14, 14),
-                ("hires2x-zh_TW", "tiny.fon"): (14, 14),
-                ("hires2x-zh_TW", "micro.fon"): (12, 15),
                 ("hires4x-zh_TW", "starcon.fon"): (20, 19),
                 ("hires4x-zh_TW", "tiny.fon"): (20, 20),
                 ("hires4x-zh_TW", "micro.fon"): (24, 30),
@@ -182,17 +179,15 @@ class FontTests(unittest.TestCase):
         Path(r"C:\Windows\Fonts\NotoSansTC-VF.ttf").is_file(),
         "Noto Sans TC variable font is not installed",
     )
-    def test_variable_font_uses_legible_bold_weight(self):
+    def test_variable_font_uses_fine_legible_medium_weight(self):
         from PIL import Image
 
         renderer = NotoRenderer(Path(r"C:\Windows\Fonts\NotoSansTC-VF.ttf"))
         raw = renderer.render("星", FontMetrics(18, 17, 1))
         image = Image.open(io.BytesIO(raw)).convert("RGBA")
-        opaque = sum(
-            alpha >= 250
-            for alpha in image.getchannel("A").get_flattened_data()
-        )
-        self.assertGreaterEqual(opaque, 30)
+        coverage = sum(image.getchannel("A").get_flattened_data()) / 255
+        self.assertGreaterEqual(coverage, 75)
+        self.assertLessEqual(coverage, 95)
 
     @unittest.skipUnless(
         Path(r"C:\Windows\Fonts\NotoSansTC-VF.ttf").is_file(),
@@ -211,7 +206,6 @@ class FontTests(unittest.TestCase):
             ("4x fuel", (20, 20), "燃料", 118, 102, 120),
             ("4x crew", (20, 20), "船員", 373, 357, 374),
             ("4x ship name", (20, 19), "維迦凱特", 78, 63, 81),
-            ("2x date", (14, 14), "一二三四五六七八九十月", 10, 0, 14),
         )
         for label, size, text, baseline, field_top, field_bottom in cases:
             metrics = FontMetrics(*size, 1)
@@ -325,11 +319,7 @@ class MenuAssetTests(unittest.TestCase):
     def test_native_help_status_and_melee_paths_match_resolution_rmps(self):
         self.assertEqual(
             [variant.output_path for variant in KEY_HELP_VARIANTS],
-            [
-                "base/ui/submenustarmapkeys-000.png",
-                "addons/hires2x/ui/submenustarmapkeys-000.png",
-                "addons/hires4x/ui/submenustarmapkeys-000.png",
-            ],
+            ["addons/hires4x/ui/submenustarmapkeys-000.png"],
         )
         self.assertEqual(
             [
@@ -345,16 +335,6 @@ class MenuAssetTests(unittest.TestCase):
                 for variant in STATUS_LABEL_VARIANTS
             ],
             [
-                ("base/ui", (22, 5), (21, 5), (22, 8), (21, 8), 450, 6),
-                (
-                    "addons/hires2x/ui",
-                    (22, 5),
-                    (22, 5),
-                    (22, 10),
-                    (22, 10),
-                    400,
-                    8,
-                ),
                 (
                     "addons/hires4x/ui",
                     (44, 9),
@@ -371,11 +351,7 @@ class MenuAssetTests(unittest.TestCase):
                 (variant.addon, variant.output_prefix, variant.scale)
                 for variant in SUPER_MELEE_VARIANTS
             ],
-            [
-                ("zh_TW", "base/ui", 1),
-                ("hires2x-zh_TW", "addons/hires2x/ui", 2),
-                ("hires4x-zh_TW", "addons/hires4x/ui", 4),
-            ],
+            [("hires4x-zh_TW", "addons/hires4x/ui", 4)],
         )
 
     def test_status_output_canvases_materially_enlarge_every_label(self):
@@ -480,14 +456,14 @@ class MenuAssetTests(unittest.TestCase):
             b"status-004.png -2", b"status-004.png 0"
         ).replace(b"status-005.png -2", b"status-005.png 0")
         self.assertEqual(
-            _status_ani_with_rgb_color_key(source, "addons/hires2x/ui/status.ani"),
+            _status_ani_with_rgb_color_key(source, "addons/hires4x/ui/status.ani"),
             expected,
         )
 
         malformed = source.replace(b"status-005.png", b"status-006.png")
         with self.assertRaisesRegex(LocError, "matched 1 localized status frames"):
             _status_ani_with_rgb_color_key(
-                malformed, "addons/hires2x/ui/status.ani"
+                malformed, "addons/hires4x/ui/status.ani"
             )
 
     def test_compact_chinese_status_masks_are_crisp_and_bounded(self):
@@ -514,8 +490,6 @@ class MenuAssetTests(unittest.TestCase):
         expected = {
             ("zh_TW", "船員"): ((5, 0, 18, 7), (22, 8), 9223),
             ("zh_TW", "能量"): ((4, 1, 16, 7), (21, 8), 8651),
-            ("hires2x-zh_TW", "船員"): ((3, 1, 19, 10), (22, 10), 14412),
-            ("hires2x-zh_TW", "能量"): ((3, 1, 20, 10), (22, 10), 16375),
             ("hires4x-zh_TW", "船員"): ((6, 1, 38, 17), (44, 18), 40767),
             ("hires4x-zh_TW", "能量"): ((6, 2, 38, 17), (44, 18), 45510),
         }

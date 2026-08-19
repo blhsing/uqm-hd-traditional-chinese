@@ -4,11 +4,7 @@ $script:UqmProductId = 'uqm-hd-zh-tw'
 $script:UqmMarkerName = '.uqm-hd-zh-tw-install.json'
 $script:UqmInstallingMarkerName = '.uqm-hd-zh-tw-installing.json'
 $script:UqmPlayerOneRightAltBinding = '1.special.3 = STRING:key RightAlt'
-$script:UqmPackNames = @(
-    'zh_TW.uqm',
-    'hires2x-zh_TW.uqm',
-    'hires4x-zh_TW.uqm'
-)
+$script:UqmPackNames = @('hires4x-zh_TW.uqm')
 
 function Get-UqmFullPath {
     param(
@@ -314,24 +310,35 @@ function Quote-UqmArgument {
     return '"' + $Value + '"'
 }
 
+function Get-UqmNativeResolution {
+    try {
+        Add-Type -AssemblyName System.Windows.Forms -ErrorAction Stop
+        $bounds = [Windows.Forms.Screen]::PrimaryScreen.Bounds
+        if ($bounds.Width -lt 1 -or $bounds.Height -lt 1) {
+            throw 'Windows returned an empty primary-screen rectangle.'
+        }
+        return ('{0}x{1}' -f $bounds.Width, $bounds.Height)
+    }
+    catch {
+        throw "Unable to detect the primary display's native resolution. $($_.Exception.Message)"
+    }
+}
+
 function Get-UqmLaunchArguments {
     param(
-        [Parameter(Mandatory = $true)][ValidateSet(0, 1, 2)][int]$ResolutionFactor,
-        [Parameter(Mandatory = $true)][ValidateSet('zh_TW', 'hires2x-zh_TW', 'hires4x-zh_TW')][string]$Addon,
+        [Parameter(Mandatory = $true)][ValidateSet(2)][int]$ResolutionFactor,
+        [Parameter(Mandatory = $true)][ValidateSet('hires4x-zh_TW')][string]$Addon,
         [Parameter(Mandatory = $true)][string]$ProfileDir,
         [switch]$Fullscreen
     )
     $profile = Get-UqmFullPath -Path $ProfileDir
     if ($Fullscreen) {
-        if ($ResolutionFactor -ne 2 -or $Addon -ne 'hires4x-zh_TW') {
-            throw 'The legible fullscreen profile requires the 4x Traditional Chinese add-on.'
-        }
-        return ('-o -r 1920x1080 -f -k -c none --resfactor=2 -C {0} --addon hires4x-zh_TW' -f
-            (Quote-UqmArgument -Value $profile))
+        $nativeResolution = Get-UqmNativeResolution
+        return ('-o -r {0} -f -k -c none --resfactor=2 -C {1} --addon hires4x-zh_TW' -f
+            $nativeResolution, (Quote-UqmArgument -Value $profile))
     }
-    $resolution = @('320x240', '640x480', '1280x960')[$ResolutionFactor]
-    return ('-x -r {0} -w -c none --resfactor={1} -C {2} --addon {3}' -f
-        $resolution, $ResolutionFactor, (Quote-UqmArgument -Value $profile), $Addon)
+    return ('-x -r 1280x960 -w -c none --resfactor=2 -C {0} --addon hires4x-zh_TW' -f
+        (Quote-UqmArgument -Value $profile))
 }
 
 function Get-UqmShortcutSpecifications {
@@ -379,28 +386,6 @@ function Get-UqmShortcutSpecifications {
             ResolutionFactor = 2
             Addon = 'hires4x-zh_TW'
             AllowedRoot = $programs
-        },
-        [pscustomobject][ordered]@{
-            Kind = 'install-root-1x'
-            Path = Join-Path -Path $install -ChildPath 'Launch UQM-HD zh-TW (1x).lnk'
-            Target = $exe
-            IconLocation = $icon + ',0'
-            Arguments = Get-UqmLaunchArguments -ResolutionFactor 0 -Addon 'zh_TW' -ProfileDir $profile
-            WorkingDirectory = $install
-            ResolutionFactor = 0
-            Addon = 'zh_TW'
-            AllowedRoot = $install
-        },
-        [pscustomobject][ordered]@{
-            Kind = 'install-root-2x'
-            Path = Join-Path -Path $install -ChildPath 'Launch UQM-HD zh-TW (2x).lnk'
-            Target = $exe
-            IconLocation = $icon + ',0'
-            Arguments = Get-UqmLaunchArguments -ResolutionFactor 1 -Addon 'hires2x-zh_TW' -ProfileDir $profile
-            WorkingDirectory = $install
-            ResolutionFactor = 1
-            Addon = 'hires2x-zh_TW'
-            AllowedRoot = $install
         },
         [pscustomobject][ordered]@{
             Kind = 'install-root-4x'

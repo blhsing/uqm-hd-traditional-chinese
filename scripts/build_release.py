@@ -13,21 +13,13 @@ import zipfile
 
 
 PACKS = {
-    "zh_TW.uqm": (
-        22_455_949,
-        "1a1b2bd13d6c8e1a8475c16a15c706602d62b7cab1a20fe395c9b931aa707942",
-    ),
-    "hires2x-zh_TW.uqm": (
-        42_596_373,
-        "edef271c9034827bfab29e37c1d37b568ecc779285adc6b5d7730abd5cb1f098",
-    ),
     "hires4x-zh_TW.uqm": (
-        64_579_231,
-        "03f8491bdf5e84251a305dd73d52e353ac66efee717a9b336f3d152dc38c5749",
+        91_567_383,
+        "b535d19283cf4afdb4482fc517eeef247c53ab6f5bb53b78996470ad035bd7e2",
     ),
 }
 
-DEFAULT_VERSION = "0.3.2"
+DEFAULT_VERSION = "0.4.0"
 VERSION_PATTERN = re.compile(r"[0-9A-Za-z][0-9A-Za-z._+\-]{0,127}\Z")
 
 SOURCE_FILES = (
@@ -96,9 +88,9 @@ INSTALL_TEXT = """UQM-HD 繁體中文版 v{version} — Windows 安裝說明
 3. 確認演練結果後，以相同命令移除最後的 -PlanOnly 正式安裝。
 4. 從桌面或開始選單開啟
    "The Ur-Quan Masters HD - Traditional Chinese"；預設是 4x、全螢幕、
-   1920x1080。其他螢幕可修改捷徑中的 -r 解析度。F11 可切換全螢幕。
+   並自動採用主螢幕的原生解析度。F11 可切換全螢幕。
 
-安裝器只讀取 SourceRoot，另建受管理的目的地副本。它會驗證三個套件。
+安裝器只讀取 SourceRoot，另建受管理的目的地副本。它會驗證單一 4x 套件。
 {runtime_behavior}
 它不會覆寫原版目錄中的任何檔案。
 

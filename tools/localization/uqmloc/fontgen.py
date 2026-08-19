@@ -81,13 +81,18 @@ def glyph_filename(character: str) -> str:
 
 
 class NotoRenderer:
-    def __init__(self, font_path: Path, *, weight: int = 700):
+    def __init__(self, font_path: Path, *, weight: int = 500, supersample: int = 4):
         self.font_path = font_path.resolve()
         self.weight = weight
+        self.supersample = supersample
         if not self.font_path.is_file():
             raise LocError(f"Noto Sans TC font file not found: {self.font_path}")
         if not 100 <= self.weight <= 900:
             raise LocError(f"Font weight must be between 100 and 900: {self.weight}")
+        if not 2 <= self.supersample <= 8:
+            raise LocError(
+                f"Font supersampling factor must be between 2 and 8: {self.supersample}"
+            )
         try:
             from PIL import Image, ImageDraw, ImageFont  # type: ignore
         except ImportError as exc:
@@ -105,9 +110,9 @@ class NotoRenderer:
                 font = self.ImageFont.truetype(
                     str(self.font_path), size=size
                 )
-                # NotoSansTC-VF.ttf defaults to its minimum weight (Thin/100),
-                # which leaves only a handful of opaque pixels in UQM's small
-                # bitmap canvases. Select Bold/700 explicitly.
+                # NotoSansTC-VF.ttf defaults to its minimum weight (Thin/100).
+                # Medium/500 retains open counters and fine strokes while still
+                # surviving UQM's bitmap-font compositor at the 4x tier.
                 try:
                     axes = font.get_variation_axes()
                     values = [axis["default"] for axis in axes]
@@ -133,19 +138,26 @@ class NotoRenderer:
         # A one-pixel inset consumes most of a 6x8 or 9x9 Han canvas. Small
         # compatibility-mode fonts need the full bitmap; larger fonts retain
         # the inset to avoid clipping antialiased edges.
-        padding = 0 if min(metrics.width, metrics.height) <= 12 else 1
-        available_width = max(1, metrics.width - padding * 2)
-        available_height = max(1, metrics.height - padding * 2)
+        padding_x = 0 if min(metrics.width, metrics.height) <= 12 else 1
+        # The SIS labels occupy unusually tight vertical bands. Two vertical
+        # pixels keep supersampled accents and descenders inside those bands
+        # instead of letting the engine clip their final antialiased row.
+        padding_y = 0 if min(metrics.width, metrics.height) <= 12 else 2
+        available_width = max(1, metrics.width - padding_x * 2)
+        available_height = max(1, metrics.height - padding_y * 2)
         chosen = None
         bbox = None
         for size in range(max(metrics.width, metrics.height) + 2, 1, -1):
-            font = self._font(size)
+            font = self._font(size * self.supersample)
             candidate = font.getbbox(character)
             if candidate is None:
                 continue
             glyph_width = candidate[2] - candidate[0]
             glyph_height = candidate[3] - candidate[1]
-            if 0 < glyph_width <= available_width and 0 < glyph_height <= available_height:
+            if (
+                0 < glyph_width <= available_width * self.supersample
+                and 0 < glyph_height <= available_height * self.supersample
+            ):
                 chosen = font
                 bbox = candidate
                 break
@@ -154,13 +166,27 @@ class NotoRenderer:
                 f"Noto Sans TC did not yield a nonempty fitting glyph for U+{ord(character):04X} "
                 f"on {metrics.width}x{metrics.height}"
             )
-        image = self.Image.new("RGBA", (metrics.width, metrics.height), (255, 255, 255, 0))
+        render_size = (
+            metrics.width * self.supersample,
+            metrics.height * self.supersample,
+        )
+        image = self.Image.new("RGBA", render_size, (255, 255, 255, 0))
         draw = self.ImageDraw.Draw(image)
         glyph_width = bbox[2] - bbox[0]
         glyph_height = bbox[3] - bbox[1]
-        x = (metrics.width - glyph_width) // 2 - bbox[0]
-        y = (metrics.height - glyph_height) // 2 - bbox[1]
+        x = (render_size[0] - glyph_width) // 2 - bbox[0]
+        y = (render_size[1] - glyph_height) // 2 - bbox[1]
         draw.text((x, y), character, font=chosen, fill=(255, 255, 255, 255))
+        image = image.resize(
+            (metrics.width, metrics.height),
+            resample=self.Image.Resampling.LANCZOS,
+        )
+        # Lanczos deliberately produces a very faint one-pixel ringing fringe.
+        # UQM treats any non-zero alpha as ink when calculating bitmap bounds,
+        # so remove only that sub-visible halo while retaining the smoothly
+        # antialiased edge proper.
+        alpha = image.getchannel("A").point(lambda value: 0 if value < 8 else value)
+        image.putalpha(alpha)
         buffer = io.BytesIO()
         # The build emits thousands of tiny glyphs and the outer UQM archive is
         # Deflate-compressed as well. Pillow's exhaustive PNG optimizer makes a

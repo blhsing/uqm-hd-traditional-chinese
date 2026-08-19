@@ -28,33 +28,26 @@ from .shipinfoassets import build_localized_ship_info_assets
 from .validation import validate_documents
 
 
-BASE_ADDON = "zh_TW"
-VARIANTS = (
-    (BASE_ADDON, None, 0),
-    ("hires2x-zh_TW", "hires2x", 613),
-    ("hires4x-zh_TW", "hires4x", 614),
-)
-# The HD mod's stock shared UI fonts do not scale consistently: the 2x
-# starcon/tiny canvases remain roughly 1x-sized and the 4x canvases are only
-# about 2x-sized. UQM derives each glyph's hotspot and leading from the PNG
-# canvas, while several SIS HUD fields retain fixed 14/20-pixel ink bands.
-# Keep the bold Han ink large enough to read without letting the canvas move
-# its top rows above those fields or beyond their 20-pixel gradient effects.
+BASE_ADDON = "hires4x-zh_TW"
+VARIANTS = ((BASE_ADDON, "hires4x", 614),)
+FONT_WEIGHT = 500
+FONT_SUPERSAMPLE = 4
+# The HD mod's 4x shared starcon/tiny canvases are only about 2x-sized. UQM
+# derives each glyph's hotspot and leading from the PNG canvas, while several
+# SIS HUD fields retain fixed 20-pixel ink bands. Keep the medium Han ink large
+# enough to read without moving its top rows beyond those gradient effects.
 UI_FONT_METRICS: dict[tuple[str, str], tuple[int, int]] = {
-    ("hires2x-zh_TW", "starcon.fon"): (14, 14),
-    ("hires2x-zh_TW", "tiny.fon"): (14, 14),
-    ("hires2x-zh_TW", "micro.fon"): (12, 15),
     ("hires4x-zh_TW", "starcon.fon"): (20, 19),
     ("hires4x-zh_TW", "tiny.fon"): (20, 20),
     ("hires4x-zh_TW", "micro.fon"): (24, 30),
 }
 FALLBACK_RESOURCE_TARGETS = {
-    "font.fallbackto1x": (BASE_ADDON, "base/fonts/starcon.fon"),
-    "font.fallbackto2x": ("hires2x-zh_TW", "fonts/starcon.fon"),
-    "font.fallbackto4x": ("hires4x-zh_TW", "fonts/starcon.fon"),
-    "font.tinyfallbackto1x": (BASE_ADDON, "base/fonts/tiny.fon"),
-    "font.tinyfallbackto2x": ("hires2x-zh_TW", "fonts/tiny.fon"),
-    "font.tinyfallbackto4x": ("hires4x-zh_TW", "fonts/tiny.fon"),
+    "font.fallbackto1x": (BASE_ADDON, "fonts/starcon.fon"),
+    "font.fallbackto2x": (BASE_ADDON, "fonts/starcon.fon"),
+    "font.fallbackto4x": (BASE_ADDON, "fonts/starcon.fon"),
+    "font.tinyfallbackto1x": (BASE_ADDON, "fonts/tiny.fon"),
+    "font.tinyfallbackto2x": (BASE_ADDON, "fonts/tiny.fon"),
+    "font.tinyfallbackto4x": (BASE_ADDON, "fonts/tiny.fon"),
 }
 CONVERSATION_FONT_ALIASES = {
     "safeones": "spathi",
@@ -105,10 +98,7 @@ def _localized_conversation_fields(entry: RmpEntry, localized_path: str) -> tupl
 
 def _localized_text_entry(entry: RmpEntry, addon: str) -> RmpEntry:
     original = safe_resource_path(entry.fields[0])
-    if addon != BASE_ADDON and original.startswith("base/lander/"):
-        localized = f"addons/{addon}/lander/{original[len('base/lander/'):]}"
-    else:
-        localized = f"addons/{BASE_ADDON}/{original}"
+    localized = f"addons/{addon}/{original}"
     fields = (
         _localized_conversation_fields(entry, localized)
         if entry.resource_type == "CONVERSATION"
@@ -119,8 +109,6 @@ def _localized_text_entry(entry: RmpEntry, addon: str) -> RmpEntry:
 
 def _font_output_path(addon: str, source_path: str) -> str:
     basename = PurePosixPath(source_path).name
-    if addon == BASE_ADDON:
-        return f"addons/{addon}/base/fonts/{basename}"
     return f"addons/{addon}/fonts/{basename}"
 
 
@@ -299,13 +287,6 @@ def _write_text_trees(
         destination = destination.joinpath(*PurePosixPath(source_path).parts)
         destination.parent.mkdir(parents=True, exist_ok=True)
         destination.write_bytes(render_document(document))
-        if source_path.startswith("base/lander/"):
-            relative = source_path[len("base/lander/") :]
-            for addon in ("hires2x-zh_TW", "hires4x-zh_TW"):
-                highres = trees_root / addon / "lander"
-                highres = highres.joinpath(*PurePosixPath(relative).parts)
-                highres.parent.mkdir(parents=True, exist_ok=True)
-                highres.write_bytes(render_document(document))
     for document in documents:
         if not document.get("auxiliary"):
             continue
@@ -403,7 +384,8 @@ def _write_metadata(
             "locale": "zh-TW",
             "addon": addon,
             "source_font": font_path.name,
-            "source_font_weight": 700,
+            "source_font_weight": FONT_WEIGHT,
+            "font_supersampling": FONT_SUPERSAMPLE,
             "rmp_entries": len(plan.rmp_entries),
             "fonts": font_report[addon],
             "main_menu": menu_report[addon],
@@ -545,7 +527,11 @@ def build_packages(
     if errors:
         raise LocError("Workspace is invalid before build:\n" + "\n".join(errors[:100]))
     # Fail before creating a partial package when Pillow/the font is unavailable.
-    renderer = NotoRenderer(font_path)
+    renderer = NotoRenderer(
+        font_path,
+        weight=FONT_WEIGHT,
+        supersample=FONT_SUPERSAMPLE,
+    )
     output.mkdir(parents=True, exist_ok=True)
     trees_root = output / "trees"
     shadow_trees_root = output / "shadow-trees"

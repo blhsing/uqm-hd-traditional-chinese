@@ -430,10 +430,12 @@ if (-not $SkipSmokeTest) {
     if ($logText -notmatch "Loading addon 'hires4x-zh_TW'") {
         throw "UQM-HD smoke test did not load the 4x Traditional Chinese add-on: $smokeLog"
     }
-    if ($logText -notmatch 'Set the resolution to:\s*1920x1080x32') {
-        throw "UQM-HD smoke test did not initialize the expected 1920x1080 fullscreen surface: $smokeLog"
+    $nativeResolution = Get-UqmNativeResolution
+    $nativeResolutionPattern = 'Set the resolution to:\s*' + [regex]::Escape($nativeResolution) + 'x32'
+    if ($logText -notmatch $nativeResolutionPattern) {
+        throw "UQM-HD smoke test did not initialize the expected $nativeResolution fullscreen surface: $smokeLog"
     }
-    $smokeStatus = "Passed: process stayed alive for $SmokeTimeoutSeconds seconds, loaded hires4x-zh_TW at 1920x1080, and logged no fatal diagnostic"
+    $smokeStatus = "Passed: process stayed alive for $SmokeTimeoutSeconds seconds, loaded hires4x-zh_TW at $nativeResolution, and logged no fatal diagnostic"
     Add-VerificationPass -Message $smokeStatus
 }
 

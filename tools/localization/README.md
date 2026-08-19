@@ -1,11 +1,11 @@
 # UQM HD Traditional-Chinese localization pipeline
 
 This directory contains the content-only localization pipeline used for the
-**The Ur-Quan Masters HD Beta 1** v0.3.2 Traditional-Chinese release. It does not
+**The Ur-Quan Masters HD Beta 1** v0.4.0 Traditional-Chinese release. It does not
 call a translation API and does not modify the game installation. It exports
 protected JSON, merges translated `{id,text}` records, handles the engine's
 unusual text formats, generates bitmap glyphs from Noto Sans TC, and builds
-three installable `.uqm` add-ons. The separate source-built Windows runtime is
+one self-contained 4x `.uqm` add-on. The separate source-built Windows runtime is
 documented in `../../docs/BUILD-WINDOWS.md`.
 
 ## Requirements
@@ -121,7 +121,7 @@ Only the visible payload following `TFI` is exported for translation. `DIMS`,
 Called ending scripts are installed through `shadow-content`, so their literal
 `CALL base/...` paths do not need to be rewritten.
 
-### 5. Build all three packages
+### 5. Build the 4x package
 
 ```powershell
 python .\tools\localization\uqm_localize.py build `
@@ -135,21 +135,16 @@ python .\tools\localization\uqm_localize.py build `
 The result is:
 
 ```text
-localized-build/packages/zh_TW.uqm
-localized-build/packages/hires2x-zh_TW.uqm
 localized-build/packages/hires4x-zh_TW.uqm
 ```
 
-The finalized v0.3.2 artifacts are:
+The finalized v0.4.0 artifact is:
 
 | Pack | Bytes | SHA-256 |
 | --- | ---: | --- |
-| `zh_TW.uqm` | 22,455,949 | `1a1b2bd13d6c8e1a8475c16a15c706602d62b7cab1a20fe395c9b931aa707942` |
-| `hires2x-zh_TW.uqm` | 42,596,373 | `edef271c9034827bfab29e37c1d37b568ecc779285adc6b5d7730abd5cb1f098` |
-| `hires4x-zh_TW.uqm` | 64,579,231 | `03f8491bdf5e84251a305dd73d52e353ac66efee717a9b336f3d152dc38c5749` |
+| `hires4x-zh_TW.uqm` | 91,567,383 | `b535d19283cf4afdb4482fc517eeef247c53ab6f5bb53b78996470ad035bd7e2` |
 
-The content-only package regeneration leaves the v0.3.2 Windows runtime
-unchanged:
+The v0.4.0 release reuses the audited Windows runtime first shipped in v0.3.2:
 
 | Runtime file | Bytes | SHA-256 |
 | --- | ---: | --- |
@@ -159,8 +154,6 @@ unchanged:
 The resource maps are generated from the installed official maps, not copied
 from the incomplete Japanese pack:
 
-- `zh_TW`: 27 conversations + 77 string tables + 39 fonts = 143 mappings;
-- `hires2x-zh_TW`: 613 stock HD graphics + 104 text + 39 fonts = 756;
 - `hires4x-zh_TW`: 614 stock HD graphics + 104 text + 39 fonts = 757.
 
 Original Latin/punctuation glyphs are copied into every mapped and directly
@@ -168,26 +161,27 @@ loaded cutscene font directory. A shadow-mounted `.fon` directory replaces the
 stock resource instead of merging with it, so omitting the original glyphs can
 leave presentations on a blank frame.
 Only the Traditional-Chinese subsets needed by each font role are rasterized.
-The generator explicitly selects Noto Sans TC Bold/700; the variable font's
-default is Thin/100 and is not legible in the game's small bitmap cells. Generic
-HD UI fonts receive larger, engine-safe Han canvases, while other fonts continue
-to use the source font's observed capital-letter metrics. It emits lowercase,
+The generator explicitly selects Noto Sans TC Medium/500 and renders every Han
+glyph at four times its final dimensions before a Lanczos downsample. This
+preserves fine strokes and open counters while removing only the sub-visible
+ringing that UQM would otherwise count as bitmap ink. Generic HD UI fonts receive
+engine-safe Han canvases, while other fonts continue to use the source font's
+observed capital-letter metrics. It emits lowercase,
 five-digit Unicode filenames such as `04e00.png`. Directly loaded cutscene fonts
 are augmented using `shadow-content`, which keeps their script paths immutable.
 
 The five main-menu choices are baked into animation PNGs rather than string
-tables. The build therefore creates localized `newgame`, `newgame2x`, and
-`newgame4x` frame sets inside a nested archive placed in each add-on's
+tables. The build therefore creates the localized `newgame4x` frame set inside
+a nested archive placed in the add-on's
 `shadow-content` directory (UQM mounts nested `.uqm`/`.zip` archives there, not
 loose files). A clean 4:3 menu background supplies the artwork; the exact labels
 `新遊戲`, `載入遊戲`, `超級對戰`, `設定`, and `離開` are rendered deterministically
-with Noto Sans TC Medium/500 and no synthetic outline. In-game bitmap fonts stay
-at Bold/700 for legibility at small cell sizes.
+with Noto Sans TC Medium/500 and no synthetic outline.
 
 The Super Melee setup screen is another 39-frame baked animation. Text-free 4x
 templates under `localization/menu-assets/source/super-melee/` preserve the
 upstream nebula, metal controls, portraits, and selection lighting. The builder
-generates localized 1x/2x/4x title, control-mode, network, save/load, battle,
+generates localized 4x title, control-mode, network, save/load, battle,
 and quit frames, while retaining the stock animation manifest and hotspots.
 Those clean templates can be reproduced from the upstream Translation Pack
 PSDs when `psd-tools` is installed:
@@ -199,8 +193,8 @@ python .\tools\localization\extract_super_melee_sources.py `
 ```
 
 The combat `CREW`/`BATT` sprites are also generated as `船員`/`能量`. Each
-resolution uses a fixed optical size and weight (1x 450/6 px, 2x 400/8 px,
-4x 350/16 px) so dense Han strokes remain separated. The generated RGBA/RGB-key
+4x uses a fixed optical size and 350/16 px weight so dense Han strokes remain
+separated. The generated RGBA/RGB-key
 pair blends into the stock gray status panel during normal rendering, retains
 a glyph-only alpha mask for the low-energy recolor, and confines label removal
 to half-open regions that do not overwrite gauges, dividers, or separators.
@@ -209,30 +203,23 @@ The Super Melee ship-picker panel is rebuilt with `選擇船艦` and `船艦資�
 The source-built runtime makes both labels clickable and lets a left click
 anywhere inside the visible viewport dismiss a ship-information presentation. All 25 ship-information presentations
 are generated deterministically from reviewable Traditional-Chinese source data
-at native 320x240, 640x480, and 1280x960 resolutions. Their localized cards
+at native 1280x960 resolution. Their localized cards
 cover crew, battery, cost, movement, weapons, special abilities, and tactics
 while preserving upstream ship artwork and animation manifests. The top-level
 Traditional-Chinese player guide compares the 25 Super Melee craft in a single
 uncollapsed, per-stat-column table and introduces the campaign flagship separately.
 
 Packages use only ZIP Deflate, disable ZIP64, reject 65,535 or more files, and
-are written deterministically. All three packages must be installed because
-their fallback mappings intentionally cross-reference the 1x/2x/4x fonts. Each
+are written deterministically. The single package contains all translated
+resources, fonts, and shadow-mounted image assets without cross-add-on references. Each
 pack's mounted shadow archive contains 5,357 normal entries and no padding
 entry; package QA compares every generated entry byte-for-byte.
 
 ## Install and launch
 
-Copy all three `.uqm` files to the game's `content\addons` directory. Activate
-exactly one combined add-on:
+Copy `hires4x-zh_TW.uqm` to the game's `content\addons` directory:
 
 ```powershell
-# 320x240 content
-uqm.exe -x -r 320x240 -w --resfactor=0 --addon zh_TW
-
-# 640x480 content
-uqm.exe -x -r 640x480 -w --resfactor=1 --addon hires2x-zh_TW
-
 # 1280x960 content
 uqm.exe -x -r 1280x960 -w --resfactor=2 --addon hires4x-zh_TW
 
@@ -247,7 +234,7 @@ main-menu choices, the visible Super Melee setup controls, ship picker, all 25
 ship-information pages, and combat status labels. The repository's preferred source-built runtime separately implements
 the yellow menu selection, main-menu and Super Melee mouse controls, cursor
 visibility switching, detailed vessel-stat cards, picker and in-bout Escape
-handling, and Player 1's additional RightAlt special-ability binding. The v0.3.2
+handling, and Player 1's additional RightAlt special-ability binding. The v0.4.0
 release bundles that GPL runtime and its dependency licenses, but does not
 bundle the upstream game's original content. A polished localization still
 benefits from a full playthrough. In particular, visually check the intro/final
@@ -263,4 +250,4 @@ python -m unittest discover `
   -v
 ```
 
-The finalized v0.3.2 tree passes all 59 automated tests.
+The finalized v0.4.0 tree passes all 60 automated tests.

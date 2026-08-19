@@ -52,8 +52,6 @@ class MenuFrame:
 
 
 MENU_VARIANTS = (
-    MenuVariant("zh_TW", "newgame"),
-    MenuVariant("hires2x-zh_TW", "newgame2x"),
     MenuVariant("hires4x-zh_TW", "newgame4x"),
 )
 
@@ -66,16 +64,6 @@ class KeyHelpVariant:
 
 
 KEY_HELP_VARIANTS = (
-    KeyHelpVariant(
-        "zh_TW",
-        "base/ui/submenustarmapkeys-000.png",
-        "base/ui/submenustarmapkeys-000.png",
-    ),
-    KeyHelpVariant(
-        "hires2x-zh_TW",
-        "addons/hires2x/ui/submenustarmapkeys-000.png",
-        "addons/hires2x/ui/submenustarmapkeys-000.png",
-    ),
     KeyHelpVariant(
         "hires4x-zh_TW",
         "addons/hires4x/ui/submenustarmapkeys-000.png",
@@ -99,28 +87,6 @@ class StatusLabelVariant:
 
 STATUS_LABEL_VARIANTS = (
     StatusLabelVariant(
-        "zh_TW",
-        "base/ui",
-        "base/ui",
-        (22, 5),
-        (21, 5),
-        (22, 8),
-        (21, 8),
-        450,
-        6,
-    ),
-    StatusLabelVariant(
-        "hires2x-zh_TW",
-        "addons/hires2x/ui",
-        "addons/hires2x/ui",
-        (22, 5),
-        (22, 5),
-        (22, 10),
-        (22, 10),
-        400,
-        8,
-    ),
-    StatusLabelVariant(
         "hires4x-zh_TW",
         "addons/hires4x/ui",
         "addons/hires4x/ui",
@@ -143,10 +109,6 @@ class SuperMeleeVariant:
 
 
 SUPER_MELEE_VARIANTS = (
-    SuperMeleeVariant("zh_TW", "base/ui", "base/ui", 1),
-    SuperMeleeVariant(
-        "hires2x-zh_TW", "addons/hires2x/ui", "addons/hires2x/ui", 2
-    ),
     SuperMeleeVariant(
         "hires4x-zh_TW", "addons/hires4x/ui", "addons/hires4x/ui", 4
     ),
@@ -264,7 +226,7 @@ def _draw_tracked_centered(
     draw = ImageDraw.Draw(image)
     # Menu labels are large artwork, not the tiny in-game bitmap font. Medium
     # weight without a synthetic outline matches the original menu's lighter
-    # visual rhythm while remaining clear at all three resolutions.
+    # visual rhythm while remaining clear in the 4x artwork.
     stroke_width = 0
     size = max(8, round(image.height * 0.74))
     while True:
@@ -360,7 +322,7 @@ def _clear_text_region(image, box: tuple[int, int, int, int]) -> None:
 
 
 def _draw_text_at(draw, ImageFont, font_path: Path, text: str, xy, size: int, color) -> None:
-    font = _menu_font(ImageFont, font_path, size, weight=700)
+    font = _menu_font(ImageFont, font_path, size, weight=500)
     draw.multiline_text(xy, text, font=font, fill=color, spacing=max(0, size // 7))
 
 
@@ -369,7 +331,7 @@ def build_localized_key_help(
     shadow_trees_root: Path,
     font_path: Path,
 ) -> dict[str, dict[str, object]]:
-    """Localize the native starmap key-help panel in all three HD modes."""
+    """Localize the native 4x starmap key-help panel."""
 
     Image, ImageDraw, ImageFont = _load_pillow()
     report: dict[str, dict[str, object]] = {}
@@ -379,43 +341,26 @@ def build_localized_key_help(
         except OSError as exc:
             raise LocError(f"Cannot load key-help image {variant.source_path}: {exc}") from exc
 
-        if variant.addon == "zh_TW":
-            if image.size != (62, 42):
-                raise LocError(f"Unexpected 1x key-help size: {image.size}")
-            _clear_text_region(image, (14, 1, 61, 41))
-            draw = ImageDraw.Draw(image)
-            for text, y in zip(("舊圖", "放大", "縮小", "搜尋"), (1, 11, 21, 31)):
-                _draw_text_at(draw, ImageFont, font_path, text, (17, y), 8, (222, 0, 222))
-        elif variant.addon == "hires2x-zh_TW":
-            if image.size != (124, 80):
-                raise LocError(f"Unexpected 2x key-help size: {image.size}")
-            for box in ((31, 1, 123, 27), (54, 27, 123, 54), (31, 54, 123, 79)):
-                _clear_text_region(image, box)
-            draw = ImageDraw.Draw(image)
-            _draw_text_at(draw, ImageFont, font_path, "舊星圖", (35, 4), 14, (255, 255, 255))
-            _draw_text_at(draw, ImageFont, font_path, "縮放", (58, 30), 14, (255, 255, 255))
-            _draw_text_at(draw, ImageFont, font_path, "搜尋", (35, 56), 14, (255, 255, 255))
-        else:
-            if image.size != (186, 307):
-                raise LocError(f"Unexpected 4x key-help size: {image.size}")
-            for box in (
-                (45, 4, 150, 36),
-                (47, 40, 185, 92),
-                (47, 112, 185, 151),
-                (47, 178, 185, 218),
-                (47, 240, 185, 279),
-            ):
-                _clear_text_region(image, box)
-            draw = ImageDraw.Draw(image)
-            title = "按鍵說明"
-            title_font = _menu_font(ImageFont, font_path, 22, weight=700)
-            title_box = draw.textbbox((0, 0), title, font=title_font)
-            title_x = round((image.width - (title_box[2] - title_box[0])) / 2)
-            draw.text((title_x, 5), title, font=title_font, fill=(181, 90, 255))
-            _draw_text_at(draw, ImageFont, font_path, "舊式星圖／\n顯示星座", (54, 45), 14, (181, 90, 255))
-            _draw_text_at(draw, ImageFont, font_path, "放大", (60, 119), 17, (181, 90, 255))
-            _draw_text_at(draw, ImageFont, font_path, "縮小", (60, 186), 17, (181, 90, 255))
-            _draw_text_at(draw, ImageFont, font_path, "搜尋星體", (54, 248), 16, (181, 90, 255))
+        if image.size != (186, 307):
+            raise LocError(f"Unexpected 4x key-help size: {image.size}")
+        for box in (
+            (45, 4, 150, 36),
+            (47, 40, 185, 92),
+            (47, 112, 185, 151),
+            (47, 178, 185, 218),
+            (47, 240, 185, 279),
+        ):
+            _clear_text_region(image, box)
+        draw = ImageDraw.Draw(image)
+        title = "按鍵說明"
+        title_font = _menu_font(ImageFont, font_path, 22, weight=550)
+        title_box = draw.textbbox((0, 0), title, font=title_font)
+        title_x = round((image.width - (title_box[2] - title_box[0])) / 2)
+        draw.text((title_x, 5), title, font=title_font, fill=(181, 90, 255))
+        _draw_text_at(draw, ImageFont, font_path, "舊式星圖／\n顯示星座", (54, 45), 14, (181, 90, 255))
+        _draw_text_at(draw, ImageFont, font_path, "放大", (60, 119), 17, (181, 90, 255))
+        _draw_text_at(draw, ImageFont, font_path, "縮小", (60, 186), 17, (181, 90, 255))
+        _draw_text_at(draw, ImageFont, font_path, "搜尋星體", (54, 248), 16, (181, 90, 255))
 
         destination = shadow_trees_root / variant.addon
         destination = destination.joinpath(*PurePosixPath(variant.output_path).parts)
@@ -548,7 +493,7 @@ def _render_status_label(
     brightest = max(colors, key=lambda color: color[channel])
     colors = [brightest] * output_size[1]
 
-    # Always emit true-colour status labels, including the 1x replacement.
+    # Always emit true-colour status labels.
     # An indexed frame can either expose its transparent backdrop (leaving the
     # stock black gauge rectangle visible) or make that backdrop part of the
     # low-energy fill mask; it cannot encode the two runtime behaviours
@@ -566,10 +511,9 @@ def _render_status_label(
 def _status_ani_with_rgb_color_key(raw: bytes, source_path: str) -> bytes:
     """Make the two text frames use RGB black as their transparency key.
 
-    The stock 2x animation uses ``-2`` (PNG alpha) for these frames, unlike
-    the base and 4x animations.  The localized RGBA frames intentionally use
-    RGB for their normal backdrop and alpha for their fill mask, so all three
-    resolutions must take the true-colour RGB-key path in process_image().
+    The localized RGBA frames intentionally use RGB for their normal backdrop
+    and alpha for their fill mask, so the two frames must take the true-colour
+    RGB-key path in process_image().
     """
 
     normalized, count = _STATUS_LABEL_ANI_RE.subn(rb"\g<1>0\g<2>", raw)
@@ -781,32 +725,14 @@ def _load_melee_template(Image, root: Path, name: str, expected_size: tuple[int,
     return image
 
 
-def _resized_melee_template(Image, source, target_size: tuple[int, int], *, base_crop=False):
-    if base_crop and target_size == (318, 240):
-        source = source.crop((0, 0, 1272, 960))
+def _resized_melee_template(Image, source, target_size: tuple[int, int]):
     if source.size == target_size:
         return source.copy()
     return source.resize(target_size, resample=Image.Resampling.LANCZOS)
 
 
-def _compact_melee_label(label: str, scale: int) -> str:
-    if scale != 1:
-        return label
-    return {
-        "載入": "載",
-        "儲存": "存",
-        "連線": "網",
-        "離開": "離",
-        "開戰！": "開戰",
-    }.get(label, label)
-
-
-def _battle_label_box(scale: int, size: tuple[int, int]) -> tuple[int, int, int, int]:
+def _battle_label_box(size: tuple[int, int]) -> tuple[int, int, int, int]:
     width, height = size
-    if scale == 1:
-        return (3, 40, width - 3, min(height, 61))
-    if scale == 2:
-        return (8, 2, width - 8, min(height, 35))
     return (12, 14, width - 12, min(height, 62))
 
 
@@ -858,7 +784,6 @@ def build_localized_super_melee_assets(
                 Image,
                 clean_background,
                 (frames[0].width, frames[0].height),
-                base_crop=True,
             )
             title_width = min(background.width, 256 * variant.scale)
             _draw_melee_lines(
@@ -889,7 +814,7 @@ def build_localized_super_melee_assets(
                     ImageDraw,
                     ImageFont,
                     font_path,
-                    (_compact_melee_label(label, variant.scale),),
+                    (label,),
                     (frame.x, frame.y, frame.x + frame.width, frame.y + frame.height),
                     fill=(145, 145, 140, 255),
                 )
@@ -948,7 +873,7 @@ def build_localized_super_melee_assets(
                     ImageDraw,
                     ImageFont,
                     font_path,
-                    (_compact_melee_label(label, variant.scale),),
+                    (label,),
                     (0, 0, frame.width, frame.height),
                     fill=(255, 235, 0, 255) if selected else (145, 145, 140, 255),
                     stroke_width=variant.scale // 3 if selected else 0,
@@ -961,22 +886,9 @@ def build_localized_super_melee_assets(
             for index in (25, 26):
                 frame = frames[index]
                 selected = index == 26
-                if variant.scale == 4:
-                    image = clean_battle.copy()
-                else:
-                    image = Image.open(
-                        io.BytesIO(
-                            resolver.read_bytes(
-                                f"{variant.source_prefix}/{frame.filename}"
-                            )
-                        )
-                    ).convert("RGBA")
-                    draw = ImageDraw.Draw(image, "RGBA")
-                    draw.rectangle(
-                        _battle_label_box(variant.scale, image.size), fill=(0, 0, 0, 235)
-                    )
-                box = _battle_label_box(variant.scale, image.size)
-                label = _compact_melee_label("開戰！", variant.scale)
+                image = clean_battle.copy()
+                box = _battle_label_box(image.size)
+                label = "開戰！"
                 _draw_melee_lines(
                     image,
                     ImageDraw,
@@ -1026,7 +938,7 @@ def build_localized_super_melee_assets(
                 image = Image.new(
                     "RGBA", (matching.width, matching.height), (0, 0, 0, 0)
                 )
-                label = _compact_melee_label("連線", variant.scale)
+                label = "連線"
                 _draw_melee_lines(
                     image,
                     ImageDraw,

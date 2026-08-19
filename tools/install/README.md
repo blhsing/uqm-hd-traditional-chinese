@@ -7,7 +7,7 @@ These scripts install the extracted UQM-HD Beta 1 tree as a managed portable cop
 The installer always requires:
 
 - `SourceRoot`: extracted upstream Windows tree containing `content/addons` (normally `staging/UQM-HD`)
-- `PacksDir`: build-output directory containing exactly `zh_TW.uqm`, `hires2x-zh_TW.uqm`, and `hires4x-zh_TW.uqm`
+- `PacksDir`: build-output directory containing `hires4x-zh_TW.uqm`
 - `InstallRoot`: portable destination (default `C:\Games\UQM-HD-TW`)
 - `ProfileDir`: isolated user configuration/save directory (default `%APPDATA%\UQM-HD-zh_TW`)
 
@@ -18,7 +18,8 @@ exact length and SHA-256. The manifest maps its source executable (normally
 must also contain a non-empty `LICENSES` directory. This path does not require
 Python and never applies legacy binary patches.
 
-The v0.3.2 release runtime was built from the clean 1,043-file `game/` tree at
+The v0.4.0 release reuses the runtime first shipped in v0.3.2. It was built
+from the clean 1,043-file `game/` tree at
 source commit `7981479c611b60af041d05ec01a40791eb993f51`. Its manifest records
 20 PE32 payloads, 27 license files, and zero unresolved non-system imports:
 
@@ -79,7 +80,7 @@ upstream `uqm.exe`, and Python 3.10 or newer must be available on `PATH`. That
 fallback copies the upstream executable and applies the audited, hash-gated PE
 patch pipeline only to the destination copy.
 
-Run a validation-only rehearsal first. `-PlanOnly` reads and validates the source and all three pack archives, but does not create the destination, profile, marker, or shortcuts:
+Run a validation-only rehearsal first. `-PlanOnly` reads and validates the source and the self-contained 4x pack, but does not create the destination, profile, marker, or shortcuts:
 
 ```powershell
 powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\tools\install\Install-UqmHdZhTw.ps1 `
@@ -102,21 +103,21 @@ powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\tools\install\Install-
   -ProfileDir "$env:APPDATA\UQM-HD-zh_TW"
 ```
 
-The default Desktop and Start Menu shortcut is named `The Ur-Quan Masters HD - Traditional Chinese.lnk` and launches:
+The default Desktop and Start Menu shortcut is named `The Ur-Quan Masters HD - Traditional Chinese.lnk` and launches at the primary display's detected native resolution. On this host it is:
 
 ```text
 uqm.exe -o -r 1920x1080 -f -k -c none --resfactor=2 -C "%APPDATA%\UQM-HD-zh_TW" --addon hires4x-zh_TW
 ```
 
-This is the legible 4x profile for this host. The engine's logical canvas remains
+This is the legible 4x profile for this host. The installer detects the native
+surface instead of assuming 1920x1080. The engine's logical canvas remains
 4:3 (1280x960); OpenGL scales it to 1440x1080 and centers it on the 1920x1080
 display with pillarboxes. Nearest-neighbor scaling (`-c none`) keeps the Chinese
 bitmap glyphs crisp.
 
-Three local shortcuts in the install root provide native-size windowed variants:
-1x at 320x240 (`zh_TW`), 2x at 640x480 (`hires2x-zh_TW`), and 4x at 1280x960
-(`hires4x-zh_TW`). The 1x mode is retained for compatibility; its 8-9-pixel
-font cells cannot represent dense Traditional Chinese as clearly as the 4x mode.
+One local shortcut in the install root provides a native-size 1280x960 windowed
+4x mode. The installer removes its own obsolete 1x/2x packs and shortcuts during
+an upgrade; those tiers are no longer supported by the Traditional-Chinese build.
 
 During an active Super Melee bout, `Escape` ends that bout by clearing only the
 `IN_BATTLE` state and returns to the Super Melee setup screen. This behavior is
@@ -151,13 +152,14 @@ dialogue, menus, and localized add-on data remain Traditional Chinese.
 ## Verification
 
 The default verification is intentionally thorough: it checks every managed
-file's length and SHA-256 against the install manifest, validates all three
+file's length and SHA-256 against the install manifest, validates the 4x
 ZIP-compatible UQM archives, compares packs with the build output when it is
 available, independently checks all shortcut targets/arguments/working
 directories, and runs a hidden 12-second 4x fullscreen smoke test. The smoke
-log must confirm the `hires4x-zh_TW` add-on and a 1920x1080 rendering surface.
-The finalized v0.3.2 installation contains 11,534 managed files and passes all
-17 verifier checks; the repository's automated suite passes all 59 tests.
+log must confirm the `hires4x-zh_TW` add-on and the primary display's detected
+native rendering surface. The finalized v0.4.0 installation contains 11,532
+managed files and passes all 13 verifier checks; the repository's automated
+suite passes all 60 tests.
 
 ```powershell
 powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\tools\install\Test-UqmHdZhTwInstall.ps1 `
