@@ -19,7 +19,7 @@ PACKS = {
     ),
 }
 
-DEFAULT_VERSION = "0.5.1"
+DEFAULT_VERSION = "0.5.2"
 VERSION_PATTERN = re.compile(r"[0-9A-Za-z][0-9A-Za-z._+\-]{0,127}\Z")
 
 SOURCE_FILES = (

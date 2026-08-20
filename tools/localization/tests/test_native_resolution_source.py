@@ -25,6 +25,35 @@ class NativeResolutionSourceTests(unittest.TestCase):
         self.assertIn("texture_height = 256 << resolutionFactor", opengl)
         self.assertIn("GL_MAX_TEXTURE_SIZE", opengl)
 
+    def test_native_combat_world_fits_legacy_coordinate_storage(self) -> None:
+        units = self.read("game/src/uqm/units.h")
+        self.assertIn(
+            "#define WORLD_RESOLUTION_FACTOR (RESOLUTION_FACTOR > 2 ? 2 : RESOLUTION_FACTOR)",
+            units,
+        )
+        self.assertIn(
+            "#define ONE_SHIFT (RESOLUTION_FACTOR > 2 ? 1 : 2)", units
+        )
+        self.assertIn("__builtin_choose_expr (__builtin_constant_p (x)", units)
+        self.assertIn("16 << WORLD_RESOLUTION_FACTOR", units)
+
+        screen_width = 2560
+        screen_height = 1920
+        status_width = 64 * 3 * 2
+        one_shift = 1
+        space_width = screen_width - status_width
+        transition_width = (space_width << one_shift) << 2
+        transition_height = (screen_height << one_shift) << 2
+        logical_width = (space_width << one_shift) << 3
+        logical_height = (screen_height << one_shift) << 3
+
+        self.assertEqual((transition_width, transition_height), (17408, 15360))
+        self.assertEqual((logical_width, logical_height), (34816, 30720))
+        self.assertLess(transition_width, 1 << 15)
+        self.assertLess(transition_height, 1 << 15)
+        self.assertLess(logical_width, 1 << 16)
+        self.assertLess(logical_height, 1 << 16)
+
     def test_stock_truecolor_frames_are_converted_then_resampled(self) -> None:
         loader = self.read("game/src/libs/graphics/gfxload.c")
         canvas = self.read("game/src/libs/graphics/sdl/canvas.c")
@@ -44,4 +73,3 @@ class NativeResolutionSourceTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
-

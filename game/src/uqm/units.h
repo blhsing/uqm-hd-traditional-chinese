@@ -31,6 +31,7 @@ extern unsigned int resolutionFactor; // JMS_GFX
 #define SCREEN_WIDTH ScreenWidth
 #define SCREEN_HEIGHT ScreenHeight
 #define RESOLUTION_FACTOR resolutionFactor														// JMS_GFX
+#define WORLD_RESOLUTION_FACTOR (RESOLUTION_FACTOR > 2 ? 2 : RESOLUTION_FACTOR)
 #define RES_NATIVE_SCALE(a) ((a) << (RESOLUTION_FACTOR - 2))
 #define RES_CASE(a,b,c) (RESOLUTION_FACTOR == 0 ? (a) : (RESOLUTION_FACTOR == 1 ? (b) : RES_NATIVE_SCALE (c)))	// JMS_GFX
 #define RES_STAT_SCALE(a) (RESOLUTION_FACTOR < 2 ? ((a) << RESOLUTION_FACTOR) : RES_NATIVE_SCALE ((a) * 3))		// JMS_GFX
@@ -94,10 +95,25 @@ extern unsigned int resolutionFactor; // JMS_GFX
 #define ZOOM_SHIFT 8
 #define MAX_ZOOM_OUT (1 << (ZOOM_SHIFT + MAX_REDUCTION - 1))
 
-#define ONE_SHIFT 2
+/*
+ * Combat positions are stored in 16-bit coordinates.  The native 8x canvas
+ * therefore cannot retain the old four world sub-units per display pixel:
+ * LOG_SPACE_WIDTH would be 69632 and overflow.  Two sub-units per pixel keep
+ * the same world extents as the proven 4x mode while preserving 8x rendering.
+ */
+#define ONE_SHIFT (RESOLUTION_FACTOR > 2 ? 1 : 2)
 #define BACKGROUND_SHIFT 3
 #define SCALED_ONE (1 << ONE_SHIFT)
-#define DISPLAY_TO_WORLD(x) ((x)<<ONE_SHIFT)
+/*
+ * Literal conversions initialize the pre-scaled 1x/2x/4x ship templates and
+ * must remain compile-time constants.  Native mode reuses the 4x templates,
+ * while display-sized runtime values use the reduced native shift above.
+ */
+#if defined(__GNUC__) || defined(__clang__)
+#define DISPLAY_TO_WORLD(x) __builtin_choose_expr (__builtin_constant_p (x), ((x) << 2), ((x) << ONE_SHIFT))
+#else
+#define DISPLAY_TO_WORLD(x) ((x) << 2)
+#endif
 #define WORLD_TO_DISPLAY(x) ((x)>>ONE_SHIFT)
 #define DISPLAY_ALIGN(x) ((COORD)(x)&~(SCALED_ONE-1))
 #define DISPLAY_ALIGN_X(x) ((COORD)((COUNT)(x)%LOG_SPACE_WIDTH)&~(SCALED_ONE-1))
@@ -135,8 +151,8 @@ UNIVERSE_TO_LOGY (MAX_Y_UNIVERSE + 1) : UNIVERSE_TO_LOGY (-1)) - 1L)
 //   on the screen resolution when it should not.
 //   Using the new math will break old savegames.
 #ifdef NORMALIZED_HYPERSPACE_SPEED
-#define LOG_UNITS_X      ((SDWORD)(UNIVERSE_UNITS_X * (16 << RESOLUTION_FACTOR))) // JMS_GFX
-#define LOG_UNITS_Y      ((SDWORD)(UNIVERSE_UNITS_Y * (16 << RESOLUTION_FACTOR))) // JMS_GFX 
+#define LOG_UNITS_X      ((SDWORD)(UNIVERSE_UNITS_X * (16 << WORLD_RESOLUTION_FACTOR))) // JMS_GFX
+#define LOG_UNITS_Y      ((SDWORD)(UNIVERSE_UNITS_Y * (16 << WORLD_RESOLUTION_FACTOR))) // JMS_GFX 
 #define UNIVERSE_UNITS_X (((MAX_X_UNIVERSE + 1) >> 4))
 #define UNIVERSE_UNITS_Y (((MAX_Y_UNIVERSE + 1) >> 4))
 #else
