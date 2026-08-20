@@ -26,11 +26,13 @@
 - 修正 HD Beta 1 開始新遊戲後可能停在黑畫面的資源封裝問題。
 - 本機超級對戰中按 `Esc` 可結束目前一局並返回隊伍設定；玩家的特殊能力鍵不會誤觸此功能。
 - 玩家一的特殊能力除了右 `Shift` 與數字鍵盤 `0`，亦可使用右 `Alt`；原有按鍵仍然保留。
-- 主選單、超級對戰隊伍設定、船艦編組與開戰前選船均支援滑鼠；游標停在船艦上會更新目前船艦資料。移動滑鼠會顯示游標，按鍵或按下滑鼠鍵會隱藏游標。
+- 主選單、超級對戰隊伍設定、船艦編組與開戰前選船均支援滑鼠；游標停在船艦上會更新目前船艦資料。移動或點擊滑鼠會保留游標原位，鍵盤輸入才會隱藏游標，避免獨佔全螢幕驅動在點擊後把游標重設到畫面中央。
 - 超級對戰開戰前的選船畫面會顯示目前船艦的船員、能量、費用、極速、加速、轉向、回能與動作消耗；`Esc` 與紅色 `X` 共用確認返回流程。
+- `PrtScr` 會直接擷取 OpenGL 完整畫面、複製到 Windows 剪貼簿，並另存 BMP 至
+  `%APPDATA%\UQM-HD-zh_TW\screenshots`；獨佔全螢幕模式也可使用。
 - 發行版只提供原生 1080p 超取樣模式，不再提供 1x、2x 或 4x 選項；安裝器會在
-  開始選單最上層加入名稱明確標示 `Fullscreen` 的捷徑，並以主螢幕 1920×1080
-  全螢幕啟動。
+  開始選單最上層加入 `The Ur-Quan Masters HD - Traditional Chinese` 捷徑，並以
+  主螢幕 1920×1080 全螢幕啟動。
 
 <p align="center">
   <img src="localization/qa/native1080-main-menu.png" width="760" alt="原生 1080p 繁體中文介面實機畫面">
@@ -56,12 +58,12 @@
 
 大型 `.uqm` 套件與 Windows 執行環境不放入 Git 歷史；請前往
 [GitHub Releases](https://github.com/blhsing/uqm-hd-traditional-chinese/releases/latest)。
-v0.5.0 壓縮檔包含單一自足的原生 1080p 繁中套件、管理式安裝器、驗證工具、
+v0.5.1 壓縮檔包含單一自足的原生 1080p 繁中套件、管理式安裝器、驗證工具、
 `runtime/windows-x86`（EXE、DLL、manifest 與授權文件），但**不包含原版遊戲的
 `content`／音樂／語音／圖像**；安裝時仍須提供合法取得的 UQM-HD Beta 1 內容。
 
-完整發行壓縮檔 `uqm-hd-zh-tw-v0.5.0.zip` 為 202,574,206 位元組，
-SHA-256 為 `34dd40559175a3d9c1031c1a8d1d23b333f6e4b1b9a5fd88839f9be76c919a19`。
+完整發行壓縮檔 `uqm-hd-zh-tw-v0.5.1.zip` 為 202,580,903 位元組，
+SHA-256 為 `f2d469647c8a0be3dca73dbc7df9bec36dfb37245d1647e8ea7da2f6dbfc41c7`。
 
 本版本只需安裝一個套件；1x、2x 與 4x 繁中套件均已停止支援：
 
@@ -75,11 +77,10 @@ SHA-256 為 `34dd40559175a3d9c1031c1a8d1d23b333f6e4b1b9a5fd88839f9be76c919a19`�
 
 | 檔案 | 位元組 | SHA-256 |
 |---|---:|---|
-| `runtime/windows-x86/uqm-hd.exe` | 3,013,822 | `7b80cd4c741371b98776784e91a0971920e28382443a459174d88cbf69596c5c` |
-| `runtime/windows-x86/runtime-manifest.json` | 27,388 | `737c044b8b4d82f5a563833e9152b027792e06145eb58804ed2bc9f3cc18dcac` |
+| `runtime/windows-x86/uqm-hd.exe` | 3,019,908 | `338ab670c7fb6581c0c66cfc4be2a454b69ebe7a7d9126d71e66cb77da2d7f90` |
+| `runtime/windows-x86/runtime-manifest.json` | 27,388 | `5277ee5b0bd8cf6ec7cd9c518e153397bd12ee7dafe2b4fbd9762ddca687f88a` |
 
-執行檔來自 commit `bf0202bb9e10d876b504169030a783cf8f2ea9e8` 的乾淨
-1,043 檔案 `game/` 樹。舊版官方 EXE 的四階段雜湊鎖定
+執行檔來自 commit `6269bfd` 的乾淨 1,045 檔案 `game/` 樹。舊版官方 EXE 的四階段雜湊鎖定
 PE 修補器仍保留作相容性備援；它會驗證完整輸入雜湊、唯一指令特徵、固定檔案位移及
 PE checksum，遇到未知版本即拒絕修改。
 
@@ -178,6 +179,7 @@ uqm.exe -o -r 1920x1080 -f -k -c bilinear --resfactor=3 `
 | 選單 | 取消／指令選單 | `Space`、右 `Shift`、`Esc`、數字鍵盤 `0` |
 | 系統 | 暫停 | `Pause` 或 `F1` |
 | 系統 | 切換全螢幕 | `F11` |
+| 系統 | 擷取全螢幕至剪貼簿及 BMP | `PrtScr` |
 | 航行／戰鬥 | 推進 | `↑` 或數字鍵盤 `8` |
 | 航行／戰鬥 | 左／右轉 | `←`／`→` 或數字鍵盤 `4`／`6` |
 | 戰鬥 | 主要武器 | 右 `Ctrl` 或 `Enter` |
@@ -783,13 +785,13 @@ powershell.exe -NoProfile -ExecutionPolicy Bypass `
   -SmokeTimeoutSeconds 12
 ```
 
-v0.5.0 本機驗收涵蓋 Python 回歸測試及 Windows PowerShell 5.1 驗證器，包括
+v0.5.1 本機驗收涵蓋 Python 回歸測試及 Windows PowerShell 5.1 驗證器，包括
 管理檔案的長度及 SHA-256、單一自足原生 1080p UQM 套件、兩個全螢幕捷徑、
 自訂 runtime manifest、未列入 manifest 的 EXE／DLL、玩家一右 `Alt` 綁定，以及
 12 秒 1920×1080 超取樣全螢幕煙霧測試。實機超級對戰流程另確認繁中隊伍設定、
 較輕的 `船員／能量` 狀態字、船艦資料卡、`Esc` 返回確認及右 `Alt` 特殊能力；
 選船／資料按鈕與資料頁滑鼠返回另由來源與資產回歸測試覆蓋。
-完整發行紀錄見 [v0.5.0 發行說明](docs/releases/v0.5.0.md)。
+完整發行紀錄見 [v0.5.1 發行說明](docs/releases/v0.5.1.md)。
 
 ## 專案結構
 

@@ -18,15 +18,15 @@ exact length and SHA-256. The manifest maps its source executable (normally
 must also contain a non-empty `LICENSES` directory. This path does not require
 Python and never applies legacy binary patches.
 
-The v0.5.0 runtime is built from this repository's clean `game/` tree. Its
+The v0.5.1 runtime is built from this repository's clean `game/` tree. Its
 manifest records every PE32 payload and license file, the complete import graph,
 and zero unresolved non-system imports. Exact release hashes are published in
-the archive's `SHA256SUMS` file and in the v0.5.0 release notes.
+the archive's `SHA256SUMS` file and in the v0.5.1 release notes.
 
 | Artifact | Bytes | SHA-256 |
 | --- | ---: | --- |
-| `uqm-hd.exe` | 3,013,822 | `7b80cd4c741371b98776784e91a0971920e28382443a459174d88cbf69596c5c` |
-| `runtime-manifest.json` | 27,388 | `737c044b8b4d82f5a563833e9152b027792e06145eb58804ed2bc9f3cc18dcac` |
+| `uqm-hd.exe` | 3,019,908 | `338ab670c7fb6581c0c66cfc4be2a454b69ebe7a7d9126d71e66cb77da2d7f90` |
+| `runtime-manifest.json` | 27,388 | `5277ee5b0bd8cf6ec7cd9c518e153397bd12ee7dafe2b4fbd9762ddca687f88a` |
 
 The release archive includes this GPL source-built runtime and its dependency
 licenses, but not the upstream game's original content. `SourceRoot` must
@@ -104,7 +104,7 @@ powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\tools\install\Install-
 ```
 
 The installer creates a top-level Start Menu shortcut named
-`The Ur-Quan Masters HD - Traditional Chinese (Fullscreen).lnk`. It launches
+`The Ur-Quan Masters HD - Traditional Chinese.lnk`. It launches
 at the primary display's detected native resolution. On this host it is:
 
 ```text
@@ -131,6 +131,13 @@ generation/debounce state is created and consumed only in that ship-info mode,
 so a click cannot leak into the picker or another UI. Player 1's special ability
 keeps its Right Shift and keypad `0` bindings and gains RightAlt as a hidden
 third binding in the isolated profile.
+
+Mouse clicks keep the hardware cursor at the clicked position; keyboard input
+still hides it until the mouse moves. This avoids SDL/Windows restoring a
+hidden fullscreen cursor at the display center. `Print Screen` captures the
+OpenGL back buffer even in exclusive fullscreen, copies a DIB to the Windows
+clipboard, and saves a timestamped BMP below
+`%APPDATA%\UQM-HD-zh_TW\screenshots`.
 
 With `RuntimeDir`, every runtime payload file is re-hashed both during preflight
 and immediately before its atomic copy, and the managed-install marker records

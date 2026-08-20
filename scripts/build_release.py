@@ -89,7 +89,8 @@ INSTALL_TEXT = """UQM-HD 繁體中文版 v{version} — Windows 安裝說明
 4. 從開始選單開啟
    "The Ur-Quan Masters HD - Traditional Chinese"；預設以
    2560x1920 超取樣畫布、雙線性縮放及主螢幕原生解析度全螢幕啟動。
-   F11 可切換全螢幕。
+   F11 可切換全螢幕；PrtScr 會複製畫面至剪貼簿，並另存 BMP 至
+   %APPDATA%/UQM-HD-zh_TW/screenshots。
 
 安裝器只讀取 SourceRoot，另建受管理的目的地副本。它會驗證單一原生 1080p 套件。
 {runtime_behavior}
