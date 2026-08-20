@@ -18,15 +18,15 @@ exact length and SHA-256. The manifest maps its source executable (normally
 must also contain a non-empty `LICENSES` directory. This path does not require
 Python and never applies legacy binary patches.
 
-The v0.5.1 runtime is built from this repository's clean `game/` tree. Its
+The v0.5.2 runtime is built from this repository's clean `game/` tree. Its
 manifest records every PE32 payload and license file, the complete import graph,
 and zero unresolved non-system imports. Exact release hashes are published in
-the archive's `SHA256SUMS` file and in the v0.5.1 release notes.
+the archive's `SHA256SUMS` file and in the v0.5.2 release notes.
 
 | Artifact | Bytes | SHA-256 |
 | --- | ---: | --- |
-| `uqm-hd.exe` | 3,019,908 | `338ab670c7fb6581c0c66cfc4be2a454b69ebe7a7d9126d71e66cb77da2d7f90` |
-| `runtime-manifest.json` | 27,388 | `5277ee5b0bd8cf6ec7cd9c518e153397bd12ee7dafe2b4fbd9762ddca687f88a` |
+| `uqm-hd.exe` | 3,029,698 | `3532b966002ea9a2db127e0f8d352b63495f1adbc0591f15347c3cc1f3862530` |
+| `runtime-manifest.json` | 27,388 | `1caa7174bc0eb5b8e396b9af45f0ccc1506f923ad58743e6011c512fa051dde1` |
 
 The release archive includes this GPL source-built runtime and its dependency
 licenses, but not the upstream game's original content. `SourceRoot` must
