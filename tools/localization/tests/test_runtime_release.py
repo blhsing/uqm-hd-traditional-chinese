@@ -18,8 +18,8 @@ def _sha256(data: bytes) -> str:
 
 
 class RuntimeReleaseTests(unittest.TestCase):
-    def test_release_metadata_matches_v052_payloads(self) -> None:
-        self.assertEqual(release.DEFAULT_VERSION, "0.5.2")
+    def test_release_metadata_matches_v053_payloads(self) -> None:
+        self.assertEqual(release.DEFAULT_VERSION, "0.5.3")
         self.assertEqual(
             release.PACKS,
             {
@@ -64,6 +64,7 @@ class RuntimeReleaseTests(unittest.TestCase):
                 "tools/install/patch_uqm_hd_super_melee_picker_escape.py",
                 "tools/install/update_uqm_hd_escape_patch.py",
                 "tools/install/update_uqm_hd_super_melee_picker_escape.py",
+                "game/build/win32_install/icon.ico",
             }.issubset(release.SOURCE_FILES)
         )
 

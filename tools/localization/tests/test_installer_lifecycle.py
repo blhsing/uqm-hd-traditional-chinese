@@ -41,7 +41,7 @@ def _run_powershell(script: str, *, prefer_windows_51: bool = False) -> str:
 
 
 class InstallerLifecycleTests(unittest.TestCase):
-    def test_shortcuts_use_the_executables_embedded_icon(self) -> None:
+    def test_shortcuts_use_the_installed_multisize_icon(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
             install = root / "install"
@@ -49,15 +49,16 @@ class InstallerLifecycleTests(unittest.TestCase):
             install.mkdir()
             profile.mkdir()
             (install / "uqm.exe").write_bytes(b"not-a-real-executable")
+            (install / "uqm-hd-zh-tw.ico").write_bytes(b"not-a-real-icon")
             shortcut = root / "test.lnk"
             script = f"""
 . '{_quote(COMMON)}'
 $specifications = @(Get-UqmShortcutSpecifications `
   -InstallRoot '{_quote(install)}' -ProfileDir '{_quote(profile)}')
-$expectedIcon = (Get-UqmFullPath -Path '{_quote(install / "uqm.exe")}') + ',0'
+$expectedIcon = (Get-UqmFullPath -Path '{_quote(install / "uqm-hd-zh-tw.ico")}') + ',0'
 if (@($specifications | Where-Object {{
   -not [string]::Equals($_.IconLocation, $expectedIcon, [StringComparison]::OrdinalIgnoreCase)
-}}).Count -ne 0) {{ throw 'A shortcut specification does not use the executable icon.' }}
+}}).Count -ne 0) {{ throw 'A shortcut specification does not use the installed icon.' }}
 $specification = $specifications[0]
 $startMenu = @($specifications | Where-Object {{ $_.Kind -eq 'start-menu-fullscreen' }})
 if ($startMenu.Count -ne 1) {{ throw 'Expected one explicit Start Menu fullscreen shortcut.' }}
@@ -80,7 +81,7 @@ $actual = Get-UqmShortcutDetails -Path '{_quote(shortcut)}'
         self.assertEqual(result["Count"], 2)
         self.assertEqual(
             result["IconLocation"].lower(),
-            f"{install / 'uqm.exe'},0".lower(),
+            f"{install / 'uqm-hd-zh-tw.ico'},0".lower(),
         )
         self.assertTrue(result["Matches"])
         self.assertEqual(

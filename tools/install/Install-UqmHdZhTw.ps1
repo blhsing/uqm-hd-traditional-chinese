@@ -529,6 +529,9 @@ foreach ($packName in $script:UqmPackNames) {
     }
 }
 
+$shortcutIconSource = Get-UqmFullPath -Path (Join-Path -Path $PSScriptRoot `
+    -ChildPath '..\..\game\build\win32_install\icon.ico') -MustExist
+
 $previousMarker = $null
 $pendingMarker = $null
 if (Test-Path -LiteralPath $install) {
@@ -567,6 +570,12 @@ foreach ($packName in $script:UqmPackNames) {
         SourcePath = $packFiles[$packName].Path
         Kind = 'zh-tw-pack'
     }
+}
+
+$copyPlan['uqm-hd-zh-tw.ico'] = [pscustomobject]@{
+    RelativePath = 'uqm-hd-zh-tw.ico'
+    SourcePath = $shortcutIconSource
+    Kind = 'shortcut-icon'
 }
 
 if ($null -ne $customRuntime) {

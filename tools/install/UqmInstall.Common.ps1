@@ -351,6 +351,7 @@ function Get-UqmShortcutSpecifications {
     $install = Get-UqmFullPath -Path $InstallRoot
     $profile = Get-UqmFullPath -Path $ProfileDir
     $exe = Join-UqmContainedPath -Root $install -RelativePath 'uqm.exe'
+    $icon = Join-UqmContainedPath -Root $install -RelativePath 'uqm-hd-zh-tw.ico'
     $desktop = Get-UqmFullPath -Path ([Environment]::GetFolderPath([Environment+SpecialFolder]::DesktopDirectory))
     $programs = Get-UqmFullPath -Path ([Environment]::GetFolderPath([Environment+SpecialFolder]::Programs))
     if ([string]::IsNullOrWhiteSpace($desktop) -or [string]::IsNullOrWhiteSpace($programs)) {
@@ -369,7 +370,7 @@ function Get-UqmShortcutSpecifications {
             Kind = 'desktop-default'
             Path = Join-Path -Path $desktop -ChildPath $desktopLeaf
             Target = $exe
-            IconLocation = $exe + ',0'
+            IconLocation = $icon + ',0'
             Arguments = Get-UqmLaunchArguments -ResolutionFactor 3 -Addon 'native1080-zh_TW' -ProfileDir $profile -Fullscreen
             WorkingDirectory = $install
             ResolutionFactor = 3
@@ -380,7 +381,7 @@ function Get-UqmShortcutSpecifications {
             Kind = 'start-menu-fullscreen'
             Path = Join-Path -Path $programs -ChildPath $startLeaf
             Target = $exe
-            IconLocation = $exe + ',0'
+            IconLocation = $icon + ',0'
             Arguments = Get-UqmLaunchArguments -ResolutionFactor 3 -Addon 'native1080-zh_TW' -ProfileDir $profile -Fullscreen
             WorkingDirectory = $install
             ResolutionFactor = 3

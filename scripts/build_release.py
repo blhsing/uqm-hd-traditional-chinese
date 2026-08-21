@@ -19,7 +19,7 @@ PACKS = {
     ),
 }
 
-DEFAULT_VERSION = "0.5.2"
+DEFAULT_VERSION = "0.5.3"
 VERSION_PATTERN = re.compile(r"[0-9A-Za-z][0-9A-Za-z._+\-]{0,127}\Z")
 
 SOURCE_FILES = (
@@ -37,6 +37,7 @@ SOURCE_FILES = (
     "tools/install/update_uqm_hd_escape_patch.py",
     "tools/install/update_uqm_hd_super_melee_picker_escape.py",
     "tools/install/README.md",
+    "game/build/win32_install/icon.ico",
 )
 
 RUNTIME_MANIFEST_NAME = "runtime-manifest.json"
