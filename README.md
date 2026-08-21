@@ -58,12 +58,12 @@
 
 大型 `.uqm` 套件與 Windows 執行環境不放入 Git 歷史；請前往
 [GitHub Releases](https://github.com/blhsing/uqm-hd-traditional-chinese/releases/latest)。
-v0.5.2 壓縮檔包含單一自足的原生 1080p 繁中套件、管理式安裝器、驗證工具、
+v0.5.3 壓縮檔包含單一自足的原生 1080p 繁中套件、管理式安裝器、驗證工具、
 `runtime/windows-x86`（EXE、DLL、manifest 與授權文件），但**不包含原版遊戲的
 `content`／音樂／語音／圖像**；安裝時仍須提供合法取得的 UQM-HD Beta 1 內容。
 
-完整發行壓縮檔 `uqm-hd-zh-tw-v0.5.2.zip` 為 202,590,617 位元組，
-SHA-256 為 `9a0a0c96856f7d6b37891b4552aaa8c59d74319f2785c3f69743760929547900`。
+完整發行壓縮檔 `uqm-hd-zh-tw-v0.5.3.zip` 為 202,654,522 位元組，
+SHA-256 為 `9b9e009c624dac406d84649ca5d282167e3c227ce311210c9345d8971046a64c`。
 
 本版本只需安裝一個套件；1x、2x 與 4x 繁中套件均已停止支援：
 
@@ -79,6 +79,13 @@ SHA-256 為 `9a0a0c96856f7d6b37891b4552aaa8c59d74319f2785c3f69743760929547900`�
 |---|---:|---|
 | `runtime/windows-x86/uqm-hd.exe` | 3,029,698 | `3532b966002ea9a2db127e0f8d352b63495f1adbc0591f15347c3cc1f3862530` |
 | `runtime/windows-x86/runtime-manifest.json` | 27,388 | `1caa7174bc0eb5b8e396b9af45f0ccc1506f923ad58743e6011c512fa051dde1` |
+
+安裝器另會安裝專用的多解析度 Windows 捷徑圖示，避免「開始」功能表依賴舊 SDL
+執行檔內嵌資源而顯示空白文件圖示：
+
+| 檔案 | 位元組 | SHA-256 |
+|---|---:|---|
+| `uqm-hd-zh-tw.ico` | 63,270 | `98333649d53f156d73afefe92c9582ad0ff32df8c84937e524aa1e1868f888ef` |
 
 執行檔來自 commit `09a6fe4` 的乾淨 1,045 檔案 `game/` 樹。舊版官方 EXE 的四階段雜湊鎖定
 PE 修補器仍保留作相容性備援；它會驗證完整輸入雜湊、唯一指令特徵、固定檔案位移及
@@ -785,14 +792,15 @@ powershell.exe -NoProfile -ExecutionPolicy Bypass `
   -SmokeTimeoutSeconds 12
 ```
 
-v0.5.2 本機驗收涵蓋 67 項 Python 回歸測試及 Windows PowerShell 5.1 驗證器，包括
+v0.5.3 本機驗收涵蓋 67 項 Python 回歸測試及 Windows PowerShell 5.1 驗證器，包括
 管理檔案的長度及 SHA-256、單一自足原生 1080p UQM 套件、兩個全螢幕捷徑、
 自訂 runtime manifest、未列入 manifest 的 EXE／DLL、玩家一右 `Alt` 綁定，以及
 12 秒 1920×1080 超取樣全螢幕煙霧測試。實機超級對戰流程另確認繁中隊伍設定、
 較輕的 `船員／能量` 狀態字、船艦資料卡、`Esc` 返回確認及右 `Alt` 特殊能力；
 選船／資料按鈕與資料頁滑鼠返回另由來源與資產回歸測試覆蓋。本版也在實際戰鬥中
-確認雙方船艦正常顯示，並由日誌核對安全的 `17408 × 15360` 戰鬥轉場範圍。
-完整發行紀錄見 [v0.5.2 發行說明](docs/releases/v0.5.2.md)。
+確認雙方船艦正常顯示，並由日誌核對安全的 `17408 × 15360` 戰鬥轉場範圍；
+Windows Shell 另確認「開始」功能表捷徑可解析為非空白的 32×32 圖示。
+完整發行紀錄見 [v0.5.3 發行說明](docs/releases/v0.5.3.md)。
 
 ## 專案結構
 

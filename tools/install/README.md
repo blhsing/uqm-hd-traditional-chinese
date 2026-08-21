@@ -18,10 +18,11 @@ exact length and SHA-256. The manifest maps its source executable (normally
 must also contain a non-empty `LICENSES` directory. This path does not require
 Python and never applies legacy binary patches.
 
-The v0.5.2 runtime is built from this repository's clean `game/` tree. Its
+The v0.5.3 release reuses the clean Windows x86 runtime introduced in v0.5.2.
+It is built from this repository's clean `game/` tree, and its
 manifest records every PE32 payload and license file, the complete import graph,
 and zero unresolved non-system imports. Exact release hashes are published in
-the archive's `SHA256SUMS` file and in the v0.5.2 release notes.
+the archive's `SHA256SUMS` file and in the v0.5.3 release notes.
 
 | Artifact | Bytes | SHA-256 |
 | --- | ---: | --- |
