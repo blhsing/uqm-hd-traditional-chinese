@@ -22,7 +22,7 @@ jobs:
     env:
       GH_TOKEN: ${{ github.token }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - name: Download unchanged payloads from the previous release
         shell: bash
@@ -46,6 +46,7 @@ jobs:
             --output "dist/uqm-hd-zh-tw-v${{ inputs.version }}.zip" \
             --version "${{ inputs.version }}" \
             --force
+          wc -c "dist/uqm-hd-zh-tw-v${{ inputs.version }}.zip"
           echo "${{ inputs.expected_sha256 }}  dist/uqm-hd-zh-tw-v${{ inputs.version }}.zip" \
             | sha256sum --check --strict
 
