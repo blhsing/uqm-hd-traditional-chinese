@@ -1,0 +1,60 @@
+name: Build release from previous payloads
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: New version without the v prefix
+        required: true
+      base_version:
+        description: Previous release version supplying the unchanged pack and runtime
+        required: true
+      expected_sha256:
+        description: Expected SHA-256 of the deterministic release ZIP
+        required: true
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download unchanged payloads from the previous release
+        shell: bash
+        run: |
+          mkdir -p previous
+          gh release download "v${{ inputs.base_version }}" \
+            --pattern "uqm-hd-zh-tw-v${{ inputs.base_version }}.zip" \
+            --dir previous
+          python -m zipfile -e \
+            "previous/uqm-hd-zh-tw-v${{ inputs.base_version }}.zip" \
+            previous/extracted
+
+      - name: Build and verify the deterministic release archive
+        shell: bash
+        run: |
+          base_root="previous/extracted/uqm-hd-zh-tw-v${{ inputs.base_version }}"
+          mkdir -p dist
+          python scripts/build_release.py \
+            --packs-dir "$base_root" \
+            --runtime-dir "$base_root/runtime/windows-x86" \
+            --output "dist/uqm-hd-zh-tw-v${{ inputs.version }}.zip" \
+            --version "${{ inputs.version }}" \
+            --force
+          echo "${{ inputs.expected_sha256 }}  dist/uqm-hd-zh-tw-v${{ inputs.version }}.zip" \
+            | sha256sum --check --strict
+
+      - name: Publish release
+        shell: bash
+        run: |
+          gh release create "v${{ inputs.version }}" \
+            "dist/uqm-hd-zh-tw-v${{ inputs.version }}.zip" \
+            --title "v${{ inputs.version }}" \
+            --notes-file "docs/releases/v${{ inputs.version }}.md" \
+            --latest \
+            --verify-tag
